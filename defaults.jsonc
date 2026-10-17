@@ -1,0 +1,251 @@
+// ownvim — все настройки по умолчанию. Этот файл не правь: поменять что-то — напиши это в settings.jsonc
+// (пробел f c или :Settings). Там достаточно только изменённого — остальное берётся отсюда.
+// Сохранил settings.jsonc — тема, опции, клавиши и настройки модулей применились сразу;
+// включить/выключить модуль или плагин — после :restart.
+{
+  // Тема: "auto" — выбранная в alt-s (по умолчанию tokyonight), или имя: "rose-pine" (в цветах терминала),
+  // "kanagawa", "kanagawa-dragon", "carbonfox", "cyberdream", "vesper", "gruvbox-material", "catppuccin-mocha"…
+  "theme": "auto",
+
+  // Переменные vim.g
+  "globals": {
+    "mapleader": " ",
+    "maplocalleader": "\\",
+  },
+
+  // Опции nvim (:help options) — как в LazyVim, плюс свои: обычные номера строк, 8 строк вокруг курсора,
+  // скруглённые рамки у всплывающих окон
+  "options": {
+    "clipboard": "unnamedplus", // общий буфер обмена с macOS
+    "completeopt": "menu,menuone,noselect",
+    "conceallevel": 2,
+    "confirm": true, // спросить про несохранённое вместо ошибки
+    "cursorline": true,
+    "expandtab": true,
+    "fillchars": { "foldopen": "\uf47c", "foldclose": "\uf460", "fold": " ", "foldsep": " ", "diff": "╱", "eob": " " },
+    "foldlevel": 99,
+    "foldmethod": "indent",
+    "foldtext": "",
+    "formatoptions": "jcroqlnt",
+    "grepformat": "%f:%l:%c:%m",
+    "grepprg": "rg --vimgrep",
+    "ignorecase": true,
+    "smartcase": true,
+    "inccommand": "nosplit",
+    "jumpoptions": "view",
+    "laststatus": 3, // одна статусная строка на всё окно
+    "linebreak": true,
+    "list": true,
+    "mouse": "a",
+    "number": true,
+    "relativenumber": false, // спокойный экран; пробел u L — включить
+    "pumblend": 10,
+    "pumheight": 10,
+    "ruler": false,
+    "scrolloff": 8,
+    "sidescrolloff": 8,
+    "shiftround": true,
+    "shiftwidth": 2,
+    "tabstop": 2,
+    "showmode": false, // режим и так в статусной строке
+    "signcolumn": "yes",
+    "smartindent": true,
+    "smoothscroll": true,
+    "spelllang": "en,ru",
+    "splitbelow": true,
+    "splitright": true,
+    "splitkeep": "screen",
+    "termguicolors": true,
+    "timeoutlen": 300, // which-key появляется быстро
+    "undofile": true,
+    "undolevels": 10000,
+    "updatetime": 200,
+    "virtualedit": "block",
+    "wildmode": "longest:full,full",
+    "winminwidth": 5,
+    "wrap": false,
+    "winborder": "rounded",
+  },
+
+  // Модули: true — включён, false — выключен, объект — включён с настройками.
+  // Что внутри каждого — lua/own/modules/<имя>.lua (комментарий в начале файла).
+  "modules": {
+    "basics": true, // подсветка скопированного, курсор на прошлом месте, q закрывает служебные окна…
+    "ui": true, // стартовый экран, статусная строка, which-key, линии отступов
+    "picker": true, // поиск файлов и текста, дерево файлов
+    "treesitter": {
+      "languages": ["bash", "c", "diff", "go", "gomod", "gosum", "gowork", "html", "javascript", "json", "lua", "luadoc",
+        "markdown", "markdown_inline", "printf", "python", "query", "regex", "sql", "toml", "typescript", "vim", "vimdoc",
+        "xml", "yaml", "dockerfile", "http"],
+      "indent": true,
+      "folds": true,
+    },
+    "editing": true, // скобки, текстовые объекты, обрамление, flash, TODO
+    "themes": true, // tokyonight, rose-pine в цветах терминала и ещё семь — alt-s
+    "modes": {
+      "auto_normal_ms": 5000, // не печатаешь 5 с — выход из вставки; 0 — никогда
+    },
+    "autosave": true, // файл пишется сам, изменения снаружи подхватываются
+    "russian": {
+      "langmap": true, // команды работают в русской раскладке: о = j, вв = dd, Ж = :
+      "alt_keys": true, // alt-буквы в keys работают и в русской раскладке
+    },
+    "scrollbar": true, // полоса прокрутки с метками ошибок, git и найденного
+    "smear_cursor": false, // летающий курсор
+  },
+
+  // Свои плагины: "автор/плагин": true — поставить, false — убрать (и из модуля тоже),
+  // объект — как в lazy.nvim: { "opts": {…}, "event": "VeryLazy", "cmd": "…", "ft": "go", "keys": [["<leader>z", ":Zen<cr>"]] }
+  "plugins": {},
+
+  // Клавиши: "режимы клавиша": что делать. Режимы — буквы подряд: n обычный, i вставка, x выделение,
+  // s выбор, o после оператора, t терминал, c командная строка.
+  // Что делать: имя действия ("files" — список в пробел s k и lua/own/actions.lua), клавиши ("<C-w>h"),
+  // команда (":Lazy"), объект { "do": "gcc", "remap": true, "desc": "…" } или false — убрать.
+  "keys": {
+    // движение
+    "nx j": "down",
+    "nx k": "up",
+    "nx <Down>": "down",
+    "nx <Up>": "up",
+    "n n": "search.next",
+    "n N": "search.prev",
+    "ins <esc>": "esc",
+    "i jk": "<esc>", // выйти из вставки: быстро j и k (в русской раскладке «ол» — нет, выручает автовыход)
+
+    // окна
+    "n <C-h>": "<C-w>h",
+    "n <C-j>": "<C-w>j",
+    "n <C-k>": "<C-w>k",
+    "n <C-l>": "<C-w>l",
+    "n <C-Up>": ":resize +2",
+    "n <C-Down>": ":resize -2",
+    "n <C-Left>": ":vertical resize -2",
+    "n <C-Right>": ":vertical resize +2",
+    "n <leader>-": { "do": "<C-w>s", "desc": "Разделить вниз" },
+    "n <leader>|": { "do": "<C-w>v", "desc": "Разделить вправо" },
+    "n <leader>wd": { "do": "<C-w>c", "desc": "Закрыть окно" },
+    "n <leader>wm": "window.zoom",
+    "n <leader>uZ": "window.zoom",
+    "n <leader>uz": "zen",
+
+    // буферы
+    "n <S-h>": ":bprevious",
+    "n <S-l>": ":bnext",
+    "n [b": ":bprevious",
+    "n ]b": ":bnext",
+    "n <leader>bb": { "do": ":e #", "desc": "Предыдущий буфер" },
+    "n <leader>`": { "do": ":e #", "desc": "Предыдущий буфер" },
+    "n <leader>bd": "buffer.delete",
+    "n <leader>bo": "buffer.others",
+    "n <leader>bD": { "do": ":bd", "desc": "Закрыть буфер и окно" },
+
+    // вкладки
+    "n <leader><tab><tab>": { "do": ":tabnew", "desc": "Новая вкладка" },
+    "n <leader><tab>]": ":tabnext",
+    "n <leader><tab>[": ":tabprevious",
+    "n <leader><tab>d": { "do": ":tabclose", "desc": "Закрыть вкладку" },
+    "n <leader><tab>o": { "do": ":tabonly", "desc": "Закрыть остальные вкладки" },
+    "n <leader><tab>f": ":tabfirst",
+    "n <leader><tab>l": ":tablast",
+
+    // правка
+    "nixs <C-s>": "save",
+    "nix <D-s>": "save", // cmd-s как в Zed
+    "x <": "<gv",
+    "x >": ">gv",
+    "x J": "lines.down", // выделенные строки вниз/вверх (alt-j/k занят AeroSpace)
+    "x K": "lines.up",
+    "i ,": ",<c-g>u", // точки отмены на знаках препинания
+    "i .": ".<c-g>u",
+    "i ;": ";<c-g>u",
+    "n gco": "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>",
+    "n gcO": "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>",
+    "n <D-/>": { "do": "gcc", "remap": true, "desc": "Комментарий (cmd-/)" },
+    "x <D-/>": { "do": "gc", "remap": true, "desc": "Комментарий (cmd-/)" },
+
+    // файлы и поиск
+    "n <leader><space>": "files",
+    "n <leader>,": "buffers",
+    "n <leader>/": "grep",
+    "n <leader>:": "command.history",
+    "n <leader>n": "notifications",
+    "ni <D-p>": "files", // cmd-p как в Zed
+    "ni <D-S-p>": "commands",
+    "n <leader>ff": "files",
+    "n <leader>fF": "files.cwd",
+    "n <leader>fg": "files.git",
+    "n <leader>fr": "recent",
+    "n <leader>fR": "recent.cwd",
+    "n <leader>fp": "projects",
+    "n <leader>fb": "buffers",
+    "n <leader>fB": "buffers.all",
+    "n <leader>fc": "settings", // мои настройки
+    "n <leader>fC": "settings.defaults",
+    "n <leader>fn": { "do": ":enew", "desc": "Новый файл" },
+    "n <leader>fe": "explorer",
+    "n <leader>fE": "explorer.cwd",
+    "n <leader>e": "explorer",
+    "n <leader>E": "explorer.cwd",
+    "n <leader>sg": "grep",
+    "n <leader>sG": "grep.cwd",
+    "nx <leader>sw": "grep.word",
+    "nx <leader>sW": "grep.word.cwd",
+    "n <leader>sb": "lines",
+    "n <leader>sB": "grep.buffers",
+    "n <leader>sa": "autocmds",
+    "n <leader>sc": "command.history",
+    "n <leader>sC": "commands",
+    "n <leader>sd": "diagnostics",
+    "n <leader>sD": "diagnostics.buffer",
+    "n <leader>sh": "help",
+    "n <leader>sH": "highlights",
+    "n <leader>si": "icons",
+    "n <leader>sj": "jumps",
+    "n <leader>sk": "keymaps",
+    "n <leader>sl": "loclist",
+    "n <leader>sM": "man",
+    "n <leader>sm": "marks",
+    "n <leader>sR": "resume",
+    "n <leader>sq": "quickfix",
+    "n <leader>su": "undotree",
+
+    // ошибки и списки
+    "n <leader>cd": "diagnostic.float",
+    "n ]d": "diagnostic.next",
+    "n [d": "diagnostic.prev",
+    "n ]e": "error.next",
+    "n [e": "error.prev",
+    "n ]w": "warning.next",
+    "n [w": "warning.prev",
+    "n [q": ":cprev",
+    "n ]q": ":cnext",
+    "n <leader>xq": "quickfix.toggle",
+    "n <leader>xl": "loclist.toggle",
+
+    // переключатели
+    "n <leader>us": "toggle.spell",
+    "n <leader>uw": "toggle.wrap",
+    "n <leader>uL": "toggle.relativenumber",
+    "n <leader>ul": "toggle.number",
+    "n <leader>ud": "toggle.diagnostics",
+    "n <leader>uc": "toggle.conceal",
+    "n <leader>uT": "toggle.treesitter",
+    "n <leader>ub": "toggle.background",
+    "n <leader>uD": "toggle.dim",
+    "n <leader>ug": "toggle.indent",
+    "n <leader>uh": "toggle.inlay_hints",
+    "n <leader>ui": "inspect",
+    "n <leader>uC": "themes",
+    "n <M-s>": "themes", // alt-s — тема с предпросмотром
+
+    // терминал, плагины, выход
+    "n <leader>ft": "terminal.root",
+    "n <leader>fT": "terminal",
+    "nt <C-/>": "terminal.toggle",
+    "nt <C-_>": "terminal.toggle",
+    "n <leader>l": { "do": ":Lazy", "desc": "Плагины" },
+    "n <leader>h": "cheatsheet",
+    "n <leader>qq": { "do": ":qa", "desc": "Выйти из всего" },
+  },
+}
