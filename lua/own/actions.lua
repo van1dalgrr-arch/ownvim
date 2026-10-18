@@ -133,13 +133,39 @@ M.list = {
     "Автовыход из вставки",
   },
   inspect = { vim.show_pos, "Что за подсветка под курсором" },
+
+  -- код (языковые серверы)
+  ["lsp.definition"] = { pick("lsp_definitions"), "Перейти к определению" },
+  ["lsp.references"] = { pick("lsp_references"), "Где используется", nowait = true },
+  ["lsp.implementation"] = { pick("lsp_implementations"), "Реализации" },
+  ["lsp.type_definition"] = { pick("lsp_type_definitions"), "К определению типа" },
+  ["lsp.declaration"] = { pick("lsp_declarations"), "К объявлению" },
+  ["lsp.symbols"] = { pick("lsp_symbols"), "Символы файла" },
+  ["lsp.workspace_symbols"] = { pick("lsp_workspace_symbols"), "Символы проекта" },
+  ["lsp.incoming_calls"] = { pick("lsp_incoming_calls"), "Кто вызывает" },
+  ["lsp.outgoing_calls"] = { pick("lsp_outgoing_calls"), "Что вызывает" },
+  ["lsp.hover"] = { function() vim.lsp.buf.hover() end, "Описание под курсором" },
+  ["lsp.signature"] = { function() vim.lsp.buf.signature_help() end, "Подсказка аргументов" },
+  ["lsp.code_action"] = { function() vim.lsp.buf.code_action() end, "Исправить / действия с кодом" },
+  ["lsp.source_action"] = {
+    function() vim.lsp.buf.code_action({ context = { only = { "source" }, diagnostics = {} } }) end,
+    "Действия с файлом (импорты…)",
+  },
+  ["lsp.rename"] = { function() vim.lsp.buf.rename() end, "Переименовать" },
+  ["lsp.rename_file"] = { function() Snacks.rename.rename_file() end, "Переименовать файл (и импорты)" },
+  ["lsp.codelens"] = { function() vim.lsp.codelens.run() end, "Запустить codelens" },
+  ["lsp.info"] = { "<cmd>checkhealth vim.lsp<cr>", "Какие серверы работают" },
+  ["lsp.restart"] = { "<cmd>lsp restart<cr>", "Перезапустить серверы" },
+  ["lsp.word_next"] = { function() Snacks.words.jump(vim.v.count1) end, "Следующее упоминание" },
+  ["lsp.word_prev"] = { function() Snacks.words.jump(-vim.v.count1) end, "Предыдущее упоминание" },
+  mason = { "<cmd>Mason<cr>", "Mason: серверы и утилиты" },
 }
 
 --- Действие по имени: rhs, описание, доп. опции keymap. nil — такого нет.
 function M.get(name)
   local a = M.list[name]
   if not a then return nil end
-  return a[1], a[2], { expr = a.expr }
+  return a[1], a[2], { expr = a.expr, nowait = a.nowait }
 end
 
 return M

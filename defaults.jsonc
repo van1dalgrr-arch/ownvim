@@ -92,11 +92,72 @@
     },
     "scrollbar": true, // полоса прокрутки с метками ошибок, git и найденного
     "smear_cursor": false, // летающий курсор
+    "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
 
   // Свои плагины: "автор/плагин": true — поставить, false — убрать (и из модуля тоже),
   // объект — как в lazy.nvim: { "opts": {…}, "event": "VeryLazy", "cmd": "…", "ft": "go", "keys": [["<leader>z", ":Zen<cr>"]] }
   "plugins": {},
+
+  // Языковые серверы. "servers": "имя": true — как в nvim-lspconfig, объект — свои настройки
+  // (cmd, filetypes, settings, init_options, root_markers… — как vim.lsp.config), false — выключить.
+  // Имена: github.com/neovim/nvim-lspconfig/tree/master/lsp. Сохранил — серверы включились, settings ушли в работающие.
+  "lsp": {
+    "inlay_hints": { "enabled": true, "exclude": [] }, // подсказки типов в строке; пробел u h — выкл
+    "codelens": false, // «run test», «go mod tidy» над кодом
+    "servers": {
+      // Go
+      "gopls": {
+        "settings": {
+          "gopls": {
+            "gofumpt": true,
+            "staticcheck": true,
+            "usePlaceholders": true,
+            "completeUnimported": true,
+            "semanticTokens": true,
+            "directoryFilters": ["-.git", "-.vscode", "-.idea", "-node_modules"],
+            "analyses": { "nilness": true, "unusedparams": true, "unusedwrite": true, "useany": true },
+            "hints": {
+              "assignVariableTypes": true, "compositeLiteralFields": true, "compositeLiteralTypes": true,
+              "constantValues": true, "functionTypeParameters": true, "rangeVariableTypes": true,
+              "parameterNames": false, // «a...:» в fmt.Println( — шум; true — имена аргументов в каждом вызове
+            },
+            "codelenses": { "generate": true, "test": true, "tidy": true, "upgrade_dependency": true, "vendor": true, "run_govulncheck": true },
+          },
+        },
+      },
+      // golangci-lint как сервер дублирует ошибки gopls на строке 1 — он работает линтером при сохранении (раздел lint)
+      "golangci_lint_ls": false,
+      // SQL (Postgres): синтаксис и типы; с подключением к базе — ещё и таблицы (postgres-language-server.jsonc)
+      "postgres_lsp": { "root_markers": ["postgres-language-server.jsonc", ".git"], "workspace_required": false },
+      // Docker: Dockerfile, compose, bake — официальный сервер Docker
+      "docker_language_server": true,
+      // Python
+      "basedpyright": true,
+      "ruff": true,
+      // Rust
+      "rust_analyzer": true,
+      // JSON и YAML (settings.jsonc, package.json, k8s, GitHub Actions)
+      "jsonls": true,
+      "yamlls": true,
+    },
+  },
+
+  // Ошибки и предупреждения — как vim.diagnostic.config. Уровни можно словами: "error", "warn", "info", "hint"
+  "diagnostics": {
+    "underline": true,
+    "update_in_insert": false,
+    "severity_sort": true,
+    "virtual_text": { "spacing": 4, "source": "if_many", "prefix": "●" },
+    "signs": { "text": { "error": "\uf057 ", "warn": "\uf071 ", "hint": "\uf0eb ", "info": "\uf05a " } },
+    "float": { "border": "rounded", "source": "if_many" },
+  },
+
+  // Откуда брать серверы, форматтеры и линтеры: "mason" — ставит сам при первом запуске (в ~/.local/share/ownvim/mason),
+  // "system" — только то, что уже есть в PATH (brew и т.п.)
+  "tools": {
+    "install": "mason",
+  },
 
   // Клавиши: "режимы клавиша": что делать. Режимы — буквы подряд: n обычный, i вставка, x выделение,
   // s выбор, o после оператора, t терминал, c командная строка.
@@ -238,6 +299,30 @@
     "n <leader>ui": "inspect",
     "n <leader>uC": "themes",
     "n <M-s>": "themes", // alt-s — тема с предпросмотром
+
+    // код (языковые серверы)
+    "n gd": "lsp.definition",
+    "n gr": "lsp.references",
+    "n gI": "lsp.implementation",
+    "n gy": "lsp.type_definition",
+    "n gD": "lsp.declaration",
+    "n K": "lsp.hover",
+    "n gK": "lsp.signature",
+    "i <C-k>": "lsp.signature",
+    "nx <leader>ca": "lsp.code_action",
+    "n <leader>cA": "lsp.source_action",
+    "n <leader>cr": "lsp.rename",
+    "n <leader>cR": "lsp.rename_file",
+    "nx <leader>cc": "lsp.codelens",
+    "n <leader>cl": "lsp.info",
+    "n <leader>cL": "lsp.restart",
+    "n <leader>cm": "mason",
+    "n <leader>ss": "lsp.symbols",
+    "n <leader>sS": "lsp.workspace_symbols",
+    "n <leader>ci": "lsp.incoming_calls",
+    "n <leader>co": "lsp.outgoing_calls",
+    "n ]]": "lsp.word_next",
+    "n [[": "lsp.word_prev",
 
     // терминал, плагины, выход
     "n <leader>ft": "terminal.root",

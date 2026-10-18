@@ -2,7 +2,7 @@
 --   "n <leader>ff": "files"                     — действие (список — lua/own/actions.lua, или пробел s k)
 --   "i jk": "<esc>"                             — клавиши как есть
 --   "n <leader>L": ":Lazy"                      — команда
---   "n <D-/>": { "do": "gcc", "remap": true, "desc": "Комментарий" }
+--   "n <D-/>": { "do": "gcc", "remap": true, "desc": "Комментарий" }   (ещё "nowait", "expr", "silent")
 --   "n <leader>l": false                        — убрать (и умолчание тоже)
 -- Режимы — буквы подряд: n обычный, i вставка, x выделение, s выбор, o после оператора, t терминал, c команда.
 -- Сохранил файл — старые клавиши сняты, новые стоят, перезапуск не нужен.
@@ -32,10 +32,11 @@ local function resolve(key, value)
   local what = spec["do"]
   if type(what) ~= "string" then return nil, "нужно имя действия, клавиши или :команда" end
   local rhs, desc, extra = actions.get(what)
-  local opts = { desc = spec.desc, remap = spec.remap, silent = spec.silent ~= false, expr = spec.expr }
+  local opts = { desc = spec.desc, remap = spec.remap, silent = spec.silent ~= false, expr = spec.expr, nowait = spec.nowait }
   if rhs then
     opts.desc = opts.desc or desc
     opts.expr = opts.expr or extra.expr
+    opts.nowait = opts.nowait or extra.nowait
   elseif what:sub(1, 1) == ":" then
     rhs = "<cmd>" .. what:sub(2) .. "<cr>"
     opts.desc = opts.desc or what
