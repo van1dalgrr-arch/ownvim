@@ -2,13 +2,22 @@
 
 🇷🇺 [Русская версия](README.ru.md)
 
-Neovim without LazyVim: ~1200 lines of own code, ideas taken from LazyVim. Everything is set in one
-JSON file, no Lua needed. Starts in 20 ms (the LazyVim build in `nvim/` takes 49).
+Neovim without LazyVim: ~1500 lines of own code, ideas taken from LazyVim. Everything is set in one
+JSON file, no Lua needed. Starts in 20 ms (the same set on LazyVim takes 49).
+
+## Install
+
+Needs Neovim 0.12+, git, `tree-sitter` and `ripgrep` (`brew install neovim tree-sitter ripgrep`) and a Nerd Font.
 
 ```bash
-ownvim            # own build (NVIM_APPNAME=ownvim nvim)
-nvim              # still LazyVim for now
+git clone https://github.com/van1dalgrr-arch/ownvim ~/dev/ownvim
+ln -s ~/dev/ownvim ~/.config/ownvim
+alias ownvim="NVIM_APPNAME=ownvim nvim"   # in ~/.zshrc
+ownvim                                   # the first run installs the plugins
 ```
+
+With [dotfiles](https://github.com/van1dalgrr-arch/dotfiles), `install.sh` does all this, and rose-pine
+takes the terminal theme's palette (`themes/<theme>.sh`).
 
 ## Settings
 
@@ -57,11 +66,10 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `scrollbar` | a scrollbar with marks for errors, git and search |
 | `smear_cursor` | smear cursor (off) |
 
-Module code is `lua/own/modules/<name>.lua`; parts shared with the LazyVim build (themes, modes,
-cheat sheet) come from `nvim/lua/dotfiles/` without copies.
+Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).
 
 ## Next
 
 Stage 1 of 4 — the base. Next: Go as an IDE (gopls, completion, formatting, tests, debugger),
 git, moving my own modules over (endpoints, `.http`, ▶, background tests, Claude). Once it
-catches up, `ownvim` becomes `nvim`.
+catches up, `ownvim` becomes the main `nvim`.

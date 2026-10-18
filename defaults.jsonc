@@ -245,7 +245,7 @@
     "nt <C-/>": "terminal.toggle",
     "nt <C-_>": "terminal.toggle",
     "n <leader>l": { "do": ":Lazy", "desc": "Плагины" },
-    "n <leader>h": "cheatsheet",
+    "n <leader>h": "keymaps", // все клавиши с описаниями
     "n <leader>qq": { "do": ":qa", "desc": "Выйти из всего" },
   },
 }

@@ -8,10 +8,6 @@ local settings = require("own.settings")
 
 local M = {}
 
--- модули nvim/lua/dotfiles (темы, режимы, шпаргалка, эндпоинты…) — общие с LazyVim-сборкой, без копий
-local dotfiles = vim.fn.fnamemodify(vim.fn.resolve(vim.fn.stdpath("config")), ":h")
-package.path = dotfiles .. "/nvim/lua/?.lua;" .. package.path
-
 local function apply_globals(s)
   for k, v in pairs(s.globals or {}) do vim.g[k] = v end
 end

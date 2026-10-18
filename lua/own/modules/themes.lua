@@ -1,5 +1,5 @@
 -- Темы: tokyonight (как была), rose-pine в цветах терминала (палитра из themes/<тема>.sh — та же,
--- что красит Ghostty), и ещё семь на выбор — alt-s, предпросмотр на всём редакторе.
+-- что красит Ghostty, если стоят dotfiles), и ещё семь на выбор — alt-s, предпросмотр на всём редакторе.
 -- Какая стоит — раздел theme: "auto" — та, что выбрана в alt-s (по умолчанию tokyonight),
 -- или имя темы, например "rose-pine" / "kanagawa-dragon" / "catppuccin-mocha".
 local M = {}
@@ -27,7 +27,7 @@ M.plugins = {
       end,
     },
   },
-  { "rose-pine/neovim", name = "rose-pine", lazy = true, opts = function() return require("dotfiles.theme").opts() end },
+  { "rose-pine/neovim", name = "rose-pine", lazy = true, opts = function() return require("own.palette").opts() end },
   { "rebelot/kanagawa.nvim", lazy = true, opts = { transparent = true, theme = "wave" } },
   { "EdenEast/nightfox.nvim", lazy = true, opts = { options = { transparent = true } } },
   { "scottmckendry/cyberdream.nvim", lazy = true, opts = { transparent = true, italic_comments = true } },
@@ -49,16 +49,16 @@ local applied
 function M.apply(name)
   if name == applied then return end
   applied = name
-  if not name or name == "auto" then return require("dotfiles.themes").load() end
+  if not name or name == "auto" then return require("own.themes").load() end
   if not pcall(vim.cmd.colorscheme, name) then
     require("own.settings").warn("theme", ("нет темы %q — список: alt-s"):format(name))
-    require("dotfiles.themes").load()
+    require("own.themes").load()
   end
 end
 
 function M.setup()
   -- свои группы (▶, «реализует:», мультикурсоры) в любой теме; rose-pine следит за темой dotfiles
-  require("dotfiles.theme").watch()
+  require("own.palette").watch()
 end
 
 return M

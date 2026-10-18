@@ -55,8 +55,7 @@ M.list = {
   ["explorer.cwd"] = { function() Snacks.explorer() end, "Дерево файлов (папка запуска)" },
   settings = { function() require("own.settings").open() end, "Мои настройки (settings.jsonc)" },
   ["settings.defaults"] = { function() require("own.settings").open("defaults") end, "Все настройки по умолчанию" },
-  themes = { function() require("dotfiles.themes").pick() end, "Тема (предпросмотр, enter — запомнить)" },
-  cheatsheet = { function() require("dotfiles.cheatsheet").open() end, "Шпаргалка" },
+  themes = { function() require("own.themes").pick() end, "Тема (предпросмотр, enter — запомнить)" },
 
   -- правка
   save = { "<cmd>write<cr><esc>", "Сохранить" },

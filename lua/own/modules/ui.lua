@@ -38,7 +38,7 @@ M.plugins = {
             { icon = "\u{f1da} ", key = "r", desc = "Недавние файлы", action = ":lua Snacks.dashboard.pick('oldfiles')" },
             { icon = "\u{f422} ", key = "g", desc = "Поиск по проекту", action = ":lua Snacks.dashboard.pick('live_grep')" },
             { icon = "\u{f013} ", key = "c", desc = "Мои настройки", action = ":Settings" },
-            { icon = "󰋖 ", key = "h", desc = "Шпаргалка", action = function() require("dotfiles.cheatsheet").open() end },
+            { icon = "\u{f11c} ", key = "k", desc = "Все клавиши", action = function() Snacks.picker.keymaps() end },
             { icon = "󰒲 ", key = "l", desc = "Плагины", action = ":Lazy" },
             { icon = "\u{f426} ", key = "q", desc = "Выйти", action = ":qa" },
           },
@@ -46,7 +46,6 @@ M.plugins = {
         sections = {
           { section = "header" },
           { section = "keys", gap = 1, padding = 1 },
-          function() return require("dotfiles.tips").section() end, -- совет дня из шпаргалки
           { section = "startup" },
         },
       },

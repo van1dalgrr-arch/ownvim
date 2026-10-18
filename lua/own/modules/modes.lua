@@ -1,11 +1,11 @@
 -- Режим видно сразу: курсор, строка и номер зеленеют во вставке, фиолетовые в выделении.
 -- Не печатаешь auto_normal_ms миллисекунд — сам выходит из вставки (0 — никогда; пробел u I — выкл на время).
--- Сама логика — nvim/lua/dotfiles/modes.lua, общая с LazyVim-сборкой.
+-- Сама логика — lua/own/modes.lua.
 local M = {}
 
 function M.setup(opts)
   M.reload(opts)
-  require("dotfiles.modes").setup()
+  require("own.modes").setup()
 end
 
 function M.reload(opts)

@@ -2,13 +2,22 @@
 
 🇬🇧 [English](README.md)
 
-Neovim без LazyVim: свой код на ~1200 строк, идеи взяты из LazyVim. Всё настраивается в одном
-JSON-файле, без Lua. Стартует за 20 мс (LazyVim-сборка из `nvim/` — за 49).
+Neovim без LazyVim: свой код на ~1500 строк, идеи взяты из LazyVim. Всё настраивается в одном
+JSON-файле, без Lua. Стартует за 20 мс (тот же набор на LazyVim — за 49).
+
+## Установка
+
+Нужны Neovim 0.12+, git, `tree-sitter` и `ripgrep` (`brew install neovim tree-sitter ripgrep`) и шрифт Nerd Font.
 
 ```bash
-ownvim            # своя сборка (NVIM_APPNAME=ownvim nvim)
-nvim              # пока по-прежнему LazyVim
+git clone https://github.com/van1dalgrr-arch/ownvim ~/dev/ownvim
+ln -s ~/dev/ownvim ~/.config/ownvim
+alias ownvim="NVIM_APPNAME=ownvim nvim"   # в ~/.zshrc
+ownvim                                   # первый запуск сам поставит плагины
 ```
+
+С [dotfiles](https://github.com/van1dalgrr-arch/dotfiles) всё это делает `install.sh`, а rose-pine
+берёт палитру темы терминала (`themes/<тема>.sh`).
 
 ## Настройки
 
@@ -57,11 +66,10 @@ nvim              # пока по-прежнему LazyVim
 | `scrollbar` | полоса прокрутки с метками ошибок, git и найденного |
 | `smear_cursor` | летающий курсор (выключен) |
 
-Код модулей — `lua/own/modules/<имя>.lua`; общие с LazyVim-сборкой куски (темы, режимы,
-шпаргалка) берутся из `nvim/lua/dotfiles/` без копий.
+Код модулей — `lua/own/modules/<имя>.lua`, ядро — `lua/own/` (настройки, JSONC, клавиши, действия).
 
 ## Что дальше
 
 Этап 1 из 4 — база. Дальше: Go как IDE (gopls, дополнение, форматирование, тесты, отладка),
 git, перенос своих модулей (эндпоинты, `.http`, ▶, фоновые тесты, Claude). Когда догонит —
-`ownvim` станет `nvim`.
+`ownvim` станет основным `nvim`.
