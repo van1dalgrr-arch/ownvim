@@ -1,0 +1,86 @@
+{
+  "if err → return err": {
+    "prefix": "ife",
+    "body": ["if err != nil {", "\treturn ${1:err}", "}"],
+    "description": "if err != nil { return err }"
+  },
+  "if err → обернуть": {
+    "prefix": "errw",
+    "body": ["if err != nil {", "\treturn ${1:nil, }fmt.Errorf(\"${2:что делали}: %w\", err)", "}"],
+    "description": "if err != nil { return fmt.Errorf(\"…: %w\", err) }"
+  },
+  "табличный тест": {
+    "prefix": "tt",
+    "body": [
+      "func Test${1:Name}(t *testing.T) {",
+      "\ttests := []struct {",
+      "\t\tname string",
+      "\t\tin   ${2:string}",
+      "\t\twant ${3:string}",
+      "\t}{",
+      "\t\t{name: \"${4:обычный случай}\", in: ${5:\"\"}, want: ${6:\"\"}},",
+      "\t}",
+      "\tfor _, tt := range tests {",
+      "\t\tt.Run(tt.name, func(t *testing.T) {",
+      "\t\t\tgot := ${7:fn}(tt.in)",
+      "\t\t\tif got != tt.want {",
+      "\t\t\t\tt.Errorf(\"got %v, want %v\", got, tt.want)",
+      "\t\t\t}",
+      "\t\t})",
+      "\t}",
+      "}"
+    ],
+    "description": "табличный тест с t.Run"
+  },
+  "бенчмарк": {
+    "prefix": "bench",
+    "body": ["func Benchmark${1:Name}(b *testing.B) {", "\tfor b.Loop() {", "\t\t$0", "\t}", "}"],
+    "description": "бенчмарк на b.Loop() (Go 1.24+)"
+  },
+  "Gin-хендлер": {
+    "prefix": "gh",
+    "body": [
+      "func (h *${1:Handler}) ${2:Name}(c *gin.Context) {",
+      "\t${0}",
+      "\tc.JSON(http.StatusOK, gin.H{})",
+      "}"
+    ],
+    "description": "метод-хендлер Gin"
+  },
+  "Gin: разобрать JSON": {
+    "prefix": "gbind",
+    "body": [
+      "var req ${1:Request}",
+      "if err := c.ShouldBindJSON(&req); err != nil {",
+      "\tc.JSON(http.StatusBadRequest, gin.H{\"error\": err.Error()})",
+      "\treturn",
+      "}"
+    ],
+    "description": "ShouldBindJSON + 400"
+  },
+  "net/http хендлер": {
+    "prefix": "hf",
+    "body": ["func ${1:handle}(w http.ResponseWriter, r *http.Request) {", "\t$0", "}"],
+    "description": "func(w http.ResponseWriter, r *http.Request)"
+  },
+  "функция с ctx": {
+    "prefix": "ctxf",
+    "body": ["func ${1:name}(ctx context.Context${2:, }) ${3:error} {", "\t$0", "}"],
+    "description": "func name(ctx context.Context, …) error"
+  },
+  "slog": {
+    "prefix": "slog",
+    "body": ["slog.${1|Info,Debug,Warn,Error|}(\"${2:что случилось}\", \"${3:key}\", ${4:value})"],
+    "description": "slog.Info(\"…\", \"key\", value)"
+  },
+  "горутина с WaitGroup": {
+    "prefix": "wg",
+    "body": ["var wg sync.WaitGroup", "for ${1:_, v} := range ${2:items} {", "\twg.Go(func() {", "\t\t$0", "\t})", "}", "wg.Wait()"],
+    "description": "sync.WaitGroup.Go (Go 1.25+)"
+  },
+  "конструктор": {
+    "prefix": "new",
+    "body": ["func New${1:Type}(${2}) *${1:Type} {", "\treturn &${1:Type}{${3}}", "}"],
+    "description": "func NewType(…) *Type"
+  }
+}

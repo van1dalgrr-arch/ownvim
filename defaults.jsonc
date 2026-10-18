@@ -92,6 +92,7 @@
     },
     "scrollbar": true, // полоса прокрутки с метками ошибок, git и найденного
     "smear_cursor": false, // летающий курсор
+    "completion": true, // автодополнение (раздел completion ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
 
@@ -151,6 +152,21 @@
     "virtual_text": { "spacing": 4, "source": "if_many", "prefix": "●" },
     "signs": { "text": { "error": "\uf057 ", "warn": "\uf071 ", "hint": "\uf0eb ", "info": "\uf05a " } },
     "float": { "border": "rounded", "source": "if_many" },
+  },
+
+  // Автодополнение. Свои сниппеты — snippets/<язык>.json (формат VS Code); Go: ife, errw, tt, bench, gh…
+  "completion": {
+    "sources": ["lsp", "path", "snippets", "buffer"], // откуда предлагать
+    "ghost_text": true, // продолжение серым прямо в строке
+    "auto_show": true, // меню само; false — только по ctrl-space
+    "documentation": true, // описание выбранного справа
+    "signature": true, // подсказка аргументов при наборе вызова
+    "auto_brackets": true, // скобки после функции
+    "friendly_snippets": true, // готовые сниппеты для всех языков; false — только свои из snippets/
+    "keymap": "enter", // enter — принять; "default" — ctrl-y; "super-tab" — tab
+    "max_height": 10,
+    "border": "rounded",
+    "blink": {}, // любые настройки blink.cmp как есть: cmp.saghen.dev/configuration/reference
   },
 
   // Откуда брать серверы, форматтеры и линтеры: "mason" — ставит сам при первом запуске (в ~/.local/share/ownvim/mason),

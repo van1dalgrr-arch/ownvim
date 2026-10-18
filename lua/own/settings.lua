@@ -12,7 +12,7 @@ M.files = { defaults = dir .. "/defaults.jsonc", user = dir .. "/settings.jsonc"
 
 local ns = vim.api.nvim_create_namespace("own.settings")
 local TOP = { theme = true, options = true, globals = true, modules = true, keys = true, plugins = true,
-  lsp = true, diagnostics = true, tools = true }
+  lsp = true, diagnostics = true, tools = true, completion = true }
 
 M.current = nil -- последние применённые настройки
 M.problems = {} -- путь → { диагностика }
@@ -45,7 +45,7 @@ local function check(path, text, value, problems)
     if not TOP[key] then
       local lnum, col = jsonc.find_key(text, key)
       problems[#problems + 1] = { lnum = (lnum or 1) - 1, col = col or 0, severity = vim.diagnostic.severity.WARN,
-        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools"):format(key) }
+        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion"):format(key) }
     end
   end
   for name in pairs(value.modules or {}) do

@@ -65,6 +65,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `russian` | commands in the Russian layout (`о` = `j`, `вв` = `dd`), alt keys work in it too |
 | `scrollbar` | a scrollbar with marks for errors, git and search |
 | `smear_cursor` | smear cursor (off) |
+| `completion` | completion (blink): menu with docs, ghost text, signature help, snippets (own ones in `snippets/<lang>.json`, for Go: `ife`, `errw`, `tt`, `gh`…). Section `completion` |
 | `lsp` | language servers for Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — mason installs them; errors on their lines, `gd`/`gr`/`K`, rename `space c r`, fixes `space c a`, inlay hints. Sections `lsp`, `diagnostics`, `tools` |
 
 Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).
