@@ -2,7 +2,7 @@
 
 🇷🇺 [Русская версия](README.ru.md)
 
-Neovim without LazyVim: ~1500 lines of own code, ideas taken from LazyVim. Everything is set in one
+Neovim without LazyVim: ~2300 lines of own code, ideas taken from LazyVim. Everything is set in one
 JSON file, no Lua needed. Starts in about 40 ms (the LazyVim build in dotfiles takes 49).
 
 ## Install
