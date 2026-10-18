@@ -33,7 +33,7 @@ ownvim                                   # первый запуск сам по
   "theme": "rose-pine",                                  // или "auto" — та, что выбрана в alt-s
   "options": { "relativenumber": true },                 // любая опция :help options
   "modules": {
-    "smear_cursor": true,                                // включить модуль
+    "minimap": true,                                     // включить модуль
     "modes": { "auto_normal_ms": 0 },                    // настройки модуля
   },
   "keys": {
@@ -69,7 +69,10 @@ ownvim                                   # первый запуск сам по
 | `autosave` | файл пишется сам, изменения снаружи подхватываются |
 | `russian` | команды в русской раскладке (`о` = `j`, `вв` = `dd`), alt-клавиши и в ней тоже |
 | `scrollbar` | полоса прокрутки с метками ошибок, git и найденного |
-| `smear_cursor` | летающий курсор (выключен) |
+| `animations` | плавный курсор (и при наборе, как cursorSmoothCaretAnimation) и плавная прокрутка — каждое вкл/выкл, скорость в `animations` |
+| `brackets` | цветные пары скобок, как в VS Code; цвета уровней — из темы |
+| `sticky_scroll` | шапка функции прилипает сверху, как Sticky Scroll в VS Code |
+| `minimap` | миникарта справа, как в VS Code (выключена; `пробел u m`) |
 | `completion` | автодополнение (blink): меню с описанием, продолжение серым в строке, подсказка аргументов, сниппеты (свои — `snippets/<язык>.json`, для Go: `ife`, `errw`, `tt`, `gh`…). Раздел `completion` |
 | `format` | форматирование при сохранении (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; остальное — языковой сервер. `пробел c f`, `пробел u f` — выкл. Раздел `format` |
 | `lint` | линтеры сверх сервера (nvim-lint): Go — golangci-lint (с `.golangci.yml` проекта), Dockerfile — hadolint. Раздел `lint` |

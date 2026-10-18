@@ -88,6 +88,19 @@
   //   "features": ["ss01", "zero"] — OpenType-фичи шрифта
   "font": {},
 
+  // Плавность, как в VS Code — каждое отдельно, на лету
+  "animations": {
+    "cursor": {
+      "enabled": true, // курсор плавно перелетает к новому месту
+      "insert": true, // и при наборе (как cursorSmoothCaretAnimation)
+      "stiffness": 0.8, // скорость: 1 — мгновенно
+      "trailing_stiffness": 0.6, // как быстро догоняет хвост
+      "between_buffers": true,
+    },
+    "scroll": { "enabled": true, "duration_ms": 150 }, // плавная прокрутка (ctrl-d, ctrl-u, мышь)
+    "indent_scope": { "enabled": false }, // рамка текущего блока проявляется плавно
+  },
+
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
@@ -182,7 +195,10 @@
       "alt_keys": true, // alt-буквы в keys работают и в русской раскладке
     },
     "scrollbar": true, // полоса прокрутки с метками ошибок, git и найденного
-    "smear_cursor": false, // летающий курсор
+    "animations": true, // плавный курсор и прокрутка (раздел animations ниже)
+    "brackets": { "colors": ["yellow", "purple", "blue"] }, // цветные пары скобок, как в VS Code
+    "sticky_scroll": { "max_lines": 3 }, // шапка функции прилипает сверху, как Sticky Scroll в VS Code
+    "minimap": false, // миникарта справа, как в VS Code ({ "width": 18 }); полоса прокрутки с метками — легче
     "completion": true, // автодополнение (раздел completion ниже)
     "format": true, // форматирование при сохранении (раздел format ниже)
     "lint": true, // линтеры: golangci-lint, hadolint (раздел lint ниже)
@@ -481,6 +497,7 @@
     "n <leader>ug": "toggle.indent",
     "n <leader>uh": "toggle.inlay_hints",
     "n <leader>ui": "inspect",
+    "n <leader>um": { "do": ":Neominimap Toggle", "desc": "Миникарта" },
     "n <leader>uC": "themes",
     "n <M-s>": "themes", // alt-s — тема с предпросмотром
 

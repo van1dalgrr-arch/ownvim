@@ -33,7 +33,7 @@ its line, and the editor keeps running on the previous settings.
   "theme": "rose-pine",                                  // or "auto" — the one picked with alt-s
   "options": { "relativenumber": true },                 // any option from :help options
   "modules": {
-    "smear_cursor": true,                                // turn a module on
+    "minimap": true,                                     // turn a module on
     "modes": { "auto_normal_ms": 0 },                    // module settings
   },
   "keys": {
@@ -69,7 +69,10 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `autosave` | files write themselves, outside changes are picked up |
 | `russian` | commands in the Russian layout (`о` = `j`, `вв` = `dd`), alt keys work in it too |
 | `scrollbar` | a scrollbar with marks for errors, git and search |
-| `smear_cursor` | smear cursor (off) |
+| `animations` | smooth cursor (also while typing, like cursorSmoothCaretAnimation) and smooth scroll — each on/off, speed in `animations` |
+| `brackets` | colored bracket pairs, like VS Code; level colors from the theme |
+| `sticky_scroll` | the function header sticks on top, like VS Code's Sticky Scroll |
+| `minimap` | a VS Code-like minimap on the right (off; `space u m`) |
 | `completion` | completion (blink): menu with docs, ghost text, signature help, snippets (own ones in `snippets/<lang>.json`, for Go: `ife`, `errw`, `tt`, `gh`…). Section `completion` |
 | `format` | format on save (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; the rest — the language server. `space c f`, `space u f` toggles. Section `format` |
 | `lint` | linters on top of the server (nvim-lint): Go — golangci-lint (with the project's `.golangci.yml`), Dockerfile — hadolint. Section `lint` |

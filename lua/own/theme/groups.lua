@@ -397,6 +397,14 @@ function M.build(t, opts)
   g.MiniIconsPurple = { fg = p.purple }
   g.MiniIconsRed = { fg = p.red }
   g.MiniIconsYellow = { fg = p.yellow }
+  -- цветные скобки (rainbow-delimiters)
+  g.RainbowDelimiterRed = { fg = p.red }
+  g.RainbowDelimiterOrange = { fg = p.orange }
+  g.RainbowDelimiterYellow = { fg = p.yellow }
+  g.RainbowDelimiterGreen = { fg = p.green }
+  g.RainbowDelimiterCyan = { fg = p.cyan }
+  g.RainbowDelimiterBlue = { fg = p.blue }
+  g.RainbowDelimiterViolet = { fg = p.purple }
   g.OwnIconPink = { fg = p.pink }
   g.OwnIconAccent = { fg = p.accent }
   g.DotfilesRunMain = { fg = p.green }
