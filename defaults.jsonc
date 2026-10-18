@@ -82,6 +82,12 @@
     "projects": 5,
   },
 
+  // Шрифт — в Ghostty (nvim в терминале сам шрифт не задаёт); общий для всех окон Ghostty. Пусто — шрифт терминала.
+  // :Font — выбрать из установленных, :FontInstall Geist Mono — поставить (brew / Nerd Fonts) и включить.
+  //   "family": "JetBrains Mono", "size": 14, "ligatures": true, "line_height": "10%", "thicken": false,
+  //   "features": ["ss01", "zero"] — OpenType-фичи шрифта
+  "font": {},
+
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
@@ -161,6 +167,7 @@
       "folds": true,
     },
     "editing": true, // скобки, текстовые объекты, обрамление, flash, TODO
+    "font": true, // шрифт в Ghostty из раздела font ниже
     "tabline": true, // вкладки сверху, как в VS Code (раздел tabline ниже)
     "breadcrumbs": true, // хлебные крошки: папка › файл › функция (раздел breadcrumbs ниже)
     "statusline": true, // своя статусная строка (раздел statusline ниже)

@@ -34,7 +34,7 @@
       несколько наборов, `:IconThemeInstall`; везде — дерево, поиск, вкладки, статусная строка.
    3. ✅ **Свой интерфейс** — статусная строка из блоков в JSON (стили: пузыри, плоский, наклонный), вкладки как в
       VS Code, хлебные крошки, стартовый экран из JSON.
-   4. **Шрифт** — `"font": { family, size, ligatures, line_height }` → Ghostty; `:FontInstall` — Nerd Fonts / Google Fonts
+   4. ✅ **Шрифт** — `"font": { family, size, ligatures, line_height }` → Ghostty; `:FontInstall` — Nerd Fonts / Google Fonts
       (значки Nerd Font у Ghostty встроены — подходит любой шрифт).
    5. **Плавность и детали VS Code** — плавный курсор и прокрутка, цветные пары скобок, липкая шапка функции, миникарта;
       каждое — отдельно вкл/выкл.

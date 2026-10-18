@@ -56,6 +56,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 |---|---|
 | `basics` | yank highlight, cursor back where it was, `q` closes helper windows, a new file's folder is created |
 | `ui` | start screen from JSON (header, buttons, sections — section `dashboard`), notifications, which-key, indent guides |
+| `font` | the Ghostty font from `settings.jsonc` (family, size, ligatures, line height, OpenType features); `:Font` — pick an installed one, `:FontInstall <name>` — install via brew / Nerd Fonts. Ghostty has Nerd Font glyphs built in — any font works |
 | `tabline` | VS Code-like tabs: icon, name, ● when unsaved, close button; mouse click, middle click closes; same names get their folder; scrolls to the current one. Section `tabline` |
 | `breadcrumbs` | breadcrumbs on top: folder › file › type › function at the cursor (from the syntax tree, any language). Section `breadcrumbs` |
 | `statusline` | own status line: blocks in JSON (mode, branch, errors, file, LSP, position, time, search, macro + your own — text or a command's output on a timer), styles bubbles / arrows / slant / flat / plain, colors from the theme. Section `statusline` |
