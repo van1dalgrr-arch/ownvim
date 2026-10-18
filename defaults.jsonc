@@ -37,6 +37,51 @@
     "custom": {},
   },
 
+  // Вкладки, как в VS Code: клик — перейти, клик по крестику или средней кнопкой — закрыть; shift-h/l — соседняя
+  "tabline": {
+    "show": "auto", // "auto" — когда файлов больше одного, "always", "never"
+    "style": "underline", // текущая: "underline" (линия цвета акцента), "bar" (полоса слева), "slant", "plain"
+    "close_button": true,
+    "icons": true,
+    "max_name": 24,
+    "modified": "●",
+  },
+
+  // Хлебные крошки в верхней строке окна: папка › файл › тип › функция под курсором (по дереву разбора)
+  "breadcrumbs": {
+    "path": true,
+    "symbols": true,
+    "separator": " › ",
+    "max_depth": 3, // сколько папок показывать
+  },
+
+  // Стартовый экран. buttons: do — действие из keys ("files", "recent"…), ":команда" или клавиши.
+  // sections: header, buttons, recent, projects, startup — или любой текст
+  "dashboard": {
+    "header": [
+      " ██████╗ ██╗    ██╗███╗   ██╗",
+      "██╔═══██╗██║    ██║████╗  ██║",
+      "██║   ██║██║ █╗ ██║██╔██╗ ██║",
+      "██║   ██║██║███╗██║██║╚██╗██║",
+      "╚██████╔╝╚███╔███╔╝██║ ╚████║",
+      " ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝",
+      "своя сборка · настройки в settings.jsonc",
+    ],
+    "buttons": [
+      { "key": "f", "icon": "\uf002", "desc": "Найти файл", "do": "files" },
+      { "key": "r", "icon": "\uf1da", "desc": "Недавние файлы", "do": "recent" },
+      { "key": "g", "icon": "\uf422", "desc": "Поиск по проекту", "do": "grep" },
+      { "key": "c", "icon": "\uf013", "desc": "Мои настройки", "do": "settings" },
+      { "key": "t", "icon": "\uf1fc", "desc": "Тема", "do": "themes" },
+      { "key": "k", "icon": "\uf11c", "desc": "Все клавиши", "do": "keymaps" },
+      { "key": "l", "icon": "\uf487", "desc": "Плагины", "do": ":Lazy" },
+      { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
+    ],
+    "sections": ["header", "buttons", "startup"],
+    "recent": 5,
+    "projects": 5,
+  },
+
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
@@ -116,6 +161,8 @@
       "folds": true,
     },
     "editing": true, // скобки, текстовые объекты, обрамление, flash, TODO
+    "tabline": true, // вкладки сверху, как в VS Code (раздел tabline ниже)
+    "breadcrumbs": true, // хлебные крошки: папка › файл › функция (раздел breadcrumbs ниже)
     "statusline": true, // своя статусная строка (раздел statusline ниже)
     "icons": true, // темы иконок (раздел icons ниже)
     "themes": true, // tokyonight, rose-pine в цветах терминала и ещё семь — alt-s

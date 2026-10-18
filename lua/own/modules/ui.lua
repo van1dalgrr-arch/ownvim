@@ -3,16 +3,38 @@
 local M = {}
 
 
-local header = [[
- ██████╗ ██╗    ██╗███╗   ██╗
-██╔═══██╗██║    ██║████╗  ██║
-██║   ██║██║ █╗ ██║██╔██╗ ██║
-██║   ██║██║███╗██║██║╚██╗██║
-╚██████╔╝╚███╔███╔╝██║ ╚████║
- ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝
-своя сборка · настройки в settings.jsonc]]
+local settings = require("own.settings")
 
-M.plugins = {
+-- стартовый экран из раздела "dashboard": header, buttons (do — действие из keys, :команда или клавиши), sections
+local function dashboard()
+  local d = (settings.current or {}).dashboard or {}
+  local keys = {}
+  for _, b in ipairs(d.buttons or {}) do
+    local what = b["do"] or ""
+    local action = what
+    local fn = require("own.actions").get(what)
+    if fn then
+      action = type(fn) == "function" and fn or function() vim.api.nvim_feedkeys(vim.keycode(fn), "m", false) end
+    end
+    keys[#keys + 1] = { icon = (b.icon or "") .. " ", key = b.key, desc = b.desc or what, action = action }
+  end
+  local SECTIONS = {
+    header = { section = "header" },
+    buttons = { section = "keys", gap = 1, padding = 1 },
+    recent = { icon = "\u{f1da} ", title = "Недавние файлы", section = "recent_files", cwd = true, indent = 2, padding = 1, limit = d.recent or 5 },
+    projects = { icon = "\u{f07b} ", title = "Проекты", section = "projects", indent = 2, padding = 1, limit = d.projects or 5 },
+    startup = { section = "startup" },
+  }
+  local sections = {}
+  for _, name in ipairs(d.sections or { "header", "buttons", "startup" }) do
+    sections[#sections + 1] = SECTIONS[name] or { text = name, align = "center", padding = 1 }
+  end
+  local header = d.header
+  if type(header) == "table" then header = table.concat(header, "\n") end
+  return { preset = { header = header or "ownvim", keys = keys }, sections = sections }
+end
+
+function M.plugins() return {
   {
     "folke/snacks.nvim",
     priority = 1000,
@@ -27,25 +49,7 @@ M.plugins = {
       words = { enabled = true },
       statuscolumn = { enabled = true },
       dim = { animate = { enabled = false } },
-      dashboard = {
-        preset = {
-          header = header,
-          keys = {
-            { icon = "\u{f002} ", key = "f", desc = "Найти файл", action = ":lua Snacks.dashboard.pick('files')" },
-            { icon = "\u{f1da} ", key = "r", desc = "Недавние файлы", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-            { icon = "\u{f422} ", key = "g", desc = "Поиск по проекту", action = ":lua Snacks.dashboard.pick('live_grep')" },
-            { icon = "\u{f013} ", key = "c", desc = "Мои настройки", action = ":Settings" },
-            { icon = "\u{f11c} ", key = "k", desc = "Все клавиши", action = function() Snacks.picker.keymaps() end },
-            { icon = "󰒲 ", key = "l", desc = "Плагины", action = ":Lazy" },
-            { icon = "\u{f426} ", key = "q", desc = "Выйти", action = ":qa" },
-          },
-        },
-        sections = {
-          { section = "header" },
-          { section = "keys", gap = 1, padding = 1 },
-          { section = "startup" },
-        },
-      },
+      dashboard = dashboard(),
     },
     config = function(_, opts)
       require("snacks").setup(opts)
@@ -81,6 +85,6 @@ M.plugins = {
       },
     },
   },
-}
+} end
 
 return M

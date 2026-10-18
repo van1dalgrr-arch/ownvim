@@ -48,13 +48,13 @@ function M.install(pkg_name, label, done)
 end
 
 --- Нужна программа bin (для label в настройках). Есть — done() сразу; нет — mason или замечание.
---- hint — что сказать, если взять неоткуда (например, «поставь rustup»)
-function M.ensure_bin(bin, label, done, hint)
+--- hint — что сказать, если взять неоткуда (например, «поставь rustup»); key — где в настройках подсветить (по умолчанию label)
+function M.ensure_bin(bin, label, done, hint, key)
   done = done or function() end
   if vim.fn.executable(bin) == 1 then return done() end
   local pkg = M.mason() and M.package_for_bin(bin)
   if pkg then return M.install(pkg, label, done) end
-  settings.warn(label, hint or (M.mason() and ("нет программы %q ни в PATH, ни в mason — поставь её"):format(bin)
+  settings.warn(key or label, hint or (M.mason() and ("нет программы %q ни в PATH, ни в mason — поставь её"):format(bin)
     or ("нет программы %q в PATH — поставь её или \"tools\": { \"install\": \"mason\" }"):format(bin)))
 end
 

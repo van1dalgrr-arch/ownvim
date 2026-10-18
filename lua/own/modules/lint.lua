@@ -28,15 +28,19 @@ local function apply()
     if type(base) == "function" then base = base() end
     lint.linters[name] = vim.tbl_deep_extend("force", type(base) == "table" and base or {}, cfg)
   end
-  for _, list in pairs(lint.linters_by_ft) do
-    for _, name in ipairs(list) do
-      if not ensured[name] then
-        ensured[name] = true
-        if lint.linters[name] then
-          tools.ensure_bin(cmd_of(lint, name), name)
-        else
-          settings.warn(name, ("у nvim-lint нет линтера %q — задай его в lint.linters (cmd, args, parser)"):format(name))
-        end
+end
+
+-- программы линтеров — когда открыт файл этого языка
+local function ensure_ft(ft)
+  local lint = package.loaded["lint"]
+  if not lint then return end
+  for _, name in ipairs(lint.linters_by_ft[ft] or {}) do
+    if not ensured[name] then
+      ensured[name] = true
+      if lint.linters[name] then
+        tools.ensure_bin(cmd_of(lint, name), name, nil, nil, ft)
+      else
+        settings.warn(ft, ("у nvim-lint нет линтера %q — задай его в lint.linters (cmd, args, parser)"):format(name))
       end
     end
   end
@@ -44,6 +48,7 @@ end
 
 local group
 local function run()
+  ensure_ft(vim.bo.filetype)
   -- линтер, которого нет в PATH, молча пропускаем — mason ещё ставит его, или о нём уже сказано в настройках
   local lint = require("lint")
   local names = vim.tbl_filter(function(name)

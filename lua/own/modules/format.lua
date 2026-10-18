@@ -22,15 +22,15 @@ local function command_of(name)
   return name
 end
 
+-- программы форматтеров — когда открыт файл этого языка (а не все сразу при старте)
 local ensured = {}
-local function ensure_all()
-  for _, list in pairs(f().languages or {}) do
-    for _, name in ipairs(list) do
-      if not ensured[name] then
-        ensured[name] = true
-        local bin = command_of(name)
-        tools.ensure_bin(bin, name, nil, bin == "rustfmt" and "rustfmt берётся из rustup: brew install rustup && rustup-init" or nil)
-      end
+local function ensure_ft(ft)
+  for _, name in ipairs((f().languages or {})[ft] or {}) do
+    if not ensured[name] then
+      ensured[name] = true
+      local bin = command_of(name)
+      tools.ensure_bin(bin, name, nil,
+        (bin == "rustfmt" and "rustfmt берётся из rustup: brew install rustup && rustup-init" or ("нет программы %q для форматтера %s"):format(bin, name)), ft)
     end
   end
 end
@@ -39,7 +39,9 @@ local function apply()
   local conform = require("conform")
   conform.formatters_by_ft = vim.deepcopy(f().languages or {})
   for name, cfg in pairs(f().formatters or {}) do conform.formatters[name] = cfg end
-  ensure_all()
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) then ensure_ft(vim.bo[buf].filetype) end
+  end
 end
 
 local function format_opts()
@@ -66,8 +68,10 @@ function M.format(buf)
 end
 
 function M.setup()
+  local group = vim.api.nvim_create_augroup("own.format", { clear = true })
+  vim.api.nvim_create_autocmd("FileType", { group = group, callback = function(ev) ensure_ft(ev.match) end })
   vim.api.nvim_create_autocmd("BufWritePre", {
-    group = vim.api.nvim_create_augroup("own.format", { clear = true }),
+    group = group,
     callback = function(ev)
       if f().on_save == false or vim.g.autoformat == false or vim.b[ev.buf].autoformat == false then return end
       M.format(ev.buf)
