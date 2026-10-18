@@ -15,6 +15,15 @@
   //               "[dev-night]": { "palette": { "bg": "#000000" } } } — только для этой темы
   "colors": {},
 
+  // Иконки: тема — icons/<имя>.json: default, mono (один цвет), accent (цвет акцента), backend (Go/SQL/Docker
+  // заметнее), ascii (без Nerd Font). Выбрать — :IconTheme; по ссылке — :IconThemeInstall; своя — скопируй любую.
+  // overrides — свои значки поверх: { "extension": { "go": { "glyph": "\ue627", "color": "cyan" } }, "file": {…},
+  // "directory": {…}, "filetype": {…}, "lsp": { "Function": {…} } }; цвет — red…pink, grey, accent или "#rrggbb"
+  "icons": {
+    "theme": "default",
+    "overrides": {},
+  },
+
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
@@ -64,7 +73,7 @@
     "signcolumn": "yes",
     "smartindent": true,
     "smoothscroll": true,
-    "spelllang": "en,ru",
+    "spelllang": "en", // "en,ru" — и русский: при первом файле nvim предложит скачать словарь
     "splitbelow": true,
     "splitright": true,
     "splitkeep": "screen",
@@ -94,6 +103,7 @@
       "folds": true,
     },
     "editing": true, // скобки, текстовые объекты, обрамление, flash, TODO
+    "icons": true, // темы иконок (раздел icons ниже)
     "themes": true, // tokyonight, rose-pine в цветах терминала и ещё семь — alt-s
     "modes": {
       "auto_normal_ms": 5000, // не печатаешь 5 с — выход из вставки; 0 — никогда
@@ -215,7 +225,11 @@
       "go": ["golangcilint"], // берёт .golangci.yml проекта
       "dockerfile": ["hadolint"],
     },
-    "linters": {}, // настройки линтера, как в nvim-lint: { "golangcilint": { "args": [...] } }
+    // настройки линтеров, как в nvim-lint (cmd, args, ignore_exitcode…)
+    "linters": {
+      // код не собирается — golangci-lint падает с кодом 3; ошибки сборки и так показывает gopls
+      "golangcilint": { "ignore_exitcode": true },
+    },
   },
 
   // Тесты (neotest). adapters: имя → настройки (true — по умолчанию, false — выкл);

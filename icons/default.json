@@ -1,0 +1,5 @@
+// Иконки по умолчанию — набор mini.icons (сотни типов файлов) в цветах текущей темы. Свои правки — "icons.overrides" в settings.jsonc
+{
+  "name": "Default",
+  "style": "glyph"
+}

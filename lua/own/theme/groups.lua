@@ -397,6 +397,8 @@ function M.build(t, opts)
   g.MiniIconsPurple = { fg = p.purple }
   g.MiniIconsRed = { fg = p.red }
   g.MiniIconsYellow = { fg = p.yellow }
+  g.OwnIconPink = { fg = p.pink }
+  g.OwnIconAccent = { fg = p.accent }
   g.DotfilesRunMain = { fg = p.green }
   g.DotfilesRunTest = { fg = p.cyan }
   g.Goplements = { fg = p.purple, italic = true }

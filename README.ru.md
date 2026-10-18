@@ -59,6 +59,7 @@ ownvim                                   # первый запуск сам по
 | `picker` | поиск файлов, текста, команд, дерево файлов (Snacks); `alt-c` в поиске — проект ↔ папка запуска |
 | `treesitter` | подсветка, отступы, складки; список языков в настройках, недостающие ставятся сами |
 | `editing` | скобки, текстовые объекты `af`/`ic`/`ao`, обрамление `gsa`/`gsd`/`gsr`, прыжок `s`, TODO |
+| `icons` | темы иконок — JSON в `icons/`: default, mono, accent, backend (Go/SQL/Docker/миграции заметнее), ascii; `:IconTheme` — выбрать, `:IconThemeInstall` — по ссылке; свои значки и цвета — `"icons.overrides"`. Значки — в дереве, поиске, меню дополнения |
 | `themes` | свой движок тем: тема — JSON в `themes/` (Dev Night, Dev Day, Sunset); `:ThemeNew` — своя (сохранил — перекрасилось), `:ThemeInstall издатель.имя` — любая тема VS Code (Open VSX / Marketplace), `:ThemeEdit`; `"theme": { "dark", "light" }` — по системе; `"colors"` — правки поверх темы, как в VS Code; `alt-s` — выбор с предпросмотром, пишет в settings.jsonc. Темы-плагины (tokyonight, rose-pine…) тоже работают |
 | `modes` | режим цветом курсора и строки, выход из вставки после паузы |
 | `autosave` | файл пишется сам, изменения снаружи подхватываются |

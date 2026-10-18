@@ -59,6 +59,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `picker` | find files, text, commands, file tree (Snacks); `alt-c` in a picker — project ↔ launch folder |
 | `treesitter` | highlighting, indent, folds; languages listed in settings, missing ones install themselves |
 | `editing` | pairs, text objects `af`/`ic`/`ao`, surround `gsa`/`gsd`/`gsr`, `s` to jump, TODO |
+| `icons` | icon themes — JSON in `icons/`: default, mono, accent, backend (Go/SQL/Docker/migrations stand out), ascii; `:IconTheme` — pick, `:IconThemeInstall` — from a link; own glyphs and colors — `"icons.overrides"`. Used in the tree, pickers, completion menu |
 | `themes` | own theme engine: a theme is JSON in `themes/` (Dev Night, Dev Day, Sunset); `:ThemeNew` — your own (save — it repaints), `:ThemeInstall publisher.name` — any VS Code theme (Open VSX / Marketplace), `:ThemeEdit`; `"theme": { "dark", "light" }` follows the system; `"colors"` — overrides on top, as in VS Code; `alt-s` — picker with a preview, writes settings.jsonc. Plugin themes (tokyonight, rose-pine…) still work |
 | `modes` | mode shown by cursor and line color, leaves insert after a pause |
 | `autosave` | files write themselves, outside changes are picked up |

@@ -1,0 +1,95 @@
+// Backend — акцент на том, с чем работаешь: Go, SQL, Docker, конфиги, миграции и тесты различаются сразу
+{
+  "name": "Backend",
+  "include": "default",
+  "extension": {
+    "go": {
+      "glyph": "\ue627",
+      "color": "cyan"
+    },
+    "sql": {
+      "glyph": "\uf1c0",
+      "color": "orange"
+    },
+    "proto": {
+      "glyph": "\ue6b1",
+      "color": "purple"
+    },
+    "env": {
+      "glyph": "\uf462",
+      "color": "yellow"
+    },
+    "http": {
+      "glyph": "\uf0ac",
+      "color": "green"
+    },
+    "mod": {
+      "glyph": "\ue627",
+      "color": "blue"
+    }
+  },
+  "file": {
+    "go.mod": {
+      "glyph": "\ue627",
+      "color": "pink"
+    },
+    "go.sum": {
+      "glyph": "\ue627",
+      "color": "grey"
+    },
+    "Dockerfile": {
+      "glyph": "\uf308",
+      "color": "blue"
+    },
+    "docker-compose.yml": {
+      "glyph": "\uf308",
+      "color": "azure"
+    },
+    "compose.yml": {
+      "glyph": "\uf308",
+      "color": "azure"
+    },
+    "Makefile": {
+      "glyph": "\ue779",
+      "color": "orange"
+    },
+    ".env": {
+      "glyph": "\uf462",
+      "color": "yellow"
+    },
+    ".golangci.yml": {
+      "glyph": "\uf058",
+      "color": "green"
+    },
+    "README.md": {
+      "glyph": "\uf48a",
+      "color": "accent"
+    }
+  },
+  "directory": {
+    "migrations": {
+      "glyph": "\uf1c0",
+      "color": "orange"
+    },
+    "cmd": {
+      "glyph": "\uf489",
+      "color": "green"
+    },
+    "internal": {
+      "glyph": "\uf023",
+      "color": "purple"
+    },
+    "api": {
+      "glyph": "\uf0ac",
+      "color": "cyan"
+    },
+    ".github": {
+      "glyph": "\uf408",
+      "color": "grey"
+    },
+    "docker": {
+      "glyph": "\uf308",
+      "color": "blue"
+    }
+  }
+}

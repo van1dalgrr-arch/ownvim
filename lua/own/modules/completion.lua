@@ -32,7 +32,22 @@ local function build()
         auto_show = on("auto_show"),
         border = border,
         max_height = o.max_height or 10,
-        draw = { treesitter = { "lsp" } },
+        draw = {
+          treesitter = { "lsp" },
+          -- значок вида — из темы иконок (mini.icons, раздел icons), если она включена
+          components = {
+            kind_icon = {
+              text = function(ctx)
+                local ok, icons = pcall(require, "mini.icons")
+                return (ok and icons.get("lsp", ctx.kind) or ctx.kind_icon) .. ctx.icon_gap
+              end,
+              highlight = function(ctx)
+                local ok, icons = pcall(require, "mini.icons")
+                return ok and select(2, icons.get("lsp", ctx.kind)) or ctx.kind_hl
+              end,
+            },
+          },
+        },
       },
       documentation = { auto_show = on("documentation"), auto_show_delay_ms = 200, window = { border = border } },
       ghost_text = { enabled = on("ghost_text") },
