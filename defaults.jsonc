@@ -93,6 +93,7 @@
     "scrollbar": true, // полоса прокрутки с метками ошибок, git и найденного
     "smear_cursor": false, // летающий курсор
     "completion": true, // автодополнение (раздел completion ниже)
+    "format": true, // форматирование при сохранении (раздел format ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
 
@@ -167,6 +168,27 @@
     "max_height": 10,
     "border": "rounded",
     "blink": {}, // любые настройки blink.cmp как есть: cmp.saghen.dev/configuration/reference
+  },
+
+  // Форматирование: при сохранении (и автосохранении) и по пробел c f; пробел u f — выкл на время.
+  // Форматтеры по порядку, имена — github.com/stevearc/conform.nvim#formatters. Ставятся сами (tools.install).
+  "format": {
+    "on_save": true,
+    "timeout_ms": 3000,
+    "lsp": "fallback", // нет своих форматтеров — форматирует сервер; "never", "prefer", "first", "last"
+    "languages": {
+      "go": ["goimports", "gofumpt"],
+      "sql": ["pg_format"],
+      "python": ["ruff_organize_imports", "ruff_format"],
+      "rust": ["rustfmt"],
+      "sh": ["shfmt"],
+      "toml": ["taplo"],
+    },
+    // настройки форматтеров, как в conform: command, args, prepend_args, cwd…
+    "formatters": {
+      "pg_format": { "prepend_args": ["--spaces", "2", "--keyword-case", "2", "--type-case", "2"] }, // 2 — ЗАГЛАВНЫЕ
+      "shfmt": { "prepend_args": ["-ci"] }, // отступ shfmt берёт из shiftwidth файла
+    },
   },
 
   // Откуда брать серверы, форматтеры и линтеры: "mason" — ставит сам при первом запуске (в ~/.local/share/ownvim/mason),
@@ -333,6 +355,9 @@
     "n <leader>cl": "lsp.info",
     "n <leader>cL": "lsp.restart",
     "n <leader>cm": "mason",
+    "nx <leader>cf": "format",
+    "n <leader>cF": "format.info",
+    "n <leader>uf": "toggle.format",
     "n <leader>ss": "lsp.symbols",
     "n <leader>sS": "lsp.workspace_symbols",
     "n <leader>ci": "lsp.incoming_calls",

@@ -159,6 +159,15 @@ M.list = {
   ["lsp.word_next"] = { function() Snacks.words.jump(vim.v.count1) end, "Следующее упоминание" },
   ["lsp.word_prev"] = { function() Snacks.words.jump(-vim.v.count1) end, "Предыдущее упоминание" },
   mason = { "<cmd>Mason<cr>", "Mason: серверы и утилиты" },
+  format = { function() require("own.modules.format").format() end, "Отформатировать" },
+  ["format.info"] = { "<cmd>ConformInfo<cr>", "Чем форматируется этот файл" },
+  ["toggle.format"] = {
+    function()
+      vim.g.autoformat = vim.g.autoformat == false
+      vim.notify("форматирование при сохранении: " .. (vim.g.autoformat and "вкл" or "выкл"))
+    end,
+    "Форматирование при сохранении",
+  },
 }
 
 --- Действие по имени: rhs, описание, доп. опции keymap. nil — такого нет.

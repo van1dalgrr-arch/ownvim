@@ -7,6 +7,7 @@
 --   "tools": { "install": "mason" } — недостающие серверы ставятся сами; "system" — только из PATH (brew)
 -- Сохранил settings.jsonc — серверы включились/выключились, новые settings ушли в работающие серверы.
 local settings = require("own.settings")
+local tools = require("own.tools")
 
 local M = {}
 
@@ -14,7 +15,6 @@ local enabled = {} -- имя сервера → true, что включили в
 
 local function current() return settings.current or {} end
 local function lsp_opts() return current().lsp or {} end
-local function mason_on() return (current().tools or {}).install ~= "system" end
 
 -- "error"/"WARN" → vim.diagnostic.severity.ERROR в любом месте настроек ошибок
 local function severities(v, key)
@@ -35,45 +35,6 @@ local function apply_diagnostics()
   vim.diagnostic.config(severities(vim.deepcopy(current().diagnostics or {})))
 end
 
--- имя сервера → пакет mason (берётся из реестра mason: у пакета есть поле neovim.lspconfig)
-local package_of
-local function mason_package(name)
-  if not package_of then
-    package_of = {}
-    for _, spec in ipairs(require("mason-registry").get_all_package_specs()) do
-      local l = spec.neovim and spec.neovim.lspconfig
-      if l then package_of[l] = spec.name end
-    end
-  end
-  return package_of[name]
-end
-
-local installing = {}
-local function install(name, cfg, done)
-  local registry = require("mason-registry")
-  registry.refresh(function()
-    local pkg_name = cfg.install or mason_package(name)
-    if not pkg_name or not registry.has_package(pkg_name) then
-      return settings.warn(name, ("mason не знает сервер %q — поставь сам или задай \"install\": \"имя-пакета\""):format(name))
-    end
-    if installing[pkg_name] then return end
-    installing[pkg_name] = true
-    local pkg = registry.get_package(pkg_name)
-    vim.notify(("ставлю %s (%s)…"):format(name, pkg_name))
-    pkg:install({}, function(ok, err)
-      installing[pkg_name] = nil
-      vim.schedule(function()
-        if ok then
-          vim.notify(name .. " поставлен")
-          done()
-        else
-          vim.notify(("%s не поставился: %s"):format(name, tostring(err)), vim.log.levels.ERROR)
-        end
-      end)
-    end)
-  end)
-end
-
 local function executable(name)
   local cmd = vim.lsp.config[name] and vim.lsp.config[name].cmd
   if type(cmd) ~= "table" then return true end -- cmd-функция (подключение по сети и т.п.) — не проверить
@@ -92,12 +53,14 @@ local function configure()
       vim.lsp.config[name] = cfg
       want[name] = true
       local ok, bin = executable(name)
+      local pkg = install_name or (tools.mason() and tools.package_for_lsp(name))
       if ok then
         vim.lsp.enable(name)
-      elseif mason_on() then
-        install(name, { install = install_name }, function() vim.lsp.enable(name) end)
+      elseif pkg and tools.mason() then
+        tools.install(pkg, name, function() vim.lsp.enable(name) end)
       else
-        settings.warn(name, ("нет программы %q в PATH — поставь её или \"tools\": { \"install\": \"mason\" }"):format(bin))
+        tools.ensure_bin(bin, name, function() vim.lsp.enable(name) end,
+          name == "rust_analyzer" and "rust-analyzer берётся из rustup: brew install rustup && rustup-init" or nil)
       end
     end
   end
@@ -132,7 +95,7 @@ function M.plugins()
     -- только данные: lsp/<сервер>.lua с cmd, filetypes и корнем проекта для сотен серверов
     { "neovim/nvim-lspconfig", lazy = false },
   }
-  if mason_on() then
+  if tools.mason() then
     list[#list + 1] = {
       "mason-org/mason.nvim",
       lazy = false, -- кладёт свою папку bin в PATH — нужно до старта серверов
