@@ -23,7 +23,7 @@ end
 
 -- режим → цвет из темы (группы есть в любой теме)
 local kinds = {
-  insert = { "String", 0x9ece6a },
+  insert = { "DiagnosticOk", 0x9ece6a }, -- зелёный «ок» темы, а не цвет строк
   visual = { "Statement", 0xbb9af7 },
   replace = { "DiagnosticError", 0xf7768e },
 }

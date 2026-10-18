@@ -1,10 +1,7 @@
--- Внешний вид: стартовый экран, уведомления, статусная строка «пузырями» с режимом по-русски,
--- подсказка клавиш (which-key), линии отступов, номера и значки слева (snacks statuscolumn).
+-- Внешний вид: стартовый экран, уведомления, подсказка клавиш (which-key), линии отступов, номера и значки слева (snacks statuscolumn).
 -- Snacks грузится сразу: на нём поиск, дерево, терминал и переключатели из раздела keys.
 local M = {}
 
-local ru = { NORMAL = "ОБЫЧНЫЙ", INSERT = "ВСТАВКА", VISUAL = "ВЫДЕЛЕНИЕ", ["V-LINE"] = "СТРОКИ", ["V-BLOCK"] = "БЛОК",
-  REPLACE = "ЗАМЕНА", COMMAND = "КОМАНДА", TERMINAL = "ТЕРМИНАЛ", SELECT = "ВЫБОР", ["O-PENDING"] = "КУДА?" }
 
 local header = [[
  ██████╗ ██╗    ██╗███╗   ██╗
@@ -83,49 +80,6 @@ M.plugins = {
         },
       },
     },
-  },
-  {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    init = function()
-      vim.g.lualine_laststatus = vim.o.laststatus
-      -- пока lualine не загрузился — пустая строка, без мигания стандартной
-      vim.o.statusline = " "
-    end,
-    opts = function()
-      return {
-        options = {
-          theme = "auto",
-          globalstatus = vim.o.laststatus == 3,
-          disabled_filetypes = { statusline = { "snacks_dashboard" } },
-          section_separators = { left = "\u{e0b4}", right = "\u{e0b6}" },
-          component_separators = { left = "", right = "" },
-        },
-        sections = {
-          lualine_a = { { "mode", fmt = function(m) return ru[m] or m end, separator = { left = "\u{e0b6}" }, right_padding = 2 } },
-          lualine_b = { "branch" },
-          lualine_c = {
-            { "diagnostics" },
-            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-            { "filename", path = 1, symbols = { modified = " ●", readonly = " 󰌾", unnamed = "" } },
-          },
-          lualine_x = {
-            -- какие языковые серверы подключены к файлу (как значок gopls в углу GoLand)
-            {
-              function()
-                local names = vim.tbl_map(function(c) return c.name end, vim.lsp.get_clients({ bufnr = 0 }))
-                return #names > 0 and ("\u{f085} " .. table.concat(names, " ")) or ""
-              end,
-              color = function() return { fg = Snacks.util.color("Comment") } end,
-            },
-            { "diff", symbols = { added = "\u{f0fe} ", modified = "\u{f14b} ", removed = "\u{f146} " } },
-          },
-          lualine_y = { { "progress", separator = " ", padding = { left = 1, right = 0 } }, { "location", padding = { left = 0, right = 1 } } },
-          lualine_z = { { function() return "\u{f43a} " .. os.date("%H:%M") end, separator = { right = "\u{e0b4}" }, left_padding = 2 } },
-        },
-        extensions = { "lazy", "quickfix", "man" },
-      }
-    end,
   },
 }
 

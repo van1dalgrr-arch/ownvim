@@ -24,6 +24,19 @@
     "overrides": {},
   },
 
+  // Статусная строка — блоки, как элементы status bar в VS Code. Стили: "bubbles", "arrows", "slant", "flat", "plain".
+  // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro
+  // и свои из custom: { "имя": { "text": "…", "color": "pink" } } или { "shell": "команда", "every_ms": 10000, "icon": "…" }
+  "statusline": {
+    "style": "bubbles",
+    "left": ["mode", "branch", "diagnostics", "file"],
+    "right": ["search", "macro", "lsp", "position", "time"],
+    "path": "relative", // "name" — только имя файла, "full" — от ~
+    "time_format": "%H:%M",
+    "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
+    "custom": {},
+  },
+
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
@@ -103,6 +116,7 @@
       "folds": true,
     },
     "editing": true, // скобки, текстовые объекты, обрамление, flash, TODO
+    "statusline": true, // своя статусная строка (раздел statusline ниже)
     "icons": true, // темы иконок (раздел icons ниже)
     "themes": true, // tokyonight, rose-pine в цветах терминала и ещё семь — alt-s
     "modes": {
