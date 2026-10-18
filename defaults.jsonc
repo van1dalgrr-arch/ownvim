@@ -3,9 +3,22 @@
 // Сохранил settings.jsonc — тема, опции, клавиши и настройки модулей применились сразу;
 // включить/выключить модуль или плагин — после :restart.
 {
-  // Тема: "auto" — выбранная в alt-s (по умолчанию tokyonight), или имя: "rose-pine" (в цветах терминала),
-  // "kanagawa", "kanagawa-dragon", "carbonfox", "cyberdream", "vesper", "gruvbox-material", "catppuccin-mocha"…
-  "theme": "auto",
+  // Тема: имя, или { "dark": …, "light": … } — по тёмной/светлой теме системы, или "auto" — выбранная в alt-s.
+  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, sunset; новая — :ThemeNew <имя>, правка — :ThemeEdit,
+  // из VS Code — :ThemeInstall <издатель.расширение>. Темы-плагины тоже: "tokyonight", "rose-pine", "kanagawa",
+  // "carbonfox", "cyberdream", "vesper", "gruvbox-material", "catppuccin-mocha"…
+  "theme": { "dark": "dev-night", "light": "dev-day" },
+
+  // Свои цвета поверх любой темы, как workbench.colorCustomizations в VS Code (только для JSON-тем):
+  //   "colors": { "palette": { "accent": "#f472b6" }, "syntax": { "comment": { "fg": "#6b7280", "italic": false } },
+  //               "groups": { "LineNr": { "fg": "#444444" } },
+  //               "[dev-night]": { "palette": { "bg": "#000000" } } } — только для этой темы
+  "colors": {},
+
+  // Вид
+  "appearance": {
+    "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
+  },
 
   // Переменные vim.g
   "globals": {

@@ -1,0 +1,45 @@
+// Dev Night — тема dotfiles (как в Zed и Rune): почти чёрный, фиолетовый акцент, жёлтые строки, розовые типы
+{
+  "name": "Dev Night",
+  "type": "dark",
+  "palette": {
+    "bg": "#101010",
+    "bg_alt": "#141414",
+    "bg_highlight": "#171717",
+    "bg_visual": "#2a1f3d",
+    "border": "#262626",
+    "fg": "#d6d9e8",
+    "fg_dim": "#a0a8d0",
+    "fg_muted": "#575c72",
+    "accent": "#a855f7",
+    "red": "#ef4444",
+    "orange": "#f97316",
+    "yellow": "#eab308",
+    "green": "#22c55e",
+    "cyan": "#0ea5e9",
+    "blue": "#3b82f6",
+    "purple": "#a855f7",
+    "pink": "#ec4899"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "yellow",
+    "type": "pink",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "variable": "fg",
+    "property": "#818cf8",
+    "attribute": "#818cf8",
+    "operator": "#a0a8d0",
+    "punctuation": "#686d86",
+    "builtin": "red",
+    "parameter": "#c8cce0",
+    "namespace": "#a0a8d0"
+  }
+}

@@ -59,7 +59,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `picker` | find files, text, commands, file tree (Snacks); `alt-c` in a picker — project ↔ launch folder |
 | `treesitter` | highlighting, indent, folds; languages listed in settings, missing ones install themselves |
 | `editing` | pairs, text objects `af`/`ic`/`ao`, surround `gsa`/`gsd`/`gsr`, `s` to jump, TODO |
-| `themes` | tokyonight, rose-pine in the terminal's colors and seven more — `alt-s` with a preview |
+| `themes` | own theme engine: a theme is JSON in `themes/` (Dev Night, Dev Day, Sunset); `:ThemeNew` — your own (save — it repaints), `:ThemeInstall publisher.name` — any VS Code theme (Open VSX / Marketplace), `:ThemeEdit`; `"theme": { "dark", "light" }` follows the system; `"colors"` — overrides on top, as in VS Code; `alt-s` — picker with a preview, writes settings.jsonc. Plugin themes (tokyonight, rose-pine…) still work |
 | `modes` | mode shown by cursor and line color, leaves insert after a pause |
 | `autosave` | files write themselves, outside changes are picked up |
 | `russian` | commands in the Russian layout (`о` = `j`, `вв` = `dd`), alt keys work in it too |

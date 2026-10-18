@@ -13,7 +13,8 @@ M.files = { defaults = dir .. "/defaults.jsonc", user = dir .. "/settings.jsonc"
 local ns = vim.api.nvim_create_namespace("own.settings")
 local TOP = { theme = true, options = true, globals = true, modules = true, keys = true, plugins = true,
   lsp = true, diagnostics = true, tools = true, completion = true, format = true, lint = true,
-  test = true, debug = true, database = true }
+  test = true, debug = true, database = true,
+  colors = true, appearance = true }
 
 M.current = nil -- последние применённые настройки
 M.problems = {} -- путь → { диагностика }
@@ -26,7 +27,8 @@ local function read(path)
   return text
 end
 
-local function is_dict(t) return type(t) == "table" and not vim.islist(t) end
+-- пустой {} — тоже объект: vim.islist({}) == true, и "keys": {} иначе стёр бы все клавиши по умолчанию
+local function is_dict(t) return type(t) == "table" and (next(t) == nil or not vim.islist(t)) end
 
 -- слияние слоёв: объекты — по ключам, остальное заменяется целиком.
 -- true поверх объекта оставляет объект: "modes": true значит «включён, с настройками по умолчанию»
@@ -46,7 +48,7 @@ local function check(path, text, value, problems)
     if not TOP[key] then
       local lnum, col = jsonc.find_key(text, key)
       problems[#problems + 1] = { lnum = (lnum or 1) - 1, col = col or 0, severity = vim.diagnostic.severity.WARN,
-        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database"):format(key) }
+        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance"):format(key) }
     end
   end
   for name in pairs(value.modules or {}) do
@@ -132,6 +134,7 @@ end
 
 --- Следить за сохранением settings.jsonc / defaults.jsonc: перечитать и отдать on_change(новые, старые)
 function M.watch(on_change)
+  M.on_change = on_change
   local group = vim.api.nvim_create_augroup("own.settings", { clear = true })
   local targets = {}
   for _, p in pairs(M.files) do targets[vim.fn.resolve(p)] = true end
@@ -160,6 +163,67 @@ function M.watch(on_change)
       if targets[vim.fn.resolve(vim.api.nvim_buf_get_name(ev.buf))] then vim.schedule(M.show_problems) end
     end,
   })
+end
+
+-- конец значения JSON, которое начинается в позиции i: объект/массив — до парной скобки, строка — до кавычки
+local function value_end(text, i)
+  local c = text:sub(i, i)
+  if c == '"' then
+    local j = i + 1
+    while j <= #text do
+      local d = text:sub(j, j)
+      if d == "\\" then j = j + 1 elseif d == '"' then return j end
+      j = j + 1
+    end
+    return #text
+  end
+  if c == "{" or c == "[" then
+    local depth, j, in_str = 0, i, false
+    while j <= #text do
+      local d = text:sub(j, j)
+      if in_str then
+        if d == "\\" then j = j + 1 elseif d == '"' then in_str = false end
+      elseif d == '"' then in_str = true
+      elseif d == "{" or d == "[" then depth = depth + 1
+      elseif d == "}" or d == "]" then
+        depth = depth - 1
+        if depth == 0 then return j end
+      end
+      j = j + 1
+    end
+    return #text
+  end
+  local j = text:find("[,\n}]", i) or (#text + 1)
+  return j - 1
+end
+
+--- Записать верхний ключ в settings.jsonc, не трогая комментарии и остальное (как VS Code пишет settings.json).
+--- Применяется как при сохранении — через on_change, переданный в watch.
+function M.set(key, value)
+  local path = M.files.user
+  local text = read(path) or "{\n}\n"
+  local json = vim.json.encode(value)
+  -- ищем по тексту без комментариев (позиции совпадают), правим исходный
+  local clean = jsonc.strip(text)
+  local _, e = clean:match('()"' .. vim.pesc(key) .. '"%s*:%s*()')
+  if e then
+    text = text:sub(1, e - 1) .. json .. text:sub(value_end(clean, e) + 1)
+  else
+    local brace = clean:find("{", 1, true)
+    if not brace then text, brace = "{\n}\n", 1 end
+    text = text:sub(1, brace) .. ("\n  %q: %s,"):format(key, json) .. text:sub(brace + 1)
+  end
+  local f = assert(io.open(path, "w"))
+  f:write(text)
+  f:close()
+  local buf = vim.fn.bufnr(path)
+  if buf ~= -1 then vim.api.nvim_buf_call(buf, function() vim.cmd("silent! checktime") end) end
+  local new = M.load()
+  if new and M.on_change then
+    local old = M.current
+    M.current = new
+    M.on_change(new, old)
+  end
 end
 
 --- :Settings — открыть свой слой; :Settings defaults — посмотреть все умолчания

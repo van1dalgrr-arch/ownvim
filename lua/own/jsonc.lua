@@ -69,6 +69,9 @@ local function position(text, offset)
   return lines + 1, #last
 end
 
+--- Текст без комментариев (заменены пробелами — позиции те же, что в исходном)
+M.strip = strip_comments
+
 --- Разобрать JSONC.
 --- @return table|nil value, {lnum: integer, col: integer, message: string}|nil err
 function M.decode(text)

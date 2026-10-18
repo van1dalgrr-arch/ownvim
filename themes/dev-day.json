@@ -1,0 +1,47 @@
+// Dev Day — светлая пара Dev Night (как в Zed и Rune)
+{
+  "name": "Dev Day",
+  "type": "light",
+  "palette": {
+    "bg": "#fafafb",
+    "bg_alt": "#f1f1f5",
+    "bg_highlight": "#f3effd",
+    "bg_visual": "#e1e1ea",
+    "border": "#e3e3ea",
+    "fg": "#1b1e2d",
+    "fg_dim": "#4a5277",
+    "fg_muted": "#7d8199",
+    "accent": "#7c3aed",
+    "red": "#dc2626",
+    "orange": "#c2410c",
+    "yellow": "#a16207",
+    "green": "#15803d",
+    "cyan": "#0284c7",
+    "blue": "#2563eb",
+    "purple": "#7c3aed",
+    "pink": "#db2777",
+    "diff_add": "#e3ebfd",
+    "diff_delete": "#fde8ec"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "yellow",
+    "type": "pink",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "variable": "fg",
+    "property": "#4f46e5",
+    "attribute": "#4f46e5",
+    "operator": "#4a5277",
+    "punctuation": "#6c7190",
+    "builtin": "red",
+    "parameter": "#3d4262",
+    "namespace": "#4a5277"
+  }
+}

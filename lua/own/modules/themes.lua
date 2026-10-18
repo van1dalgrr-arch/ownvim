@@ -1,4 +1,5 @@
--- Темы: tokyonight (как была), rose-pine в цветах терминала (палитра из themes/<тема>.sh — та же,
+-- Темы: свои JSON (themes/*.json — Dev Night, Dev Day, Sunset; движок — lua/own/theme), tokyonight,
+-- rose-pine в цветах терминала (палитра из themes/<тема>.sh — та же,
 -- что красит Ghostty, если стоят dotfiles), и ещё семь на выбор — alt-s, предпросмотр на всём редакторе.
 -- Какая стоит — раздел theme: "auto" — та, что выбрана в alt-s (по умолчанию tokyonight),
 -- или имя темы, например "rose-pine" / "kanagawa-dragon" / "catppuccin-mocha".
@@ -43,22 +44,37 @@ M.plugins = {
   },
 }
 
-local applied
+local engine = require("own.theme")
+local applied, applied_extra
 
---- Поставить тему из настроек; "auto" — запомненная в alt-s
-function M.apply(name)
-  if name == applied then return end
-  applied = name
+--- Поставить тему из настроек: имя, { "dark": …, "light": … } (по фону системы) или "auto" — запомненная в alt-s.
+--- JSON-темы перекрашиваются и когда поменялись "colors"/"appearance" в settings.jsonc.
+function M.apply(setting)
+  local s = require("own.settings").current or {}
+  local name = engine.wanted(setting)
+  local extra = vim.inspect({ s.colors, s.appearance })
+  if name == applied and (extra == applied_extra or not engine.exists(name)) then return end
+  applied, applied_extra = name, extra
   if not name or name == "auto" then return require("own.themes").load() end
   if not pcall(vim.cmd.colorscheme, name) then
-    require("own.settings").warn("theme", ("нет темы %q — список: alt-s"):format(name))
+    require("own.settings").warn("theme", ("нет темы %q — список: alt-s, свои — :ThemeNew, из VS Code — :ThemeInstall"):format(name))
     require("own.themes").load()
   end
 end
 
 function M.setup()
+  engine.setup()
   -- свои группы (▶, «реализует:», мультикурсоры) в любой теме; rose-pine следит за темой dotfiles
   require("own.palette").watch()
+  -- { "dark": …, "light": … }: система сменила тёмную/светлую — сменилась и тема
+  vim.api.nvim_create_autocmd("OptionSet", {
+    group = vim.api.nvim_create_augroup("own.themes.bg", { clear = true }),
+    pattern = "background",
+    callback = function()
+      local setting = (require("own.settings").current or {}).theme
+      if type(setting) == "table" then vim.schedule(function() M.apply(setting) end) end
+    end,
+  })
 end
 
 return M

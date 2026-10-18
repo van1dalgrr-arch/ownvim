@@ -1,10 +1,10 @@
 -- Выбор темы с предпросмотром: alt-s (или пробел u C). Курсор по списку — весь редактор сразу в этой теме,
--- справа под списком — твой же код; enter — применить и запомнить (nvim стартует с ней), esc — вернуть как было.
+-- справа под списком — твой же код; enter — применить и записать в settings.jsonc ("theme"), esc — вернуть как было.
 -- Запомненная тема лежит в ~/.local/state/ownvim/colorscheme; по умолчанию — tokyonight.
 -- В settings.jsonc "theme" с именем темы важнее запомненной; "auto" — запомненная.
 local M = {}
 
-local DEFAULT = "tokyonight"
+local DEFAULT = "dev-night"
 local file = vim.fn.stdpath("state") .. "/colorscheme"
 
 function M.saved()
@@ -132,9 +132,17 @@ function M.pick()
       if not item then return end
       vim.schedule(function()
         vim.cmd.colorscheme(item.text)
-        vim.fn.mkdir(vim.fn.fnamemodify(file, ":h"), "p")
-        vim.fn.writefile({ item.text }, file)
-        vim.notify("тема: " .. item.text .. " — запомнил, nvim будет стартовать с ней")
+        -- как в VS Code: выбор темы пишется в настройки; пара тёмная/светлая — в свою половину
+        local settings = require("own.settings")
+        local cur = (settings.current or {}).theme
+        if type(cur) == "table" then
+          cur = vim.deepcopy(cur)
+          cur[vim.o.background] = item.text
+        else
+          cur = item.text
+        end
+        settings.set("theme", cur)
+        vim.notify(("тема: %s — записал в settings.jsonc (\"theme\")"):format(item.text))
       end)
     end,
   })
