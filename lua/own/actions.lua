@@ -160,6 +160,39 @@ M.list = {
   ["lsp.word_prev"] = { function() Snacks.words.jump(-vim.v.count1) end, "Предыдущее упоминание" },
   mason = { "<cmd>Mason<cr>", "Mason: серверы и утилиты" },
   format = { function() require("own.modules.format").format() end, "Отформатировать" },
+
+  -- тесты (neotest)
+  ["test.nearest"] = { function() require("neotest").run.run() end, "Тест под курсором" },
+  ["test.file"] = { function() require("neotest").run.run(vim.fn.expand("%")) end, "Тесты файла" },
+  ["test.all"] = { function() require("neotest").run.run(vim.uv.cwd()) end, "Все тесты проекта" },
+  ["test.last"] = { function() require("neotest").run.run_last() end, "Повторить последний" },
+  ["test.debug"] = { function() require("neotest").run.run({ strategy = "dap" }) end, "Тест под курсором — в отладчике" },
+  ["test.stop"] = { function() require("neotest").run.stop() end, "Остановить тесты" },
+  ["test.summary"] = { function() require("neotest").summary.toggle() end, "Дерево тестов" },
+  ["test.output"] = { function() require("neotest").output.open({ enter = true, auto_close = true }) end, "Вывод теста" },
+  ["test.output_panel"] = { function() require("neotest").output_panel.toggle() end, "Панель вывода тестов" },
+  ["test.watch"] = { function() require("neotest").watch.toggle(vim.fn.expand("%")) end, "Перезапускать при сохранении" },
+
+  -- отладчик (nvim-dap)
+  ["debug.breakpoint"] = { function() require("persistent-breakpoints.api").toggle_breakpoint() end, "Точка останова" },
+  ["debug.breakpoint_condition"] = { function() require("persistent-breakpoints.api").set_conditional_breakpoint() end, "Точка останова с условием" },
+  ["debug.continue"] = { function() require("dap").continue() end, "Запустить / дальше" },
+  ["debug.run_to_cursor"] = { function() require("dap").run_to_cursor() end, "До курсора" },
+  ["debug.step_over"] = { function() require("dap").step_over() end, "Шаг" },
+  ["debug.step_into"] = { function() require("dap").step_into() end, "Внутрь" },
+  ["debug.step_out"] = { function() require("dap").step_out() end, "Наружу" },
+  ["debug.run_last"] = { function() require("dap").run_last() end, "Повторить последний запуск" },
+  ["debug.pause"] = { function() require("dap").pause() end, "Пауза" },
+  ["debug.terminate"] = { function() require("dap").terminate() end, "Остановить" },
+  ["debug.repl"] = { function() require("dap").repl.toggle() end, "REPL" },
+  ["debug.ui"] = { function() require("dapui").toggle({}) end, "Панели отладчика" },
+  ["debug.eval"] = { function() require("dapui").eval() end, "Значение выражения" },
+  ["debug.up"] = { function() require("dap").up() end, "Кадр стека выше" },
+  ["debug.down"] = { function() require("dap").down() end, "Кадр стека ниже" },
+
+  -- база данных (dadbod)
+  database = { "<cmd>DBUIToggle<cr>", "База данных" },
+  ["database.add"] = { "<cmd>DBUIAddConnection<cr>", "Добавить подключение" },
   ["format.info"] = { "<cmd>ConformInfo<cr>", "Чем форматируется этот файл" },
   ["toggle.format"] = {
     function()

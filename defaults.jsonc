@@ -95,6 +95,9 @@
     "completion": true, // автодополнение (раздел completion ниже)
     "format": true, // форматирование при сохранении (раздел format ниже)
     "lint": true, // линтеры: golangci-lint, hadolint (раздел lint ниже)
+    "test": true, // тесты: neotest (раздел test ниже)
+    "debug": true, // отладчик: dap + delve (раздел debug ниже)
+    "database": true, // база данных: dadbod (раздел database ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
 
@@ -200,6 +203,43 @@
       "dockerfile": ["hadolint"],
     },
     "linters": {}, // настройки линтера, как в nvim-lint: { "golangcilint": { "args": [...] } }
+  },
+
+  // Тесты (neotest). adapters: имя → настройки (true — по умолчанию, false — выкл);
+  // свой адаптер — { "repo": "автор/плагин", … }. Известные: neotest-golang, neotest-python, neotest-rust (нужен cargo-nextest)
+  "test": {
+    "adapters": {
+      "neotest-golang": { "go_test_args": ["-v", "-race", "-count=1", "-timeout=60s"], "dap_go_enabled": true },
+      "neotest-python": true,
+    },
+    "status": { "virtual_text": true, "signs": true },
+    "output": { "open_on_run": false }, // вывод — пробел t o
+    "diagnostic": { "enabled": true, "severity": "error" }, // упавшая проверка — ошибкой на её строке
+    "failed_as_error": true, // Go: t.Errorf в упавшем тесте — ошибка, t.Log в прошедшем — подсказка
+  },
+
+  // Отладчик (nvim-dap). Для Go — delve (ставится сам)
+  "debug": {
+    "ui": true, // панели переменных, стека, точек останова — сами при старте отладки
+    "virtual_text": true, // значения переменных серым прямо в коде
+    "signs": { "breakpoint": "●", "condition": "◆", "rejected": "○", "log": "◉", "stopped": "→" },
+    "go": {
+      "delve": "dlv",
+      // свои конфигурации запуска, как в nvim-dap-go. По умолчанию — подключиться к dlv в Docker:
+      //   dlv debug ./cmd/api --headless --listen=:2345 --accept-multiclient --api-version=2 (порт 2345 наружу, код в /app)
+      "configurations": [
+        {
+          "type": "go", "name": "Подключиться к dlv в Docker (:2345)", "mode": "remote", "request": "attach",
+          "host": "127.0.0.1", "port": "2345", "substitutePath": [{ "from": "${workspaceFolder}", "to": "/app" }],
+        },
+      ],
+    },
+  },
+
+  // База данных (dadbod): пробел D / alt-d — подключения и таблицы; в .sql — дополнение по таблицам
+  "database": {
+    "connections": {}, // "имя": "postgres://user:pass@localhost:5432/db"
+    "project_env": true, // подключение проекта само: DATABASE_URL из .env, иначе postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка>
   },
 
   // Откуда брать серверы, форматтеры и линтеры: "mason" — ставит сам при первом запуске (в ~/.local/share/ownvim/mason),
@@ -369,6 +409,44 @@
     "nx <leader>cf": "format",
     "n <leader>cF": "format.info",
     "n <leader>uf": "toggle.format",
+
+    // тесты
+    "n <leader>tr": "test.nearest",
+    "n <leader>tt": "test.file",
+    "n <leader>tT": "test.all",
+    "n <leader>tl": "test.last",
+    "n <leader>td": "test.debug",
+    "n <leader>tS": "test.stop",
+    "n <leader>ts": "test.summary",
+    "n <leader>to": "test.output",
+    "n <leader>tO": "test.output_panel",
+    "n <leader>tw": "test.watch",
+
+    // отладчик — F-клавиши как в GoLand (на маке через fn)
+    "n <F9>": "debug.continue",
+    "n <F8>": "debug.step_over",
+    "n <F7>": "debug.step_into",
+    "n <S-F8>": "debug.step_out",
+    "n <C-F8>": "debug.breakpoint",
+    "n <leader>db": "debug.breakpoint",
+    "n <leader>dB": "debug.breakpoint_condition",
+    "n <leader>dc": "debug.continue",
+    "n <leader>dC": "debug.run_to_cursor",
+    "n <leader>dO": "debug.step_over",
+    "n <leader>di": "debug.step_into",
+    "n <leader>do": "debug.step_out",
+    "n <leader>dl": "debug.run_last",
+    "n <leader>dP": "debug.pause",
+    "n <leader>dt": "debug.terminate",
+    "n <leader>dr": "debug.repl",
+    "n <leader>du": "debug.ui",
+    "nx <leader>de": "debug.eval",
+    "n <leader>dk": "debug.up",
+    "n <leader>dj": "debug.down",
+
+    // база данных
+    "n <leader>D": "database",
+    "n <M-d>": "database",
     "n <leader>ss": "lsp.symbols",
     "n <leader>sS": "lsp.workspace_symbols",
     "n <leader>ci": "lsp.incoming_calls",

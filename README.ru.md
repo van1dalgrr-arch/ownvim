@@ -3,7 +3,7 @@
 🇬🇧 [English](README.md)
 
 Neovim без LazyVim: свой код на ~1500 строк, идеи взяты из LazyVim. Всё настраивается в одном
-JSON-файле, без Lua. Стартует за 20 мс (тот же набор на LazyVim — за 49).
+JSON-файле, без Lua. Стартует примерно за 40 мс (LazyVim-сборка из dotfiles — за 49).
 
 ## Установка
 
@@ -68,6 +68,9 @@ ownvim                                   # первый запуск сам по
 | `completion` | автодополнение (blink): меню с описанием, продолжение серым в строке, подсказка аргументов, сниппеты (свои — `snippets/<язык>.json`, для Go: `ife`, `errw`, `tt`, `gh`…). Раздел `completion` |
 | `format` | форматирование при сохранении (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; остальное — языковой сервер. `пробел c f`, `пробел u f` — выкл. Раздел `format` |
 | `lint` | линтеры сверх сервера (nvim-lint): Go — golangci-lint (с `.golangci.yml` проекта), Dockerfile — hadolint. Раздел `lint` |
+| `test` | тесты (neotest): `пробел t r` — под курсором, `t t` — файл, `t T` — все, `t o` — вывод; упавшая проверка — ошибкой на её строке. Go, Python (Rust — с cargo-nextest). Раздел `test` |
+| `debug` | отладчик (nvim-dap + delve): F9 запуск, F8 шаг, F7 внутрь, shift-F8 наружу, ctrl-F8 точка останова (сохраняются между запусками); панели и значения переменных в коде; подключение к dlv в Docker. Раздел `debug` |
+| `database` | база (dadbod): `пробел D` / `alt-d` — подключения и таблицы, подключение проекта из `.env` само; в `.sql` дополнение по таблицам. Раздел `database` |
 | `lsp` | языковые серверы для Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — ставятся сами через mason; ошибки на строках, `gd`/`gr`/`K`, переименование `пробел c r`, исправления `пробел c a`, подсказки типов. Разделы `lsp`, `diagnostics`, `tools` |
 
 Код модулей — `lua/own/modules/<имя>.lua`, ядро — `lua/own/` (настройки, JSONC, клавиши, действия).

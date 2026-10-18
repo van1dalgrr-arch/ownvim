@@ -3,7 +3,7 @@
 🇷🇺 [Русская версия](README.ru.md)
 
 Neovim without LazyVim: ~1500 lines of own code, ideas taken from LazyVim. Everything is set in one
-JSON file, no Lua needed. Starts in 20 ms (the same set on LazyVim takes 49).
+JSON file, no Lua needed. Starts in about 40 ms (the LazyVim build in dotfiles takes 49).
 
 ## Install
 
@@ -68,6 +68,9 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `completion` | completion (blink): menu with docs, ghost text, signature help, snippets (own ones in `snippets/<lang>.json`, for Go: `ife`, `errw`, `tt`, `gh`…). Section `completion` |
 | `format` | format on save (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; the rest — the language server. `space c f`, `space u f` toggles. Section `format` |
 | `lint` | linters on top of the server (nvim-lint): Go — golangci-lint (with the project's `.golangci.yml`), Dockerfile — hadolint. Section `lint` |
+| `test` | tests (neotest): `space t r` — nearest, `t t` — file, `t T` — all, `t o` — output; a failed check is an error on its line. Go, Python (Rust — with cargo-nextest). Section `test` |
+| `debug` | debugger (nvim-dap + delve): F9 run, F8 step, F7 into, shift-F8 out, ctrl-F8 breakpoint (kept across restarts); panels and variable values in the code; attach to dlv in Docker. Section `debug` |
+| `database` | database (dadbod): `space D` / `alt-d` — connections and tables, the project's connection from `.env` by itself; table completion in `.sql`. Section `database` |
 | `lsp` | language servers for Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — mason installs them; errors on their lines, `gd`/`gr`/`K`, rename `space c r`, fixes `space c a`, inlay hints. Sections `lsp`, `diagnostics`, `tools` |
 
 Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).
