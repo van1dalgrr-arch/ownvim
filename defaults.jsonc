@@ -94,6 +94,7 @@
     "smear_cursor": false, // летающий курсор
     "completion": true, // автодополнение (раздел completion ниже)
     "format": true, // форматирование при сохранении (раздел format ниже)
+    "lint": true, // линтеры: golangci-lint, hadolint (раздел lint ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
 
@@ -189,6 +190,16 @@
       "pg_format": { "prepend_args": ["--spaces", "2", "--keyword-case", "2", "--type-case", "2"] }, // 2 — ЗАГЛАВНЫЕ
       "shfmt": { "prepend_args": ["-ci"] }, // отступ shfmt берёт из shiftwidth файла
     },
+  },
+
+  // Линтеры — проверки сверх языкового сервера. Имена: github.com/mfussenegger/nvim-lint#available-linters
+  "lint": {
+    "events": ["BufReadPost", "BufWritePost", "InsertLeave"],
+    "languages": {
+      "go": ["golangcilint"], // берёт .golangci.yml проекта
+      "dockerfile": ["hadolint"],
+    },
+    "linters": {}, // настройки линтера, как в nvim-lint: { "golangcilint": { "args": [...] } }
   },
 
   // Откуда брать серверы, форматтеры и линтеры: "mason" — ставит сам при первом запуске (в ~/.local/share/ownvim/mason),

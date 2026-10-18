@@ -67,6 +67,7 @@ ownvim                                   # первый запуск сам по
 | `smear_cursor` | летающий курсор (выключен) |
 | `completion` | автодополнение (blink): меню с описанием, продолжение серым в строке, подсказка аргументов, сниппеты (свои — `snippets/<язык>.json`, для Go: `ife`, `errw`, `tt`, `gh`…). Раздел `completion` |
 | `format` | форматирование при сохранении (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; остальное — языковой сервер. `пробел c f`, `пробел u f` — выкл. Раздел `format` |
+| `lint` | линтеры сверх сервера (nvim-lint): Go — golangci-lint (с `.golangci.yml` проекта), Dockerfile — hadolint. Раздел `lint` |
 | `lsp` | языковые серверы для Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — ставятся сами через mason; ошибки на строках, `gd`/`gr`/`K`, переименование `пробел c r`, исправления `пробел c a`, подсказки типов. Разделы `lsp`, `diagnostics`, `tools` |
 
 Код модулей — `lua/own/modules/<имя>.lua`, ядро — `lua/own/` (настройки, JSONC, клавиши, действия).
