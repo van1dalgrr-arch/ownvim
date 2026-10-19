@@ -175,7 +175,7 @@
     "treesitter": {
       "languages": ["bash", "c", "diff", "go", "gomod", "gosum", "gowork", "html", "javascript", "json", "lua", "luadoc",
         "markdown", "markdown_inline", "printf", "python", "query", "regex", "sql", "toml", "typescript", "vim", "vimdoc",
-        "xml", "yaml", "dockerfile", "http"],
+        "xml", "yaml", "dockerfile", "http", "cpp", "cmake", "make"],
       "indent": true,
       "folds": true,
       "auto_install": true, // парсер другого языка — сам, когда открыл его файл
@@ -268,6 +268,14 @@
       "postgres_lsp": { "root_markers": ["postgres-language-server.jsonc", ".git"], "workspace_required": false },
       // Docker: Dockerfile, compose, bake — официальный сервер Docker
       "docker_language_server": true,
+      // C / C++: clangd из системы (Apple знает пути к заголовкам macOS) — дополнение, ошибки, clang-tidy, .h ↔ .cpp.
+      // Проект собирается с compile_commands.json (cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON) — тогда clangd знает флаги
+      "clangd": {
+        "cmd": ["clangd", "--background-index", "--clang-tidy", "--header-insertion=iwyu", "--completion-style=detailed",
+          "--function-arg-placeholders", "--fallback-style=llvm"],
+        "init_options": { "usePlaceholders": true, "completeUnimported": true, "clangdFileStatus": true },
+      },
+      "neocmake": true, // CMakeLists.txt: дополнение команд и переменных, ошибки
       // Python
       "basedpyright": true,
       "ruff": true,
@@ -315,6 +323,8 @@
       "sql": ["pg_format"],
       "python": ["ruff_organize_imports", "ruff_format"],
       "rust": ["rustfmt"],
+      "c": ["clang_format"], // стиль — .clang-format проекта, нет его — LLVM
+      "cpp": ["clang_format"],
       "sh": ["shfmt"],
       "toml": ["taplo"],
     },
@@ -357,6 +367,17 @@
     "ui": true, // панели переменных, стека, точек останова — сами при старте отладки
     "virtual_text": true, // значения переменных серым прямо в коде
     "signs": { "breakpoint": "●", "condition": "◆", "rejected": "○", "log": "◉", "stopped": "→" },
+    // C / C++ / Rust: codelldb (ставится сам). Свои конфигурации — как в nvim-dap; в значениях:
+    // "${prompt:Текст: }" — спросить при запуске, "${pick_process}" — выбрать процесс
+    "cpp": {
+      "configurations": [
+        {
+          "name": "Запустить программу", "type": "codelldb", "request": "launch",
+          "program": "${prompt:Программа: }", "args": [], "cwd": "${workspaceFolder}", "stopOnEntry": false,
+        },
+        { "name": "Подключиться к процессу", "type": "codelldb", "request": "attach", "pid": "${pick_process}" },
+      ],
+    },
     "go": {
       "delve": "dlv",
       // свои конфигурации запуска, как в nvim-dap-go. По умолчанию — подключиться к dlv в Docker:
@@ -383,7 +404,8 @@
     "coverage_file": "/tmp/cover.out",
   },
 
-  // Задачи (пробел r r, alt-t): when — видна, если в корне есть файл; в cmd: ${root}, ${file}, ${file_dir}, ${image}
+  // Задачи (пробел r r, alt-t): when — видна, если в корне есть файл/папка; ft — если открыт файл этого языка;
+  // в cmd: ${root}, ${file}, ${file_dir}, ${image}
   "tasks": {
     "list": [
       { "name": "up — зависимости из compose + приложение", "cmd": "zsh -ic up", "when": ["go.mod"] },
@@ -404,6 +426,11 @@
       { "name": "docker build — образ проекта", "cmd": "docker build -t ${image} .", "when": ["Dockerfile"] },
       { "name": "hadolint — текущий Dockerfile", "cmd": "hadolint ${file}", "when": ["Dockerfile"] },
       { "name": "trivy — уязвимости образа", "cmd": "trivy image --severity HIGH,CRITICAL ${image}", "when": ["Dockerfile"] },
+      { "name": "cmake: настроить (Debug, compile_commands.json)", "cmd": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && ln -sf build/compile_commands.json .", "when": ["CMakeLists.txt"] },
+      { "name": "cmake: собрать", "cmd": "cmake --build build -j", "when": ["CMakeLists.txt"] },
+      { "name": "cmake: тесты (ctest)", "cmd": "ctest --test-dir build --output-on-failure", "when": ["CMakeLists.txt"] },
+      { "name": "make", "cmd": "make -j", "when": ["Makefile"] },
+      { "name": "C++: собрать и запустить текущий файл", "cmd": "clang++ -std=c++20 -g -Wall -Wextra -o /tmp/a.out ${file} && /tmp/a.out", "ft": ["cpp"] },
       { "name": "dot project doctor", "cmd": "dot project doctor ${root}" },
       { "name": "dot work — что поднято", "cmd": "dot work" },
     ],
@@ -660,6 +687,7 @@
     "n <leader>sS": "lsp.workspace_symbols",
     "n <leader>ch": "lsp.incoming_calls",
     "n <leader>cH": "lsp.outgoing_calls",
+    "n <leader>cs": "cpp.switch", // C/C++: .h ↔ .cpp
     "nx <leader>cx": "refactor.extract",
     "nx <leader>ci": "refactor.inline",
     "nx <leader>cw": "refactor.rewrite",

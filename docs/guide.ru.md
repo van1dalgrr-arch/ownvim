@@ -2,7 +2,7 @@
 
 🇬🇧 [English](guide.md) · [Все клавиши](keys.ru.md) · [README](../README.ru.md)
 
-ownvim — своя IDE в терминале для бэкенда: Go, SQL, Docker, Python, Rust. Всё, что видно и как работает, задаётся
+ownvim — своя IDE в терминале для бэкенда: Go, C/C++, SQL, Docker, Python, Rust. Всё, что видно и как работает, задаётся
 в одном файле — `settings.jsonc`. Lua писать не нужно.
 
 - [Установка](#установка)
@@ -222,6 +222,14 @@ alt-клавиши сами работают и в русской расклад
 [conform](https://github.com/stevearc/conform.nvim#formatters), линтеров —
 [nvim-lint](https://github.com/mfussenegger/nvim-lint#available-linters). Настройки сервера — как в
 `vim.lsp.config`: `"gopls": { "settings": { "gopls": { "staticcheck": true } } }` — уходят в работающий сервер сразу.
+
+### C / C++
+
+Из коробки: clangd (дополнение, ошибки, clang-tidy, переходы; `пробел c s` — `.h` ↔ `.cpp`), clang-format при
+сохранении (стиль — `.clang-format` проекта, иначе LLVM), CMake-сервер для `CMakeLists.txt`, отладчик codelldb
+(`F9` — «Запустить программу» спросит путь к бинарнику, или «Подключиться к процессу»), задачи cmake / make /
+«собрать и запустить текущий файл» (`пробел r r`). Чтобы clangd знал флаги проекта, нужен `compile_commands.json` —
+его делает задача «cmake: настроить» (нужен `brew install cmake`).
 
 ### Задачи
 

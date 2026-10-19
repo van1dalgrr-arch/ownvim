@@ -59,6 +59,31 @@ function M.plugins()
           dap.listeners.before.event_terminated.own = function() require("dapui").close({}) end
           dap.listeners.before.event_exited.own = function() require("dapui").close({}) end
         end
+        -- C/C++/Rust: codelldb; в конфигурациях из JSON — "${prompt:…}" и "${pick_process}" вместо функций
+        local cpp = o.cpp
+        if cpp ~= false then
+          dap.adapters.codelldb = {
+            type = "server",
+            port = "${port}",
+            executable = { command = "codelldb", args = { "--port", "${port}" } },
+          }
+          local function resolve(v)
+            if type(v) == "table" then
+              local out = {}
+              for k, x in pairs(v) do out[k] = resolve(x) end
+              return out
+            end
+            if type(v) ~= "string" then return v end
+            if v == "${pick_process}" then return require("dap.utils").pick_process end
+            local text = v:match("^%${prompt:(.*)}$")
+            if text then
+              return function() return vim.fn.input(text, vim.fn.getcwd() .. "/build/", "file") end
+            end
+            return v
+          end
+          local confs = resolve((cpp or {}).configurations or {})
+          for _, ft in ipairs({ "c", "cpp", "rust" }) do dap.configurations[ft] = confs end
+        end
         local go = o.go or {}
         if go ~= false then
           require("dap-go").setup({
@@ -83,6 +108,15 @@ end
 
 function M.setup()
   if (d().go or {}) ~= false then tools.ensure_bin((d().go or {}).delve or "dlv", "debug") end
+  -- codelldb — когда открыт C/C++/Rust-файл (большой: ~30 МБ, не ставим всем подряд)
+  if d().cpp ~= false then
+    vim.api.nvim_create_autocmd("FileType", {
+      group = vim.api.nvim_create_augroup("own.debug.cpp", { clear = true }),
+      pattern = { "c", "cpp", "rust" },
+      once = true,
+      callback = function() tools.ensure_bin("codelldb", "debug", nil, nil, "cpp") end,
+    })
+  end
 end
 
 function M.reload()

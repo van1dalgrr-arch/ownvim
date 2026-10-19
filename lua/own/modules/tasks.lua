@@ -1,6 +1,7 @@
 -- Задачи, как ctrl-r в Zed / Run Configurations в GoLand: список — в settings.jsonc, запуск — пробел r r.
 -- Раздел "tasks": { "list": [ { "name": "…", "cmd": "…", "when": ["go.mod"], "cwd": "root" | "file" } ] }
 --   when — задача видна, только если в корне проекта есть хоть один из файлов (нет when — всегда)
+--   ft — только когда открыт файл этого языка: ["cpp", "c"]
 --   в cmd подставляется: ${root} — корень проекта, ${file} — текущий файл, ${file_dir} — его папка,
 --   ${image} — имя образа (папка проекта):dev
 local settings = require("own.settings")
@@ -29,8 +30,13 @@ local function register()
         local cwd = t.cwd == "file" and vim.fn.expand("%:p:h") or require("own.root").get()
         return { name = t.name, cmd = expand(t.cmd), cwd = cwd }
       end,
-      condition = t.when and {
+      condition = (t.when or t.ft) and {
         callback = function(search)
+          if t.ft then
+            local fts = type(t.ft) == "table" and t.ft or { t.ft }
+            if not vim.tbl_contains(fts, search.filetype or vim.bo.filetype) then return false end
+          end
+          if not t.when then return true end
           for _, f in ipairs(type(t.when) == "table" and t.when or { t.when }) do
             if vim.uv.fs_stat(search.dir .. "/" .. f) then return true end
           end

@@ -155,6 +155,13 @@ M.list = {
     end,
     "Исправить / действия с кодом (с превью)",
   },
+  ["cpp.switch"] = {
+    function()
+      if vim.fn.exists(":LspClangdSwitchSourceHeader") == 2 then return vim.cmd("LspClangdSwitchSourceHeader") end
+      vim.notify("переключение .h ↔ .cpp — в C/C++-файле с clangd", vim.log.levels.WARN)
+    end,
+    "C/C++: заголовок ↔ исходник",
+  },
   ["refactor.extract"] = {
     function() vim.lsp.buf.code_action({ context = { only = { "refactor.extract" }, diagnostics = {} } }) end,
     "Вынести: функцию, переменную, константу",

@@ -2,7 +2,7 @@
 
 🇷🇺 [Русская версия](guide.ru.md) · [All keys (Russian)](keys.ru.md) · [README](../README.md)
 
-ownvim is a terminal IDE for backend work: Go, SQL, Docker, Python, Rust. Everything you see and how it behaves
+ownvim is a terminal IDE for backend work: Go, C/C++, SQL, Docker, Python, Rust. Everything you see and how it behaves
 is set in one file, `settings.jsonc`. No Lua needed.
 
 ## Install

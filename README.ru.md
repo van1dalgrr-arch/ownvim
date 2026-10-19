@@ -93,7 +93,7 @@ ownvim                                   # первый запуск сам по
 | `cloak` · `yanky` · `files` | секреты в `.env` под звёздочками · история копирования (`пробел p`) · yazi, найти-заменить, структурная замена (ast-grep) |
 | `comfort` · `learn` | `enter` — прыжок на строку · подсказки движений и тренер привычек |
 | `system` · `kubernetes` | `alt-o` — контейнеры, `alt-w` — GitHub (gw), `пробел P` — скриншот кода · `пробел k` — kubectl.nvim |
-| `lsp` | языковые серверы для Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — ставятся сами через mason; ошибки на строках, `gd`/`gr`/`K`, переименование `пробел c r`, исправления `пробел c a`, подсказки типов. Разделы `lsp`, `diagnostics`, `tools` |
+| `lsp` | языковые серверы для Go, C/C++ (clangd + clang-tidy, `пробел c s` — `.h` ↔ `.cpp`), CMake, SQL (Postgres), Docker, Python, Rust, JSON, YAML — ставятся сами через mason; ошибки на строках, `gd`/`gr`/`K`, переименование `пробел c r`, исправления `пробел c a`, подсказки типов. Разделы `lsp`, `diagnostics`, `tools` |
 
 Код модулей — `lua/own/modules/<имя>.lua`, ядро — `lua/own/` (настройки, JSONC, клавиши, действия).
 
