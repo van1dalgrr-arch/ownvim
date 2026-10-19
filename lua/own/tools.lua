@@ -26,6 +26,32 @@ local function index()
 end
 
 function M.package_for_lsp(name) index(); return by_lsp[name] end
+
+-- сервер → пакет mason, закэшированный в файле: на старте реестр mason не грузим (~6 мс)
+local cache_path = vim.fn.stdpath("data") .. "/own-lsp-packages.json"
+local cache
+function M.package_for_lsp_cached(name)
+  if not cache then
+    local ok, data = pcall(function()
+      local fh = assert(io.open(cache_path))
+      local t = vim.json.decode(fh:read("*a"))
+      fh:close()
+      return t
+    end)
+    cache = ok and data or {}
+  end
+  if cache[name] == nil then
+    cache[name] = M.package_for_lsp(name) or false
+    local fh = io.open(cache_path, "w")
+    if fh then fh:write(vim.json.encode(cache)); fh:close() end
+  end
+  return cache[name] or nil
+end
+
+--- Пакет mason стоит? (по папке — без загрузки mason)
+function M.installed(pkg)
+  return pkg and vim.uv.fs_stat(vim.fn.stdpath("data") .. "/mason/packages/" .. pkg) ~= nil
+end
 function M.package_for_bin(bin) index(); return by_bin[bin] end
 
 local waiting = {} -- пакет → { колбэки }, пока ставится

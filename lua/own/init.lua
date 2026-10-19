@@ -152,6 +152,14 @@ function M.setup()
     desc = "Открыть settings.jsonc (или defaults)",
   })
   settings.watch(on_change)
+  -- JSON-схема для подсказок в settings.jsonc — после отрисовки и при каждом сохранении настроек
+  local function schema() pcall(require("own.schema").build) end
+  vim.defer_fn(schema, 300)
+  vim.api.nvim_create_autocmd("BufWritePost", {
+    group = vim.api.nvim_create_augroup("own.schema", { clear = true }),
+    pattern = { "*.jsonc", "*.json" },
+    callback = function() vim.schedule(schema) end,
+  })
   vim.schedule(function()
     local n = 0
     for _, list in pairs(settings.problems) do n = n + #list end

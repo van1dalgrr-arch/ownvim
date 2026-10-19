@@ -46,6 +46,8 @@ A second after `space`, a hint shows what can come next. Commands work in the Ru
 - **`settings.jsonc`** — only what you change (`space f c` or `:Settings`). Delete a line — the default is back.
 
 Layers merge by key: one line of a section is enough, the rest comes from the defaults.
+**Hints like VS Code's settings.json**: completion of keys and values in `settings.jsonc`, `K` on a key shows its
+description from `defaults.jsonc`, a wrong type or value is marked at once (the schema builds itself).
 **Save — it applies**: theme, options, keys, colors, status line, tabs, icons, font, servers, formatters, linters at
 once; turning modules and plugins on/off takes `:restart` (ownvim says so). **A mistake shows at once**: broken JSON or
 a typo in a module, option, action or theme name is marked on its line, and the editor keeps the previous settings.

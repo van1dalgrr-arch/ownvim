@@ -40,8 +40,13 @@ end
 
 local function executable(name)
   local cmd = vim.lsp.config[name] and vim.lsp.config[name].cmd
-  if type(cmd) ~= "table" then return true end -- cmd-функция (подключение по сети и т.п.) — не проверить
-  return vim.fn.executable(cmd[1]) == 1, cmd[1]
+  if type(cmd) == "table" then return vim.fn.executable(cmd[1]) == 1, cmd[1] end
+  -- cmd-функция (jsonls, yamlls…): программу не видно — смотрим, стоит ли пакет mason
+  if tools.mason() then
+    local pkg = tools.package_for_lsp_cached(name)
+    if pkg then return tools.installed(pkg), pkg end
+  end
+  return true
 end
 
 -- настроить и включить серверы из lsp.servers; выключить пропавшие
@@ -52,6 +57,15 @@ local function configure()
       local cfg = type(v) == "table" and vim.deepcopy(v) or {}
       local install_name = cfg.install
       cfg.install, cfg.enabled = nil, nil
+      -- settings.jsonc: схема ownvim — дополнение ключей и значений, описание по K, проверка типов
+      if name == "jsonls" then
+        cfg.settings = cfg.settings or {}
+        cfg.settings.json = cfg.settings.json or {}
+        cfg.settings.json.validate = { enable = true }
+        local schemas = vim.deepcopy(cfg.settings.json.schemas or {})
+        schemas[#schemas + 1] = { fileMatch = { "settings.jsonc", "**/ownvim/settings.jsonc", ".ownvim.jsonc" }, url = vim.uri_from_fname(require("own.schema").path) }
+        cfg.settings.json.schemas = schemas
+      end
       -- присваивание (а не вызов) заменяет прошлые свои настройки целиком: удалил ключ — он ушёл
       vim.lsp.config[name] = cfg
       want[name] = true
