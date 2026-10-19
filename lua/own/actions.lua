@@ -149,6 +149,7 @@ M.list = {
     "Автовыход из вставки",
   },
   inspect = { vim.show_pos, "Что за подсветка под курсором" },
+  image_panel = { function() require("own.modules.image_panel").toggle() end, "Картинка сбоку (вкл/выкл)" },
   store = { function() require("own.store").open() end, "Магазин плагинов" },
   health = { "<cmd>checkhealth own<cr>", "Проверка здоровья ownvim" },
   ["session.load"] = { function() require("own.modules.sessions").load() end, "Вернуть сессию этой папки" },

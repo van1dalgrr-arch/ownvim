@@ -209,6 +209,23 @@ SVG-иконки VS Code терминал показать не может — �
 },
 ```
 
+### Картинка сбоку
+
+```jsonc
+"modules": {
+  "image_panel": {
+    "enabled": true,
+    "image": "~/Pictures/girl.png",                       // или ссылка https://… (скачается один раз)
+    "themes": { "sunset": "~/Pictures/sunset-girl.png" }, // своя картинка у темы
+    "side": "right", "width": 32,
+  },
+},
+```
+
+Настоящая картинка в терминале (протокол kitty: Ghostty, kitty, WezTerm; в tmux — нет). PNG — сразу, jpg/webp/gif —
+нужен `brew install imagemagick`. Картинку можно положить и в саму тему: `"image": "…"` в `themes/<тема>.json` —
+сменил тему, сменилась картинка. `пробел u p` — показать/спрятать.
+
 ### Клавиши
 
 ```jsonc

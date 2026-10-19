@@ -4,7 +4,8 @@
 --                  "bg_alt", "bg_highlight", "bg_visual", "border", "fg_dim", "fg_muted", "diff_*" } — обязательны bg и fg,
 --     "syntax": { "keyword": "purple", "string": { "fg": "#eab308", "italic": true }, … } — роли кода,
 --     "groups": { "Normal": { "bg": "none" }, "@keyword.return": { "fg": "red" } } — любые группы как есть,
---     "include": "dev-night" — взять другую тему и поменять только своё }
+--     "include": "dev-night" — взять другую тему и поменять только своё,
+--     "image": "~/Pictures/a.png" — картинка для панели image_panel, пока стоит эта тема }
 -- Цвет — имя из палитры или "#rrggbb". Каждая тема — обычная colorscheme: :colorscheme dev-night, alt-s.
 -- Сохранил файл темы — она перекрасилась сразу. Поверх любой темы — раздел "colors" в settings.jsonc.
 local jsonc = require("own.jsonc")

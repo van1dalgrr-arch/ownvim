@@ -75,6 +75,7 @@ ownvim                                   # первый запуск сам по
 | `animations` | плавный курсор (и при наборе, как cursorSmoothCaretAnimation) и плавная прокрутка — каждое вкл/выкл, скорость в `animations` |
 | `brackets` | цветные пары скобок, как в VS Code; цвета уровней — из темы |
 | `sticky_scroll` | шапка функции прилипает сверху, как Sticky Scroll в VS Code |
+| `image_panel` | картинка сбоку вместо миникарты, своя у каждой темы (`"themes"` в настройках модуля или `"image"` в файле темы); PNG сразу, jpg/webp — с ImageMagick; `пробел u p` |
 | `minimap` | миникарта справа, как в VS Code (выключена; `пробел u m`) |
 | `completion` | автодополнение (blink): меню с описанием, продолжение серым в строке, подсказка аргументов, сниппеты (свои — `snippets/<язык>.json`, для Go: `ife`, `errw`, `tt`, `gh`…). Раздел `completion` |
 | `format` | форматирование при сохранении (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; остальное — языковой сервер. `пробел c f`, `пробел u f` — выкл. Раздел `format` |

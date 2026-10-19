@@ -75,6 +75,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `animations` | smooth cursor (also while typing, like cursorSmoothCaretAnimation) and smooth scroll — each on/off, speed in `animations` |
 | `brackets` | colored bracket pairs, like VS Code; level colors from the theme |
 | `sticky_scroll` | the function header sticks on top, like VS Code's Sticky Scroll |
+| `image_panel` | a picture on the side instead of the minimap, per theme (`"themes"` in the module settings or `"image"` in the theme file); PNG as is, jpg/webp need ImageMagick; `space u p` |
 | `minimap` | a VS Code-like minimap on the right (off; `space u m`) |
 | `completion` | completion (blink): menu with docs, ghost text, signature help, snippets (own ones in `snippets/<lang>.json`, for Go: `ife`, `errw`, `tt`, `gh`…). Section `completion` |
 | `format` | format on save (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; the rest — the language server. `space c f`, `space u f` toggles. Section `format` |
