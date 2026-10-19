@@ -75,6 +75,17 @@ M.list = {
 
   -- правка
   save = { "<cmd>write<cr><esc>", "Сохранить" },
+  -- cmd-клавиши как в VS Code / macOS: в системный буфер обмена
+  ["clip.copy"] = { '"+y', "Копировать (cmd-c)" },
+  ["clip.copy_line"] = { '"+yy', "Копировать строку (cmd-c без выделения)" },
+  ["clip.cut"] = { '"+d', "Вырезать (cmd-x)" },
+  ["clip.cut_line"] = { '"+dd', "Вырезать строку (cmd-x без выделения)" },
+  ["clip.paste"] = { '"+P', "Вставить (cmd-v)" },
+  ["clip.paste_insert"] = { "<C-r><C-o>+", "Вставить (cmd-v)" },
+  ["clip.paste_cmdline"] = { "<C-r>+", "Вставить (cmd-v)" },
+  ["select.all"] = { "ggVG", "Выделить всё (cmd-a)" },
+  undo = { "<cmd>undo<cr>", "Отменить (cmd-z)" },
+  redo = { "<cmd>redo<cr>", "Вернуть (cmd-shift-z)" },
   esc = {
     function()
       vim.cmd("nohlsearch")

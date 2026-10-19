@@ -49,8 +49,25 @@ local function resolve(key, value)
   return rhs, opts
 end
 
+-- cmd-сочетания, которых нет в keys, во вставке не печатаются текстом «<D-c>» (Ghostty передаёт их в nvim)
+local function swallow_cmd(keys)
+  local taken = {}
+  for key in pairs(keys or {}) do
+    local modes, lhs = key:match("^(%a+)%s+(.+)$")
+    if modes and modes:find("i") then taken[lhs] = true end
+  end
+  for c in ("abcdefghijklmnopqrstuvwxyz0123456789"):gmatch(".") do
+    for _, lhs in ipairs({ "<D-" .. c .. ">", "<D-S-" .. c .. ">" }) do
+      if not taken[lhs] and vim.fn.maparg(lhs, "i") == "" then
+        vim.keymap.set("i", lhs, "<Nop>", { desc = "cmd-клавиша без действия" })
+      end
+    end
+  end
+end
+
 --- Поставить клавиши; with_ru — дубли alt-букв для русской раскладки
 function M.apply(keys, with_ru)
+  swallow_cmd(keys)
   for _, k in ipairs(applied) do pcall(vim.keymap.del, k[1], k[2]) end
   applied = {}
   for key, value in pairs(keys or {}) do

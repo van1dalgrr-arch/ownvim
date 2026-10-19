@@ -544,6 +544,18 @@
     // правка
     "nixs <C-s>": "save",
     "nix <D-s>": "save", // cmd-s как в Zed
+    // cmd-клавиши как в VS Code: системный буфер обмена, выделить всё, отмена
+    "x <D-c>": "clip.copy",
+    "n <D-c>": "clip.copy_line",
+    "x <D-x>": "clip.cut",
+    "n <D-x>": "clip.cut_line",
+    "nx <D-v>": "clip.paste",
+    "i <D-v>": "clip.paste_insert",
+    "c <D-v>": "clip.paste_cmdline",
+    "t <D-v>": { "do": "<C-\\><C-n>\"+pi", "desc": "Вставить (cmd-v)" },
+    "n <D-a>": "select.all",
+    "ni <D-z>": "undo",
+    "ni <D-S-z>": "redo",
     "x <": { "do": "<gv", "desc": "Отступ влево (выделение остаётся)" },
     "x >": { "do": ">gv", "desc": "Отступ вправо (выделение остаётся)" },
     "x J": "lines.down", // выделенные строки вниз/вверх (alt-j/k занят AeroSpace)
