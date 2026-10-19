@@ -79,6 +79,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `test` | tests (neotest): `space t r` — nearest, `t t` — file, `t T` — all, `t o` — output; a failed check is an error on its line. Go, Python (Rust — with cargo-nextest). Section `test` |
 | `debug` | debugger (nvim-dap + delve): F9 run, F8 step, F7 into, shift-F8 out, ctrl-F8 breakpoint (kept across restarts); panels and variable values in the code; attach to dlv in Docker. Section `debug` |
 | `database` | database (dadbod): `space D` / `alt-d` — connections and tables, the project's connection from `.env` by itself; table completion in `.sql`. Section `database` |
+| `git` | changes in the gutter, `]h`/`[h` — hunks, `space g h s/r/p` — stage / reset / preview, blame (`space u B`), diffview — three-way merge, file history, branch vs main (`space g m`), lazygit (`alt-g`), branches, commits, undo history without git (`space U`). Section `git` |
 | `lsp` | language servers for Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — mason installs them; errors on their lines, `gd`/`gr`/`K`, rename `space c r`, fixes `space c a`, inlay hints. Sections `lsp`, `diagnostics`, `tools` |
 
 Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).

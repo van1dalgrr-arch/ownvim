@@ -196,6 +196,53 @@ M.list = {
   ["debug.up"] = { function() require("dap").up() end, "Кадр стека выше" },
   ["debug.down"] = { function() require("dap").down() end, "Кадр стека ниже" },
 
+  -- git
+  lazygit = { function() Snacks.lazygit({ cwd = root.git() }) end, "lazygit" },
+  ["git.hunk_next"] = {
+    function()
+      if vim.wo.diff then return vim.cmd.normal({ "]c", bang = true }) end
+      require("gitsigns").nav_hunk("next")
+    end,
+    "Следующее изменение",
+  },
+  ["git.hunk_prev"] = {
+    function()
+      if vim.wo.diff then return vim.cmd.normal({ "[c", bang = true }) end
+      require("gitsigns").nav_hunk("prev")
+    end,
+    "Предыдущее изменение",
+  },
+  ["git.hunk_stage"] = { "<cmd>Gitsigns stage_hunk<cr>", "Кусок — в коммит (ещё раз — убрать)" },
+  ["git.hunk_reset"] = { "<cmd>Gitsigns reset_hunk<cr>", "Вернуть кусок как было" },
+  ["git.hunk_preview"] = { function() require("gitsigns").preview_hunk_inline() end, "Показать, что было" },
+  ["git.buffer_stage"] = { function() require("gitsigns").stage_buffer() end, "Весь файл — в коммит" },
+  ["git.buffer_reset"] = { function() require("gitsigns").reset_buffer() end, "Вернуть весь файл" },
+  ["git.blame_line"] = { function() require("gitsigns").blame_line({ full = true }) end, "Кто менял строку (коммит целиком)" },
+  ["git.blame"] = { function() require("gitsigns").blame() end, "Blame всего файла" },
+  ["git.blame_toggle"] = { function() require("gitsigns").toggle_current_line_blame() end, "Blame строки серым справа" },
+  ["git.diff"] = { "<cmd>DiffviewOpen<cr>", "Все изменения / конфликты (diffview)" },
+  ["git.diff_close"] = { "<cmd>DiffviewClose<cr>", "Закрыть diffview" },
+  ["git.file_history"] = { "<cmd>DiffviewFileHistory %<cr>", "История файла" },
+  ["git.repo_history"] = { "<cmd>DiffviewFileHistory<cr>", "История репозитория" },
+  ["git.branch_vs_base"] = {
+    function() vim.cmd("DiffviewOpen " .. require("own.modules.git").base_branch() .. "...HEAD") end,
+    "Ветка против main (как PR)",
+  },
+  ["git.status"] = { pick("git_status"), "Изменённые файлы" },
+  ["git.log"] = { function() Snacks.picker.git_log({ cwd = root.git() }) end, "Коммиты" },
+  ["git.log_file"] = { pick("git_log_file"), "Коммиты этого файла" },
+  ["git.log_line"] = { pick("git_log_line"), "Коммиты этой строки" },
+  ["git.branches"] = { pick("git_branches"), "Ветки (enter — переключиться)" },
+  ["git.stash"] = { pick("git_stash"), "Stash" },
+  ["git.browse"] = { function() Snacks.gitbrowse() end, "Открыть на GitHub" },
+  undotree = {
+    function()
+      vim.cmd.packadd("nvim.undotree") -- встроен в nvim 0.12
+      require("undotree").open({ command = "topleft 40vnew" })
+    end,
+    "История правок файла (без git)",
+  },
+
   -- база данных (dadbod)
   database = { "<cmd>DBUIToggle<cr>", "База данных" },
   ["database.add"] = { "<cmd>DBUIAddConnection<cr>", "Добавить подключение" },

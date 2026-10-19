@@ -30,7 +30,7 @@
   "statusline": {
     "style": "bubbles",
     "left": ["mode", "branch", "diagnostics", "file"],
-    "right": ["search", "macro", "lsp", "position", "time"],
+    "right": ["search", "macro", "diff", "lsp", "position", "time"],
     "path": "relative", // "name" — только имя файла, "full" — от ~
     "time_format": "%H:%M",
     "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
@@ -205,6 +205,7 @@
     "test": true, // тесты: neotest (раздел test ниже)
     "debug": true, // отладчик: dap + delve (раздел debug ниже)
     "database": true, // база данных: dadbod (раздел database ниже)
+    "git": true, // изменения на полях, blame, merge, история, lazygit (раздел git ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
 
@@ -351,6 +352,14 @@
   "database": {
     "connections": {}, // "имя": "postgres://user:pass@localhost:5432/db"
     "project_env": true, // подключение проекта само: DATABASE_URL из .env, иначе postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка>
+  },
+
+  // Git
+  "git": {
+    "signs": { "add": "▎", "change": "▎", "delete": "\uf431", "topdelete": "\uf432", "changedelete": "▎", "untracked": "▎" },
+    "blame": false, // кто и когда менял строку — серым справа (пробел u B — на время)
+    "blame_format": "<author>, <author_time:%d.%m.%Y> · <summary>",
+    "base_branch": "auto", // с чем сравнивать ветку (пробел g m): auto — origin/HEAD, или "main", "develop"…
   },
 
   // Откуда брать серверы, форматтеры и линтеры: "mason" — ставит сам при первом запуске (в ~/.local/share/ownvim/mason),
@@ -555,6 +564,33 @@
     "nx <leader>de": "debug.eval",
     "n <leader>dk": "debug.up",
     "n <leader>dj": "debug.down",
+
+    // git
+    "n <leader>gg": "lazygit",
+    "nt <M-g>": "lazygit",
+    "n ]h": "git.hunk_next",
+    "n [h": "git.hunk_prev",
+    "nx <leader>ghs": "git.hunk_stage",
+    "nx <leader>ghr": "git.hunk_reset",
+    "n <leader>ghp": "git.hunk_preview",
+    "n <leader>ghS": "git.buffer_stage",
+    "n <leader>ghR": "git.buffer_reset",
+    "n <leader>ghb": "git.blame_line",
+    "n <leader>ghB": "git.blame",
+    "n <leader>uB": "git.blame_toggle",
+    "n <leader>gv": "git.diff",
+    "n <leader>gV": "git.diff_close",
+    "n <leader>gH": "git.file_history",
+    "n <leader>gR": "git.repo_history",
+    "n <leader>gm": "git.branch_vs_base",
+    "n <leader>gs": "git.status",
+    "n <leader>gl": "git.log",
+    "n <leader>gf": "git.log_file",
+    "n <leader>gb": "git.log_line",
+    "n <leader>gc": "git.branches",
+    "n <leader>gS": "git.stash",
+    "nx <leader>gB": "git.browse",
+    "n <leader>U": "undotree",
 
     // база данных
     "n <leader>D": "database",
