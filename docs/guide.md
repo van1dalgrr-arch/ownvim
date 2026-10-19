@@ -122,6 +122,8 @@ tools install themselves on the first file (`"tools": { "install": "system" }` �
 
 `"tasks": { "list": [{ "name": "migrate up", "cmd": "migrate … up", "when": ["migrations"] }] }` — `space r r`;
 `${root}`, `${file}`, `${file_dir}`, `${image}` in `cmd`.
+**Plugin store** — `:Plugins` (`space L`): the awesome-neovim catalog (~1400 plugins), enter installs (written to
+`settings.jsonc`), `ctrl-x` removes, `ctrl-o` opens GitHub. Or by hand:
 `"plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} }, "folke/flash.nvim": false }` — lazy.nvim fields.
 
 ## If something is off

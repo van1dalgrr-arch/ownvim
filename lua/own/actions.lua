@@ -133,6 +133,7 @@ M.list = {
     "Автовыход из вставки",
   },
   inspect = { vim.show_pos, "Что за подсветка под курсором" },
+  store = { function() require("own.store").open() end, "Магазин плагинов" },
   health = { "<cmd>checkhealth own<cr>", "Проверка здоровья ownvim" },
   ["session.load"] = { function() require("own.modules.sessions").load() end, "Вернуть сессию этой папки" },
   ["session.pick"] = { function() require("own.modules.sessions").pick() end, "Выбрать сессию" },
