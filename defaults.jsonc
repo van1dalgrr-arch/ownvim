@@ -298,7 +298,7 @@
     "signature": true, // подсказка аргументов при наборе вызова
     "auto_brackets": true, // скобки после функции
     "friendly_snippets": true, // готовые сниппеты для всех языков; false — только свои из snippets/
-    "keymap": "enter", // enter — принять; "default" — ctrl-y; "super-tab" — tab
+    "keymap": "vscode", // tab и enter — принять (в шаблоне tab — к следующему полю); "enter", "super-tab", "default" (ctrl-y)
     "max_height": 10,
     "border": "rounded",
     "blink": {}, // любые настройки blink.cmp как есть: cmp.saghen.dev/configuration/reference

@@ -7,7 +7,8 @@
 --   "signature": true — подсказка аргументов при наборе вызова
 --   "auto_brackets": true — скобки после функции
 --   "friendly_snippets": true — готовый набор сниппетов для всех языков; false — только свои
---   "keymap": "enter" — enter принимает; "default" — ctrl-y; "super-tab" — tab
+--   "keymap": "vscode" — tab и enter принимают, tab в шаблоне — к следующему полю; "enter" — только enter;
+--             "super-tab" — только tab; "default" — ctrl-y
 --   "max_height": 10, "border": "rounded"
 --   "blink": { … } — любые настройки blink.cmp как есть (cmp.saghen.dev/configuration/reference) — поверх всего выше
 -- Свои сниппеты — snippets/<язык>.json в формате VS Code (рядом с settings.jsonc).
@@ -24,7 +25,13 @@ local function build()
   local o = c()
   local border = o.border or "rounded"
   local opts = {
-    keymap = { preset = o.keymap or "enter", ["<C-y>"] = { "select_and_accept" } },
+    keymap = (o.keymap or "vscode") == "vscode" and {
+      -- как в VS Code: tab и enter принимают подсказку; нет подсказки — tab прыгает по полям шаблона, иначе — отступ
+      preset = "enter",
+      ["<Tab>"] = { "select_and_accept", "snippet_forward", "fallback" },
+      ["<S-Tab>"] = { "snippet_backward", "fallback" },
+      ["<C-y>"] = { "select_and_accept" },
+    } or { preset = o.keymap, ["<C-y>"] = { "select_and_accept" } },
     appearance = { nerd_font_variant = "mono" },
     completion = {
       accept = { auto_brackets = { enabled = o.auto_brackets ~= false } },

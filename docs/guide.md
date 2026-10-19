@@ -20,11 +20,12 @@ ownvim
 The first run installs plugins, parsers, language servers, formatters and linters (mason) by itself.
 With [dotfiles](https://github.com/van1dalgrr-arch/dotfiles), `install.sh` does all of this.
 
-## New to vim: 12 keys
+## New to vim: 13 keys
 
 | what | key |
 |---|---|
 | start typing / stop | `i` / `esc` or a quick `jk` (and by itself after a 5 s pause) |
+| accept a suggestion | `tab` or `enter` (the grey ghost text too) |
 | save | `cmd-s` (it also saves by itself) |
 | find a file | `space space` or `cmd-p` |
 | find text in the project | `space /` |
