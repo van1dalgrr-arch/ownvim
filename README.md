@@ -2,8 +2,10 @@
 
 🇷🇺 [Русская версия](README.ru.md)
 
-Neovim without LazyVim: ~2300 lines of own code, ideas taken from LazyVim. Everything is set in one
-JSON file, no Lua needed. Starts in 35 ms, 58 with a Go file open (the LazyVim build in dotfiles: 107 on the same file).
+Neovim without LazyVim: ~4500 lines of own code, ideas taken from LazyVim. Everything is set in one
+JSON file, no Lua needed. Starts in 38 ms, 69 with a Go file open (the LazyVim build in dotfiles: 107 on the same file).
+
+**[Guide](docs/guide.md)** — install, settings recipes, troubleshooting · **[All keys](docs/keys.ru.md)** (Russian)
 
 ## Install
 
@@ -97,6 +99,5 @@ Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, J
 
 ## Next
 
-Stage 1 of 4 — the base. Next: Go as an IDE (gopls, completion, formatting, tests, debugger),
-git, moving my own modules over (endpoints, `.http`, ▶, background tests, Claude). Once it
-catches up, `ownvim` becomes the main `nvim`.
+All 4 stages of the plan are done ([ROADMAP](ROADMAP.md)): core and settings, IDE, own design, git and tools.
+Next — whatever is missing in daily work; once ownvim replaces the LazyVim build, it becomes the main `nvim`.

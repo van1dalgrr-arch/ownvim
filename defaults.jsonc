@@ -178,6 +178,7 @@
         "xml", "yaml", "dockerfile", "http"],
       "indent": true,
       "folds": true,
+      "auto_install": true, // парсер другого языка — сам, когда открыл его файл
     },
     "editing": true, // скобки, текстовые объекты, обрамление, flash, TODO
     "font": true, // шрифт в Ghostty из раздела font ниже
@@ -441,17 +442,17 @@
     "n n": "search.next",
     "n N": "search.prev",
     "ins <esc>": "esc",
-    "i jk": "<esc>", // выйти из вставки: быстро j и k (в русской раскладке «ол» — нет, выручает автовыход)
+    "i jk": { "do": "<esc>", "desc": "Выйти из вставки" }, // выйти из вставки: быстро j и k (в русской раскладке «ол» — нет, выручает автовыход)
 
     // окна
-    "n <C-h>": "<C-w>h",
-    "n <C-j>": "<C-w>j",
-    "n <C-k>": "<C-w>k",
-    "n <C-l>": "<C-w>l",
-    "n <C-Up>": ":resize +2",
-    "n <C-Down>": ":resize -2",
-    "n <C-Left>": ":vertical resize -2",
-    "n <C-Right>": ":vertical resize +2",
+    "n <C-h>": { "do": "<C-w>h", "desc": "Окно слева" },
+    "n <C-j>": { "do": "<C-w>j", "desc": "Окно снизу" },
+    "n <C-k>": { "do": "<C-w>k", "desc": "Окно сверху" },
+    "n <C-l>": { "do": "<C-w>l", "desc": "Окно справа" },
+    "n <C-Up>": { "do": ":resize +2", "desc": "Окно выше" },
+    "n <C-Down>": { "do": ":resize -2", "desc": "Окно ниже" },
+    "n <C-Left>": { "do": ":vertical resize -2", "desc": "Окно уже" },
+    "n <C-Right>": { "do": ":vertical resize +2", "desc": "Окно шире" },
     "n <leader>-": { "do": "<C-w>s", "desc": "Разделить вниз" },
     "n <leader>|": { "do": "<C-w>v", "desc": "Разделить вправо" },
     "n <leader>wd": { "do": "<C-w>c", "desc": "Закрыть окно" },
@@ -460,10 +461,10 @@
     "n <leader>uz": "zen",
 
     // буферы
-    "n <S-h>": ":bprevious",
-    "n <S-l>": ":bnext",
-    "n [b": ":bprevious",
-    "n ]b": ":bnext",
+    "n <S-h>": { "do": ":bprevious", "desc": "Предыдущая вкладка-файл" },
+    "n <S-l>": { "do": ":bnext", "desc": "Следующая вкладка-файл" },
+    "n [b": { "do": ":bprevious", "desc": "Предыдущий буфер" },
+    "n ]b": { "do": ":bnext", "desc": "Следующий буфер" },
     "n <leader>bb": { "do": ":e #", "desc": "Предыдущий буфер" },
     "n <leader>`": { "do": ":e #", "desc": "Предыдущий буфер" },
     "n <leader>bd": "buffer.delete",
@@ -472,25 +473,25 @@
 
     // вкладки
     "n <leader><tab><tab>": { "do": ":tabnew", "desc": "Новая вкладка" },
-    "n <leader><tab>]": ":tabnext",
-    "n <leader><tab>[": ":tabprevious",
+    "n <leader><tab>]": { "do": ":tabnext", "desc": "Следующая вкладка" },
+    "n <leader><tab>[": { "do": ":tabprevious", "desc": "Предыдущая вкладка" },
     "n <leader><tab>d": { "do": ":tabclose", "desc": "Закрыть вкладку" },
     "n <leader><tab>o": { "do": ":tabonly", "desc": "Закрыть остальные вкладки" },
-    "n <leader><tab>f": ":tabfirst",
-    "n <leader><tab>l": ":tablast",
+    "n <leader><tab>f": { "do": ":tabfirst", "desc": "Первая вкладка" },
+    "n <leader><tab>l": { "do": ":tablast", "desc": "Последняя вкладка" },
 
     // правка
     "nixs <C-s>": "save",
     "nix <D-s>": "save", // cmd-s как в Zed
-    "x <": "<gv",
-    "x >": ">gv",
+    "x <": { "do": "<gv", "desc": "Отступ влево (выделение остаётся)" },
+    "x >": { "do": ">gv", "desc": "Отступ вправо (выделение остаётся)" },
     "x J": "lines.down", // выделенные строки вниз/вверх (alt-j/k занят AeroSpace)
     "x K": "lines.up",
-    "i ,": ",<c-g>u", // точки отмены на знаках препинания
-    "i .": ".<c-g>u",
-    "i ;": ";<c-g>u",
-    "n gco": "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>",
-    "n gcO": "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>",
+    "i ,": { "do": ",<c-g>u", "desc": "Запятая + точка отмены" }, // точки отмены на знаках препинания
+    "i .": { "do": ".<c-g>u", "desc": "Точка + точка отмены" },
+    "i ;": { "do": ";<c-g>u", "desc": "Точка с запятой + точка отмены" },
+    "n gco": { "do": "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", "desc": "Комментарий строкой ниже" },
+    "n gcO": { "do": "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", "desc": "Комментарий строкой выше" },
     "n <D-/>": { "do": "gcc", "remap": true, "desc": "Комментарий (cmd-/)" },
     "x <D-/>": { "do": "gc", "remap": true, "desc": "Комментарий (cmd-/)" },
 
@@ -548,8 +549,8 @@
     "n [e": "error.prev",
     "n ]w": "warning.next",
     "n [w": "warning.prev",
-    "n [q": ":cprev",
-    "n ]q": ":cnext",
+    "n [q": { "do": ":cprev", "desc": "Предыдущее в quickfix" },
+    "n ]q": { "do": ":cnext", "desc": "Следующее в quickfix" },
     "n <leader>xq": "quickfix.toggle",
     "n <leader>xl": "loclist.toggle",
 

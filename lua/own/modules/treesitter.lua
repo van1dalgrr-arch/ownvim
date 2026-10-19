@@ -1,5 +1,6 @@
 -- Подсветка, отступы и складки по дереву разбора (nvim-treesitter, ветка main — для nvim 0.12).
--- Языки — "languages" в настройках модуля; недостающие ставятся сами в фоне (нужен tree-sitter из brew).
+-- Языки — "languages" в настройках модуля (ставятся сразу); "auto_install": true — парсер любого другого языка
+-- ставится сам, когда открыл его файл (как в VS Code). Нужен tree-sitter из brew.
 local M = {}
 
 local function start(buf, opts)
@@ -27,9 +28,27 @@ function M.plugins(opts)
         for _, l in ipairs(ts.get_installed()) do have[l] = true end
         local missing = vim.tbl_filter(function(l) return not have[l] end, opts.languages or {})
         if #missing > 0 then ts.install(missing) end
+        local available
+        local asked = {}
         vim.api.nvim_create_autocmd("FileType", {
           group = vim.api.nvim_create_augroup("own.treesitter", { clear = true }),
-          callback = function(ev) start(ev.buf, opts) end,
+          callback = function(ev)
+            local lang = vim.treesitter.language.get_lang(ev.match)
+            if opts.auto_install ~= false and lang and not have[lang] and not asked[lang] then
+              asked[lang] = true
+              available = available or ts.get_available()
+              if vim.tbl_contains(available, lang) then
+                ts.install({ lang }):await(function()
+                  have[lang] = true
+                  vim.schedule(function()
+                    if vim.api.nvim_buf_is_valid(ev.buf) then start(ev.buf, opts) end
+                  end)
+                end)
+                return
+              end
+            end
+            start(ev.buf, opts)
+          end,
         })
         for _, buf in ipairs(vim.api.nvim_list_bufs()) do
           if vim.api.nvim_buf_is_loaded(buf) then start(buf, opts) end
