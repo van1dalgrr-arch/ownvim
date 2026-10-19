@@ -30,7 +30,7 @@
   "statusline": {
     "style": "bubbles",
     "left": ["mode", "branch", "diagnostics", "file"],
-    "right": ["search", "macro", "diff", "lsp", "position", "time"],
+    "right": ["search", "macro", "tests", "diff", "lsp", "position", "time"],
     "path": "relative", // "name" — только имя файла, "full" — от ~
     "time_format": "%H:%M",
     "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
@@ -205,6 +205,26 @@
     "test": true, // тесты: neotest (раздел test ниже)
     "debug": true, // отладчик: dap + delve (раздел debug ниже)
     "database": true, // база данных: dadbod (раздел database ниже)
+    "go": true, // Go как в GoLand: ▶, действия с превью, генерация, peek, покрытие (раздел go ниже)
+    "tasks": true, // задачи, как ctrl-r в Zed (раздел tasks ниже)
+    "ai": true, // Claude Code в nvim (раздел ai ниже)
+    "http": true, // Postman в файле (.http) и эндпоинты Gin
+    "autotest": true, // тесты Go в фоне после сохранения
+    "error_lens": { "preset": "modern", "break_after": 60 }, // ошибки справа от строки, как Error Lens
+    "multicursor": true, // мультикурсоры: ctrl-n, пробел m
+    "dial": { // ctrl-a / ctrl-x: свои циклы по языкам (по слову, если в паре есть буквы)
+      "go": [[":=", "="], ["==", "!="], ["var", "const"], ["Error", "Fatal"], ["Errorf", "Fatalf"],
+        ["Debug", "Info", "Warn"], ["Println", "Printf", "Print"],
+        ["MethodGet", "MethodPost", "MethodPut", "MethodPatch", "MethodDelete"], ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        ["StatusOK", "StatusCreated", "StatusNoContent", "StatusBadRequest", "StatusUnauthorized", "StatusNotFound", "StatusInternalServerError"]],
+    },
+    "cloak": true, // секреты в .env под звёздочками
+    "yanky": true, // история копирования: пробел p
+    "files": true, // yazi, найти-заменить по проекту, структурная замена, правка списка ошибок
+    "comfort": true, // enter — прыжок на строку по метке
+    "learn": { "hints_visible": false, "hardtime": true }, // подсказки движений и тренер привычек (подсказывает, не мешает)
+    "system": { "containers": "orbstack", "github": "gw" }, // alt-o — контейнеры, alt-w — GitHub, пробел P — скриншот кода
+    "kubernetes": true, // пробел k — kubectl.nvim (если есть kubectl)
     "git": true, // изменения на полях, blame, merge, история, lazygit (раздел git ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
   },
@@ -218,7 +238,7 @@
   // Имена: github.com/neovim/nvim-lspconfig/tree/master/lsp. Сохранил — серверы включились, settings ушли в работающие.
   "lsp": {
     "inlay_hints": { "enabled": true, "exclude": [] }, // подсказки типов в строке; пробел u h — выкл
-    "codelens": false, // «run test», «go mod tidy» над кодом
+    "codelens": true, // надписи над кодом: в go.mod — tidy / обновить / govulncheck, над //go:generate — запуск
     "servers": {
       // Go
       "gopls": {
@@ -230,13 +250,14 @@
             "completeUnimported": true,
             "semanticTokens": true,
             "directoryFilters": ["-.git", "-.vscode", "-.idea", "-node_modules"],
-            "analyses": { "nilness": true, "unusedparams": true, "unusedwrite": true, "useany": true },
+            "analyses": { "nilness": true, "unusedparams": true, "unusedwrite": true, "useany": true, "shadow": true }, // shadow — err := внутри if затеняет внешний
             "hints": {
               "assignVariableTypes": true, "compositeLiteralFields": true, "compositeLiteralTypes": true,
               "constantValues": true, "functionTypeParameters": true, "rangeVariableTypes": true,
               "parameterNames": false, // «a...:» в fmt.Println( — шум; true — имена аргументов в каждом вызове
             },
-            "codelenses": { "generate": true, "test": true, "tidy": true, "upgrade_dependency": true, "vendor": true, "run_govulncheck": true },
+            // test: false — тесты запускает ▶ слева, а не надпись над функцией
+            "codelenses": { "generate": true, "test": false, "tidy": true, "upgrade_dependency": true, "vendor": true, "run_govulncheck": true },
           },
         },
       },
@@ -352,6 +373,45 @@
   "database": {
     "connections": {}, // "имя": "postgres://user:pass@localhost:5432/db"
     "project_env": true, // подключение проекта само: DATABASE_URL из .env, иначе postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка>
+  },
+
+  // Go
+  "go": {
+    "run_marks": true, // ▶ слева от func main и TestX: пробел r x — запустить, пробел r X — в отладчике
+    "implements": true, // «реализует: io.Reader» рядом с типом
+    "coverage_file": "/tmp/cover.out",
+  },
+
+  // Задачи (пробел r r, alt-t): when — видна, если в корне есть файл; в cmd: ${root}, ${file}, ${file_dir}, ${image}
+  "tasks": {
+    "list": [
+      { "name": "up — зависимости из compose + приложение", "cmd": "zsh -ic up", "when": ["go.mod"] },
+      { "name": "air — hot reload", "cmd": "air", "when": ["go.mod"] },
+      { "name": "go run ./cmd/api", "cmd": "go run ./cmd/api", "when": ["go.mod"] },
+      { "name": "тесты — весь проект", "cmd": "gotestsum --format pkgname-and-test-fails --format-icons hivis -- ./...", "when": ["go.mod"] },
+      { "name": "тесты — пакет текущего файла", "cmd": "gotestsum --format testname -- -count=1 ${file_dir}", "when": ["go.mod"] },
+      { "name": "покрытие тестами", "cmd": "go test -coverprofile=/tmp/cover.out ./... && go tool cover -html=/tmp/cover.out", "when": ["go.mod"] },
+      { "name": "бенчмарки пакета + pprof", "cmd": "go test -run '^$' -bench . -benchmem -o /tmp/bench.test -cpuprofile /tmp/cpu.out ${file_dir} && go tool pprof -http=:0 /tmp/cpu.out", "when": ["go.mod"] },
+      { "name": "golangci-lint", "cmd": "golangci-lint run ./...", "when": ["go.mod"] },
+      { "name": "go mod tidy", "cmd": "go mod tidy", "when": ["go.mod"] },
+      { "name": "govulncheck", "cmd": "govulncheck ./...", "when": ["go.mod"] },
+      { "name": "curl /health", "cmd": "curl -s localhost:${PORT:-8080}/health | jq .", "when": ["go.mod"] },
+      { "name": "логи compose", "cmd": "docker compose logs -f --tail 100", "when": ["compose.yaml", "compose.yml", "docker-compose.yml", "docker-compose.yaml"] },
+      { "name": "docker compose up -d", "cmd": "docker compose up -d --wait", "when": ["compose.yaml", "compose.yml", "docker-compose.yml", "docker-compose.yaml"] },
+      { "name": "docker compose down", "cmd": "docker compose down", "when": ["compose.yaml", "compose.yml", "docker-compose.yml", "docker-compose.yaml"] },
+      { "name": "docker compose ps", "cmd": "docker compose ps", "when": ["compose.yaml", "compose.yml", "docker-compose.yml", "docker-compose.yaml"] },
+      { "name": "docker build — образ проекта", "cmd": "docker build -t ${image} .", "when": ["Dockerfile"] },
+      { "name": "hadolint — текущий Dockerfile", "cmd": "hadolint ${file}", "when": ["Dockerfile"] },
+      { "name": "trivy — уязвимости образа", "cmd": "trivy image --severity HIGH,CRITICAL ${image}", "when": ["Dockerfile"] },
+      { "name": "dot project doctor", "cmd": "dot project doctor ${root}" },
+      { "name": "dot work — что поднято", "cmd": "dot work" },
+    ],
+  },
+
+  // Claude Code в nvim
+  "ai": {
+    "side": "right",
+    "width": 0.4,
   },
 
   // Git
@@ -597,8 +657,79 @@
     "n <M-d>": "database",
     "n <leader>ss": "lsp.symbols",
     "n <leader>sS": "lsp.workspace_symbols",
-    "n <leader>ci": "lsp.incoming_calls",
-    "n <leader>co": "lsp.outgoing_calls",
+    "n <leader>ch": "lsp.incoming_calls",
+    "n <leader>cH": "lsp.outgoing_calls",
+    "nx <leader>cx": "refactor.extract",
+    "nx <leader>ci": "refactor.inline",
+    "nx <leader>cw": "refactor.rewrite",
+    "n <S-F6>": "lsp.rename", // как в GoLand
+    "n <F2>": "error.next",
+    "n <S-F2>": "error.prev",
+    "n gpd": "peek.definition",
+    "n gpr": "peek.references",
+    "n gpi": "peek.implementations",
+    "n gpt": "peek.type",
+
+    // Go (генерация — пробел G)
+    "n <leader>rx": "go.run",
+    "n <leader>rX": "go.debug",
+    "n <leader>rg": "go.scratch",
+    "n <leader>Gj": "go.tags_json",
+    "n <leader>Gy": "go.tags_yaml",
+    "n <leader>Gd": "go.tags_db",
+    "n <leader>Gt": "go.tags",
+    "n <leader>Gr": "go.tags_remove",
+    "n <leader>Gi": "go.impl",
+    "n <leader>Ge": "go.iferr",
+    "n <leader>Gc": "go.comment",
+    "n <leader>Gf": "go.test_add",
+    "n <leader>GF": "go.tests_all",
+    "n <leader>Gm": "go.mod_tidy",
+    "n <leader>Gg": "go.get",
+    "n <leader>Gp": "go.json2struct",
+    "n <leader>Go": "go.compiler_details",
+    "n <leader>Gv": "go.coverage",
+    "n <leader>GV": "go.coverage_toggle",
+    "n <leader>Gs": "go.coverage_summary",
+
+    // задачи, HTTP, эндпоинты
+    "n <leader>rr": "tasks",
+    "n <M-t>": "tasks",
+    "n <leader>rl": "tasks.running",
+    "n <leader>rd": "lazydocker",
+    "n <leader>re": "endpoints",
+    "n <M-a>": "endpoints",
+    "n <leader>rh": "http.file",
+    "n <M-p>": "http.file",
+    "n <leader>tA": "autotest.toggle",
+
+    // Claude
+    "nti <M-c>": "ai.toggle",
+    "n <leader>aa": "ai.toggle",
+    "n <leader>ax": "ai.fix",
+    "n <leader>aR": "ai.review",
+    "n <leader>aX": "ai.review_clear",
+    "x <leader>as": "ai.send",
+    "n <leader>ab": "ai.add_file",
+    "n <leader>ay": "ai.accept",
+    "n <leader>an": "ai.deny",
+
+    // система, файлы, удобство
+    "nt <M-o>": "containers",
+    "n <leader>rc": "containers",
+    "nt <M-w>": "github",
+    "n <leader>gw": "github",
+    "nx <leader>P": "shot",
+    "n <leader>k": "kubernetes",
+    "n <leader>fy": "yazi",
+    "n <leader>fY": "yazi.cwd",
+    "nx <leader>sr": "replace",
+    "n <leader>sA": "replace.structural",
+    "n <cr>": "jump.line",
+    "n <leader>uP": "learn.hints",
+    "n <leader>uH": "learn.hardtime",
+    "n <leader>uR": "learn.report",
+    "n <leader>ue": "cloak.toggle",
     "n ]]": "lsp.word_next",
     "n [[": "lsp.word_prev",
 

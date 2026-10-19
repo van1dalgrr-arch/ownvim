@@ -3,7 +3,7 @@
 --   "style": "bubbles" | "arrows" | "slant" | "flat" | "plain" — форма крайних блоков
 --   "left": ["mode", "branch", "diagnostics", "file"], "right": ["search", "macro", "lsp", "position", "time"]
 --     блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time,
---     search (найдено 3/12), macro (пишется @q), а также свои из "custom"
+--     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), а также свои из "custom"
 --   "custom": { "k8s": { "shell": "kubectl config current-context", "every_ms": 10000, "icon": "…" },
 --               "hi":  { "text": "привет", "color": "pink" } } — свой текст или вывод команды (не блокирует)
 --   "mode_names": { "n": "ОБЫЧНЫЙ", "i": "ВСТАВКА", … } — подписи режимов (буква — первая буква режима)
@@ -160,6 +160,15 @@ function C.diff()
   if (d.changed or 0) > 0 then out[#out + 1] = hl("OwnSLChanged", "~" .. d.changed) end
   if (d.removed or 0) > 0 then out[#out + 1] = hl("OwnSLRemoved", "-" .. d.removed) end
   return #out > 0 and table.concat(out, " ") .. hl("OwnSL", "") or nil
+end
+
+function C.tests()
+  local ok, at = pcall(require, "own.tools.autotest")
+  if not ok then return nil end
+  local s = at.status()
+  if not s or s == "" then return nil end
+  local color = s:find("✗") and "red" or "green"
+  return hl("OwnSLColor_" .. color, esc(s)) .. hl("OwnSL", "")
 end
 
 function C.position() return "%l:%c" end

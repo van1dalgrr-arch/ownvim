@@ -32,7 +32,10 @@ local function severities(v, key)
 end
 
 local function apply_diagnostics()
-  vim.diagnostic.config(severities(vim.deepcopy(current().diagnostics or {})))
+  local d = severities(vim.deepcopy(current().diagnostics or {}))
+  -- Error Lens рисует текст ошибок сам — встроенный не нужен, иначе каждая ошибка дважды
+  if settings.enabled(current(), "error_lens") then d.virtual_text = false end
+  vim.diagnostic.config(d)
 end
 
 local function executable(name)

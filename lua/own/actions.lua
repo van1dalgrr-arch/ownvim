@@ -146,7 +146,31 @@ M.list = {
   ["lsp.outgoing_calls"] = { pick("lsp_outgoing_calls"), "Что вызывает" },
   ["lsp.hover"] = { function() vim.lsp.buf.hover() end, "Описание под курсором" },
   ["lsp.signature"] = { function() vim.lsp.buf.signature_help() end, "Подсказка аргументов" },
-  ["lsp.code_action"] = { function() vim.lsp.buf.code_action() end, "Исправить / действия с кодом" },
+  ["lsp.code_action"] = {
+    function()
+      -- с превью изменений (tiny-code-action, модуль go), если он есть
+      local ok, tiny = pcall(require, "tiny-code-action")
+      if ok then return tiny.code_action() end
+      vim.lsp.buf.code_action()
+    end,
+    "Исправить / действия с кодом (с превью)",
+  },
+  ["refactor.extract"] = {
+    function() vim.lsp.buf.code_action({ context = { only = { "refactor.extract" }, diagnostics = {} } }) end,
+    "Вынести: функцию, переменную, константу",
+  },
+  ["refactor.inline"] = {
+    function() vim.lsp.buf.code_action({ context = { only = { "refactor.inline" }, diagnostics = {} } }) end,
+    "Встроить вызов / переменную",
+  },
+  ["refactor.rewrite"] = {
+    function() vim.lsp.buf.code_action({ context = { only = { "refactor.rewrite" }, diagnostics = {} } }) end,
+    "Переписать: fill struct, if↔else, параметры…",
+  },
+  ["go.compiler_details"] = {
+    function() vim.lsp.buf.code_action({ context = { only = { "source.toggleCompilerOptDetails" }, diagnostics = {} } }) end,
+    "Оптимизации компилятора: куча / инлайн",
+  },
   ["lsp.source_action"] = {
     function() vim.lsp.buf.code_action({ context = { only = { "source" }, diagnostics = {} } }) end,
     "Действия с файлом (импорты…)",
@@ -242,6 +266,97 @@ M.list = {
     end,
     "История правок файла (без git)",
   },
+
+  -- Go (модуль go)
+  ["go.run"] = { function() require("own.tools.run").run(false) end, "▶ Запустить функцию под курсором (main / тест)" },
+  ["go.debug"] = { function() require("own.tools.run").run(true) end, "▶ То же под отладчиком" },
+  ["go.scratch"] = { function() require("own.modules.go").scratch() end, "Go-черновик" },
+  ["go.coverage"] = { function() require("own.modules.go").coverage() end, "Покрытие: прогнать тесты и показать" },
+  ["go.coverage_toggle"] = { "<cmd>CoverageToggle<cr>", "Покрытие: спрятать / показать" },
+  ["go.coverage_summary"] = { "<cmd>CoverageSummary<cr>", "Покрытие: проценты по файлам" },
+  ["go.tags_json"] = { "<cmd>GoTagAdd json<cr>", "Теги json у полей" },
+  ["go.tags_yaml"] = { "<cmd>GoTagAdd yaml<cr>", "Теги yaml" },
+  ["go.tags_db"] = { "<cmd>GoTagAdd db<cr>", "Теги db" },
+  ["go.tags"] = {
+    function()
+      vim.ui.input({ prompt = "Какие теги добавить (json,validate…): " }, function(t) if t and t ~= "" then vim.cmd("GoTagAdd " .. t) end end)
+    end,
+    "Теги: свои",
+  },
+  ["go.tags_remove"] = { "<cmd>GoTagRm<cr>", "Убрать теги" },
+  ["go.impl"] = {
+    function()
+      vim.ui.input({ prompt = "Какой интерфейс реализовать (io.Reader, http.Handler…): " }, function(t) if t and t ~= "" then vim.cmd("GoImpl " .. t) end end)
+    end,
+    "Реализовать интерфейс (курсор на типе)",
+  },
+  ["go.iferr"] = { "<cmd>GoIfErr<cr>", "if err != nil { return … }" },
+  ["go.comment"] = { "<cmd>GoCmt<cr>", "Doc-комментарий" },
+  ["go.test_add"] = { "<cmd>GoTestAdd<cr>", "Тест для функции под курсором" },
+  ["go.tests_all"] = { "<cmd>GoTestsAll<cr>", "Тесты для всех функций файла" },
+  ["go.mod_tidy"] = { "<cmd>GoMod tidy<cr>", "go mod tidy" },
+  ["go.get"] = {
+    function() vim.ui.input({ prompt = "go get: " }, function(t) if t and t ~= "" then vim.cmd("GoGet " .. t) end end) end,
+    "go get пакет",
+  },
+  ["go.json2struct"] = { "<cmd>GoJson<cr>", "JSON → Go-структура" },
+  ["peek.definition"] = { "<cmd>Glance definitions<cr>", "Посмотреть определение (без перехода)" },
+  ["peek.references"] = { "<cmd>Glance references<cr>", "Посмотреть использования" },
+  ["peek.implementations"] = { "<cmd>Glance implementations<cr>", "Посмотреть реализации" },
+  ["peek.type"] = { "<cmd>Glance type_definitions<cr>", "Посмотреть тип" },
+
+  -- задачи, HTTP, эндпоинты, тесты в фоне
+  tasks = { "<cmd>OverseerRun<cr>", "Задачи (как ctrl-r в Zed)" },
+  ["tasks.running"] = { "<cmd>OverseerToggle!<cr>", "Что запущено" },
+  lazydocker = { function() Snacks.terminal("lazydocker", { cwd = root.get() }) end, "lazydocker" },
+  endpoints = { function() require("own.tools.endpoints").pick() end, "Эндпоинты API (Gin)" },
+  ["http.file"] = { function() require("own.tools.endpoints").http_file() end, "api.http — Postman в файле" },
+  ["autotest.toggle"] = { function() require("own.tools.autotest").toggle() end, "Тесты в фоне вкл/выкл" },
+
+  -- Claude
+  ["ai.toggle"] = { function() require("own.modules.ai").toggle() end, "Claude: спрятать / показать" },
+  ["ai.fix"] = { function() require("own.modules.ai").fix() end, "Claude: почини ошибку под курсором" },
+  ["ai.review"] = { function() require("own.tools.review").run() end, "Claude: ревью ветки (замечания в коде)" },
+  ["ai.review_clear"] = { function() require("own.tools.review").clear() end, "Claude: убрать замечания ревью" },
+  ["ai.send"] = { "<cmd>ClaudeCodeSend<cr>", "Claude: отправить выделенное" },
+  ["ai.add_file"] = { "<cmd>ClaudeCodeAdd %<cr>", "Claude: добавить файл в контекст" },
+  ["ai.accept"] = { "<cmd>ClaudeCodeDiffAccept<cr>", "Claude: принять правку" },
+  ["ai.deny"] = { "<cmd>ClaudeCodeDiffDeny<cr>", "Claude: отклонить правку" },
+
+  -- система
+  containers = { function() require("own.modules.system").containers() end, "Контейнеры (alt-o ещё раз — спрятать)" },
+  github = { function() require("own.modules.system").github() end, "GitHub: PR, Actions, логи (gw)" },
+  shot = {
+    function()
+      local mode = vim.fn.mode()
+      if mode == "v" or mode == "V" or mode == "\22" then
+        local a, b = vim.fn.line("v"), vim.fn.line(".")
+        vim.cmd("normal! \27")
+        return require("own.tools.shot").shot(math.min(a, b), math.max(a, b))
+      end
+      require("own.tools.shot").shot()
+    end,
+    "Скриншот кода → PNG в буфер обмена (freeze)",
+  },
+  kubernetes = { function() require("kubectl").toggle({ tab = true }) end, "Kubernetes (kubectl.nvim)" },
+
+  -- файлы, замена, удобство
+  yazi = { "<cmd>Yazi<cr>", "yazi — у текущего файла" },
+  ["yazi.cwd"] = { "<cmd>Yazi cwd<cr>", "yazi — корень проекта" },
+  replace = { function() require("own.modules.files").replace() end, "Найти и заменить по проекту" },
+  ["replace.structural"] = { function() require("own.modules.files").structural() end, "Структурная замена (ast-grep)" },
+  ["jump.line"] = { function() require("own.modules.comfort").jump_line() end, "Прыжок на строку (метки)" },
+  ["learn.hints"] = {
+    function()
+      local p = require("precognition")
+      vim.g.own_precognition = not vim.g.own_precognition
+      if vim.g.own_precognition then p.show() else p.hide() end
+    end,
+    "Подсказки движений в строке",
+  },
+  ["learn.hardtime"] = { "<cmd>Hardtime toggle<cr>", "Тренер vim (hardtime) вкл/выкл" },
+  ["learn.report"] = { "<cmd>Hardtime report<cr>", "Тренер vim: какие привычки чаще всего" },
+  ["cloak.toggle"] = { "<cmd>CloakToggle<cr>", "Секреты в .env: показать / спрятать" },
 
   -- база данных (dadbod)
   database = { "<cmd>DBUIToggle<cr>", "База данных" },

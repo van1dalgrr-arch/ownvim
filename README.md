@@ -80,6 +80,17 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `debug` | debugger (nvim-dap + delve): F9 run, F8 step, F7 into, shift-F8 out, ctrl-F8 breakpoint (kept across restarts); panels and variable values in the code; attach to dlv in Docker. Section `debug` |
 | `database` | database (dadbod): `space D` / `alt-d` — connections and tables, the project's connection from `.env` by itself; table completion in `.sql`. Section `database` |
 | `git` | changes in the gutter, `]h`/`[h` — hunks, `space g h s/r/p` — stage / reset / preview, blame (`space u B`), diffview — three-way merge, file history, branch vs main (`space g m`), lazygit (`alt-g`), branches, commits, undo history without git (`space U`). Section `git` |
+| `go` | Go like GoLand: ▶ next to `main` and tests (`space r x`, debugger — `r X`), actions with a preview (`space c a`), refactorings (`c x/i/w`), "implements: io.Reader" on types, generation (`space G` — tags, interface, tests, if err, JSON → struct), peek (`gp d/r/i/t`), coverage (`G v`), Go scratch (`r g`). Section `go` |
+| `tasks` | tasks, like ctrl-r in Zed (`space r r`, `alt-t`): the list lives in `settings.jsonc`, with `when` and `${root}`/`${file}`. Section `tasks` |
+| `ai` | Claude Code: `alt-c` — show/hide, `space a x` — fix the error under the cursor, `a R` — branch review (findings on their lines). Section `ai` |
+| `http` | Postman in a file: `.http`, enter sends; Gin endpoints (`space r e`, `alt-a`), `api.http` from the routes (`r h`, `alt-p`) |
+| `autotest` | Go tests in the background after a save: `✓ 42` / `✗ 1` in the status line, a failed check on its line; `space t A` |
+| `error_lens` | errors to the right of the line, like Error Lens |
+| `multicursor` | multiple cursors: `ctrl-n`, `space m` |
+| `dial` | `ctrl-a`/`ctrl-x`: your own per-language cycles in settings (Go: `:=`↔`=`, `Error`↔`Fatal`, HTTP methods and statuses…) |
+| `cloak` · `yanky` · `files` | `.env` secrets masked · yank history (`space p`) · yazi, find-and-replace, structural replace (ast-grep) |
+| `comfort` · `learn` | `enter` — jump to a line · motion hints and a habit coach |
+| `system` · `kubernetes` | `alt-o` — containers, `alt-w` — GitHub (gw), `space P` — code screenshot · `space k` — kubectl.nvim |
 | `lsp` | language servers for Go, SQL (Postgres), Docker, Python, Rust, JSON, YAML — mason installs them; errors on their lines, `gd`/`gr`/`K`, rename `space c r`, fixes `space c a`, inlay hints. Sections `lsp`, `diagnostics`, `tools` |
 
 Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).
