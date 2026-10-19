@@ -62,7 +62,8 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `tabline` | VS Code-like tabs: icon, name, ● when unsaved, close button; mouse click, middle click closes; same names get their folder; scrolls to the current one. Section `tabline` |
 | `breadcrumbs` | breadcrumbs on top: folder › file › type › function at the cursor (from the syntax tree, any language). Section `breadcrumbs` |
 | `statusline` | own status line: blocks in JSON (mode, branch, errors, file, LSP, position, time, search, macro + your own — text or a command's output on a timer), styles bubbles / arrows / slant / flat / plain, colors from the theme. Section `statusline` |
-| `picker` | find files, text, commands, file tree (Snacks); `alt-c` in a picker — project ↔ launch folder |
+| `picker` | find files, text, commands (Snacks); `alt-c` in a picker — project ↔ launch folder |
+| file tree | own (`space e`): git colors and letters, error dots, compact folders, create/rename/delete to trash/copy/paste; look — section `explorer` (`"engine": "snacks"` for the snacks tree) |
 | `treesitter` | highlighting, indent, folds; languages listed in settings, missing ones install themselves |
 | `editing` | pairs, text objects `af`/`ic`/`ao`, surround `gsa`/`gsd`/`gsr`, `s` to jump, TODO |
 | `icons` | icon themes — JSON in `icons/`: default, mono, accent, backend (Go/SQL/Docker/migrations stand out), ascii; `:IconTheme` — pick, `:IconThemeInstall` — from a link; own glyphs and colors — `"icons.overrides"`. Used in the tree, pickers, completion menu |

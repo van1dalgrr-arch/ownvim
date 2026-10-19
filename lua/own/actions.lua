@@ -51,8 +51,24 @@ M.list = {
   resume = { pick("resume"), "Вернуть прошлый поиск" },
   quickfix = { pick("qflist"), "Quickfix" },
   undotree = { pick("undo"), "История правок" },
-  explorer = { function() Snacks.explorer({ cwd = root.get() }) end, "Дерево файлов (проект)" },
-  ["explorer.cwd"] = { function() Snacks.explorer() end, "Дерево файлов (папка запуска)" },
+  explorer = {
+    function()
+      if (((require("own.settings").current or {}).explorer or {}).engine or "own") == "own" then
+        return require("own.tree").toggle(root.get())
+      end
+      Snacks.explorer({ cwd = root.get() })
+    end,
+    "Дерево файлов (проект)",
+  },
+  ["explorer.cwd"] = {
+    function()
+      if (((require("own.settings").current or {}).explorer or {}).engine or "own") == "own" then
+        return require("own.tree").toggle(vim.uv.cwd())
+      end
+      Snacks.explorer()
+    end,
+    "Дерево файлов (папка запуска)",
+  },
   settings = { function() require("own.settings").open() end, "Мои настройки (settings.jsonc)" },
   ["settings.defaults"] = { function() require("own.settings").open("defaults") end, "Все настройки по умолчанию" },
   themes = { function() require("own.themes").pick() end, "Тема (предпросмотр, enter — запомнить)" },

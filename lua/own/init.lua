@@ -147,6 +147,7 @@ function M.setup()
   apply_keys(s)
 
   require("own.store").setup()
+  require("own.tree").setup()
   vim.api.nvim_create_user_command("OwnHealth", "checkhealth own", { desc = "Всё ли на месте" })
   vim.api.nvim_create_user_command("Settings", function(a) settings.open(a.args) end, {
     nargs = "?",

@@ -129,6 +129,12 @@ end
 function C.file()
   local b = buf()
   local name = vim.api.nvim_buf_get_name(b)
+  -- служебные окна — понятным словом, а не «[без имени]»
+  local SPECIAL = { own_tree = "\u{f0645} Дерево файлов", snacks_dashboard = "Старт", lazy = "Плагины", mason = "Mason",
+    qf = "Список", help = "Справка", own_panel = "Панель", own_image = "Картинка" }
+  local ft = vim.bo[b].filetype
+  if SPECIAL[ft] then return SPECIAL[ft] end
+  if vim.bo[b].buftype == "terminal" then return "\u{f489} Терминал" end
   if name == "" then return "[без имени]" end
   local mode = o().path or "relative"
   local shown = mode == "name" and vim.fn.fnamemodify(name, ":t") or mode == "full" and vim.fn.fnamemodify(name, ":~")
