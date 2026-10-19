@@ -382,7 +382,21 @@ function M.open(root)
   if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then state.buf = make_buf() end
   if not M.is_open() then
     local side = o().side == "right" and "botright" or "topleft"
+    -- слева есть полоса значков (модуль panels) — дерево встаёт сразу за ней
+    local bar
+    for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      if vim.bo[vim.api.nvim_win_get_buf(w)].filetype == "own_activity_bar" then bar = w end
+    end
     vim.cmd(side .. " vertical " .. (o().width or 32) .. "split")
+    local tree_win = vim.api.nvim_get_current_win()
+    if bar and o().side ~= "right" then
+      -- полосу — обратно на самый край, дерево — сразу за ней, ширина — как в настройках
+      vim.api.nvim_set_current_win(bar)
+      vim.cmd("wincmd H")
+      vim.api.nvim_win_set_width(bar, 3)
+      vim.api.nvim_set_current_win(tree_win)
+    end
+    vim.api.nvim_win_set_width(tree_win, o().width or 32)
     state.win = vim.api.nvim_get_current_win()
     vim.api.nvim_win_set_buf(state.win, state.buf)
     local wo = vim.wo[state.win]

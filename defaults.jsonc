@@ -218,6 +218,13 @@
     "brackets": { "colors": ["yellow", "purple", "blue"] }, // цветные пары скобок, как в VS Code
     "sticky_scroll": { "max_lines": 3 }, // шапка функции прилипает сверху, как Sticky Scroll в VS Code
     // картинка сбоку вместо миникарты (своя у каждой темы — "themes" или "image" в файле темы); пробел u p
+    // панели как в VS Code: полоса значков слева (клик — файлы, поиск, git, тесты, отладка, плагины, настройки)
+    // и нижняя панель «Терминал · Проблемы · Задачи» (пробел j). items: files, search, git, tests, debug, plugins,
+    // database, claude, settings
+    "panels": {
+      "activity_bar": { "enabled": true, "items": ["files", "search", "git", "tests", "debug", "plugins", "settings"] },
+      "bottom": { "height": 12, "tabs": ["terminal", "problems", "tasks"] },
+    },
     "image_panel": { "enabled": false, "image": "", "side": "right", "width": 32, "themes": {}, "auto": true },
     "minimap": false, // миникарта справа, как в VS Code ({ "width": 18 }); полоса прокрутки с метками — легче
     "completion": true, // автодополнение (раздел completion ниже)
@@ -623,6 +630,10 @@
     "n <leader>ui": "inspect",
     "n <leader>um": { "do": ":Neominimap Toggle", "desc": "Миникарта" },
     "n <leader>up": "image_panel",
+    "n <leader>j": "panel",
+    "n <leader>jt": "panel.terminal",
+    "n <leader>jp": "panel.problems",
+    "n <leader>jo": "panel.tasks",
     "n <leader>uC": "themes",
     "n <M-s>": "themes", // alt-s — тема с предпросмотром
 

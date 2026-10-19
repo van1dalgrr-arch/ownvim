@@ -76,6 +76,7 @@ function M.plugins() return {
           { "<leader>t", group = "тесты" },
           { "<leader>f", group = "файлы" },
           { "<leader>g", group = "git" },
+          { "<leader>j", group = "нижняя панель" },
           { "<leader>gh", group = "куски изменений" },
           { "<leader>q", group = "выход" },
           { "<leader>s", group = "поиск" },

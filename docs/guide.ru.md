@@ -209,6 +209,21 @@ SVG-иконки VS Code терминал показать не может — �
 },
 ```
 
+### Панели
+
+```jsonc
+"modules": {
+  "panels": {
+    "activity_bar": { "enabled": true, "items": ["files", "search", "git", "tests", "debug", "database", "claude", "settings"] },
+    "bottom": { "height": 15, "tabs": ["terminal", "problems", "tasks"] },
+  },
+},
+```
+
+Полоса значков слева — клик открывает вид (`settings` всегда внизу, как шестерёнка). Нижняя панель — `пробел j`;
+вкладки переключаются кликом или `пробел j t` (терминал), `j p` (проблемы: все ошибки проекта, `enter` — к строке),
+`j o` (вывод последней задачи). `"activity_bar": { "enabled": false }` — без полосы.
+
 ### Картинка сбоку
 
 ```jsonc
