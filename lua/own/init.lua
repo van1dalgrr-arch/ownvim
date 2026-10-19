@@ -146,6 +146,7 @@ function M.setup()
   apply_theme(s)
   apply_keys(s)
 
+  vim.api.nvim_create_user_command("OwnHealth", "checkhealth own", { desc = "Всё ли на месте" })
   vim.api.nvim_create_user_command("Settings", function(a) settings.open(a.args) end, {
     nargs = "?",
     complete = function() return { "defaults" } end,

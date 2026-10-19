@@ -133,6 +133,10 @@ M.list = {
     "Автовыход из вставки",
   },
   inspect = { vim.show_pos, "Что за подсветка под курсором" },
+  health = { "<cmd>checkhealth own<cr>", "Проверка здоровья ownvim" },
+  ["session.load"] = { function() require("own.modules.sessions").load() end, "Вернуть сессию этой папки" },
+  ["session.pick"] = { function() require("own.modules.sessions").pick() end, "Выбрать сессию" },
+  ["session.stop"] = { function() require("own.modules.sessions").stop() end, "Не сохранять сессию при выходе" },
 
   -- код (языковые серверы)
   ["lsp.definition"] = { pick("lsp_definitions"), "Перейти к определению" },

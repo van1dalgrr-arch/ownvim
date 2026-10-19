@@ -126,6 +126,9 @@ tools install themselves on the first file (`"tools": { "install": "system" }` �
 
 ## If something is off
 
+- **`:OwnHealth`** (`space u X`) checks everything — settings, programs, servers, formatters, linters, parsers, font,
+  startup time — and says how to fix each problem.
+
 - A mark in `settings.jsonc` — put the cursor on it, the message says what's wrong.
 - A server didn't attach — `space c l`, `:Mason`. Rust needs `rustup`.
 - Formatting — `space c F`; `space u f` turns it off for now.

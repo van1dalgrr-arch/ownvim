@@ -93,6 +93,7 @@ Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
 | `cloak` · `yanky` · `files` | `.env` secrets masked · yank history (`space p`) · yazi, find-and-replace, structural replace (ast-grep) |
 | `comfort` · `learn` | `enter` — jump to a line · motion hints and a habit coach |
 | `system` · `kubernetes` | `alt-o` — containers, `alt-w` — GitHub (gw), `space P` — code screenshot · `space k` — kubectl.nvim |
+| `sessions` | project sessions: open ownvim in a folder with no files — tabs and splits come back; `space q s/S/d` |
 | `lsp` | language servers for Go, C/C++ (clangd + clang-tidy, `space c s` — `.h` ↔ `.cpp`), CMake, SQL (Postgres), Docker, Python, Rust, JSON, YAML — mason installs them; errors on their lines, `gd`/`gr`/`K`, rename `space c r`, fixes `space c a`, inlay hints. Sections `lsp`, `diagnostics`, `tools` |
 
 Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).

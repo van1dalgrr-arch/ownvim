@@ -190,6 +190,7 @@
     "modes": {
       "auto_normal_ms": 5000, // не печатаешь 5 с — выход из вставки; 0 — никогда
     },
+    "sessions": true, // сессии проектов: вкладки и разбиения возвращаются (раздел sessions ниже)
     "autosave": true, // файл пишется сам, изменения снаружи подхватываются
     "russian": {
       "langmap": true, // команды работают в русской раскладке: о = j, вв = dd, Ж = :
@@ -440,6 +441,13 @@
   "ai": {
     "side": "right",
     "width": 0.4,
+  },
+
+  // Сессии проектов: открыл ownvim в папке без файлов — вернулось, как было (пробел q s / q S / q d)
+  "sessions": {
+    "auto_save": true,
+    "auto_restore": true,
+    "ignore": ["~", "/tmp", "/"], // папки без сессий
   },
 
   // Git
@@ -770,5 +778,9 @@
     "n <leader>l": { "do": ":Lazy", "desc": "Плагины" },
     "n <leader>h": "keymaps", // все клавиши с описаниями
     "n <leader>qq": { "do": ":qa", "desc": "Выйти из всего" },
+    "n <leader>qs": "session.load",
+    "n <leader>qS": "session.pick",
+    "n <leader>qd": "session.stop",
+    "n <leader>uX": "health", // :OwnHealth
   },
 }
