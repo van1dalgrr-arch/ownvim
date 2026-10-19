@@ -3,7 +3,7 @@
 🇷🇺 [Русская версия](README.ru.md)
 
 Neovim without LazyVim: ~2300 lines of own code, ideas taken from LazyVim. Everything is set in one
-JSON file, no Lua needed. Starts in about 40 ms (the LazyVim build in dotfiles takes 49).
+JSON file, no Lua needed. Starts in 35 ms, 58 with a Go file open (the LazyVim build in dotfiles: 107 on the same file).
 
 ## Install
 

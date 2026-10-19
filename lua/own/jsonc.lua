@@ -5,32 +5,44 @@ local M = {}
 
 local function blank(s) return (s:gsub("[^\n]", " ")) end
 
--- убрать комментарии, не трогая строки
+-- конец строки JSON, которая открылась кавычкой в позиции i (с учётом \")
+local function string_end(s, i)
+  local j = i + 1
+  while true do
+    local k = s:find('[\\"\n]', j)
+    if not k then return #s end
+    local c = s:sub(k, k)
+    if c == "\\" then j = k + 2 else return k end
+  end
+end
+
+-- убрать комментарии, не трогая строки: прыгаем к следующей кавычке или слэшу, а не идём по символу
 local function strip_comments(s)
   local out, i, n = {}, 1, #s
   while i <= n do
-    local c = s:sub(i, i)
+    local k = s:find('["/]', i)
+    if not k then
+      out[#out + 1] = s:sub(i)
+      break
+    end
+    out[#out + 1] = s:sub(i, k - 1)
+    local c, nxt = s:sub(k, k), s:sub(k + 1, k + 1)
     if c == '"' then
-      local j = i + 1
-      while j <= n do
-        local d = s:sub(j, j)
-        if d == "\\" then j = j + 1 elseif d == '"' or d == "\n" then break end
-        j = j + 1
-      end
-      out[#out + 1] = s:sub(i, j)
-      i = j + 1
-    elseif s:sub(i, i + 1) == "//" then
-      local j = s:find("\n", i, true) or n + 1
-      out[#out + 1] = blank(s:sub(i, j - 1))
-      i = j
-    elseif s:sub(i, i + 1) == "/*" then
-      local _, j = s:find("*/", i + 2, true)
-      j = j or n
-      out[#out + 1] = blank(s:sub(i, j))
-      i = j + 1
+      local e = string_end(s, k)
+      out[#out + 1] = s:sub(k, e)
+      i = e + 1
+    elseif nxt == "/" then
+      local e = (s:find("\n", k, true) or n + 1) - 1
+      out[#out + 1] = blank(s:sub(k, e))
+      i = e + 1
+    elseif nxt == "*" then
+      local _, e = s:find("*/", k + 2, true)
+      e = e or n
+      out[#out + 1] = blank(s:sub(k, e))
+      i = e + 1
     else
       out[#out + 1] = c
-      i = i + 1
+      i = k + 1
     end
   end
   return table.concat(out)
@@ -40,22 +52,19 @@ end
 local function strip_trailing_commas(s)
   local out, i, n = {}, 1, #s
   while i <= n do
-    local c = s:sub(i, i)
-    if c == '"' then
-      local j = i + 1
-      while j <= n do
-        local d = s:sub(j, j)
-        if d == "\\" then j = j + 1 elseif d == '"' then break end
-        j = j + 1
-      end
-      out[#out + 1] = s:sub(i, j)
-      i = j + 1
-    elseif c == "," and s:find("^%s*[%]}]", i + 1) then
-      out[#out + 1] = " "
-      i = i + 1
+    local k = s:find('[",]', i)
+    if not k then
+      out[#out + 1] = s:sub(i)
+      break
+    end
+    out[#out + 1] = s:sub(i, k - 1)
+    if s:sub(k, k) == '"' then
+      local e = string_end(s, k)
+      out[#out + 1] = s:sub(k, e)
+      i = e + 1
     else
-      out[#out + 1] = c
-      i = i + 1
+      out[#out + 1] = s:find("^%s*[%]}]", k + 1) and " " or ","
+      i = k + 1
     end
   end
   return table.concat(out)

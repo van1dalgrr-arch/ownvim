@@ -53,7 +53,7 @@ local function check(path, text, value, problems)
     end
   end
   for name in pairs(value.modules or {}) do
-    if not vim.api.nvim_get_runtime_file("lua/own/modules/" .. name .. ".lua", false)[1] then
+    if not vim.uv.fs_stat(dir .. "/lua/own/modules/" .. name .. ".lua") then
       local lnum, col = jsonc.find_key(text, name)
       problems[#problems + 1] = { lnum = (lnum or 1) - 1, col = col or 0, severity = vim.diagnostic.severity.WARN,
         message = ("нет модуля %q (список — в defaults.jsonc, раздел modules)"):format(name) }

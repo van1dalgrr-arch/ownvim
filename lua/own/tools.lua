@@ -6,6 +6,13 @@ local M = {}
 
 function M.mason() return ((settings.current or {}).tools or {}).install ~= "system" end
 
+--- Папка программ mason — в PATH сразу, без загрузки самого mason (он тянет реестр — ~6 мс на старте)
+function M.add_path()
+  if not M.mason() then return end
+  local bin = vim.fn.stdpath("data") .. "/mason/bin"
+  if not (vim.env.PATH or ""):find(bin, 1, true) then vim.env.PATH = bin .. ":" .. vim.env.PATH end
+end
+
 -- реестр mason: пакет по имени сервера (neovim.lspconfig) и по программе (bin)
 local by_lsp, by_bin
 local function index()

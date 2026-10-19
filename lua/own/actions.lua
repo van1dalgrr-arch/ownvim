@@ -185,7 +185,13 @@ M.list = {
   ["debug.pause"] = { function() require("dap").pause() end, "Пауза" },
   ["debug.terminate"] = { function() require("dap").terminate() end, "Остановить" },
   ["debug.repl"] = { function() require("dap").repl.toggle() end, "REPL" },
-  ["debug.ui"] = { function() require("dapui").toggle({}) end, "Панели отладчика" },
+  ["debug.ui"] = {
+    function()
+      require("dap")
+      require("dapui").toggle({})
+    end,
+    "Панели отладчика",
+  },
   ["debug.eval"] = { function() require("dapui").eval() end, "Значение выражения" },
   ["debug.up"] = { function() require("dap").up() end, "Кадр стека выше" },
   ["debug.down"] = { function() require("dap").down() end, "Кадр стека ниже" },

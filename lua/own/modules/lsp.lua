@@ -53,10 +53,11 @@ local function configure()
       vim.lsp.config[name] = cfg
       want[name] = true
       local ok, bin = executable(name)
-      local pkg = install_name or (tools.mason() and tools.package_for_lsp(name))
+      -- реестр mason читается, только если сервера нет (на старте он не нужен — экономит ~6 мс)
+      local pkg = not ok and (install_name or (tools.mason() and tools.package_for_lsp(name)))
       if ok then
         vim.lsp.enable(name)
-      elseif pkg and tools.mason() then
+      elseif pkg then
         tools.install(pkg, name, function() vim.lsp.enable(name) end)
       else
         tools.ensure_bin(bin, name, function() vim.lsp.enable(name) end,
@@ -98,7 +99,8 @@ function M.plugins()
   if tools.mason() then
     list[#list + 1] = {
       "mason-org/mason.nvim",
-      lazy = false, -- кладёт свою папку bin в PATH — нужно до старта серверов
+      -- грузится, когда что-то ставится или открыт :Mason; PATH к его программам — own.tools.add_path()
+      lazy = true,
       cmd = "Mason",
       opts = { ui = { border = "rounded" } },
     }
@@ -107,6 +109,7 @@ function M.plugins()
 end
 
 function M.setup()
+  tools.add_path()
   apply_diagnostics()
   vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("own.lsp", { clear = true }),

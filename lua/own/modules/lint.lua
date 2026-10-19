@@ -23,10 +23,15 @@ local ensured = {}
 local function apply()
   local lint = require("lint")
   lint.linters_by_ft = vim.deepcopy(l().languages or {})
+  -- свои настройки — функцией: определение линтера загрузится при первом запуске, а не на старте
+  -- (golangci-lint при загрузке синхронно спрашивает версию и go env — ~50 мс)
   for name, cfg in pairs(l().linters or {}) do
-    local base = lint.linters[name]
-    if type(base) == "function" then base = base() end
-    lint.linters[name] = vim.tbl_deep_extend("force", type(base) == "table" and base or {}, cfg)
+    lint.linters[name] = function()
+      local ok, base = pcall(require, "lint.linters." .. name)
+      if not ok then base = {} end
+      if type(base) == "function" then base = base() end
+      return vim.tbl_deep_extend("force", base, cfg)
+    end
   end
 end
 
@@ -61,7 +66,8 @@ local function watch()
   group = vim.api.nvim_create_augroup("own.lint", { clear = true })
   vim.api.nvim_create_autocmd(l().events or { "BufReadPost", "BufWritePost", "InsertLeave" }, {
     group = group,
-    callback = function() vim.defer_fn(run, 50) end, -- после форматирования при записи
+    -- после отрисовки: первый вызов линтера бывает тяжёлым (golangci-lint при загрузке спрашивает версию — ~50 мс)
+    callback = function() vim.defer_fn(run, 150) end,
   })
 end
 
@@ -72,7 +78,7 @@ function M.plugins()
       event = { "BufReadPost", "BufNewFile", "BufWritePost" },
       config = function()
         apply()
-        run()
+        vim.defer_fn(run, 150)
       end,
     },
   }

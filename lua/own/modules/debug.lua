@@ -44,14 +44,21 @@ function M.plugins()
       config = function()
         local dap = require("dap")
         signs()
-        if o.ui ~= false then
-          local dapui = require("dapui")
-          dapui.setup(o.dapui or {})
-          dap.listeners.after.event_initialized.own = function() dapui.open({}) end
-          dap.listeners.before.event_terminated.own = function() dapui.close({}) end
-          dap.listeners.before.event_exited.own = function() dapui.close({}) end
+        -- панели и значения в коде — при первом запуске отладки, а не при загрузке dap (точки останова тянут dap на старте)
+        local ready = false
+        local function prepare()
+          if ready then return end
+          ready = true
+          if o.ui ~= false then require("dapui").setup(o.dapui or {}) end
+          if o.virtual_text ~= false then require("nvim-dap-virtual-text").setup({}) end
         end
-        if o.virtual_text ~= false then require("nvim-dap-virtual-text").setup({}) end
+        dap.listeners.before.launch.own = prepare
+        dap.listeners.before.attach.own = prepare
+        if o.ui ~= false then
+          dap.listeners.after.event_initialized.own = function() require("dapui").open({}) end
+          dap.listeners.before.event_terminated.own = function() require("dapui").close({}) end
+          dap.listeners.before.event_exited.own = function() require("dapui").close({}) end
+        end
         local go = o.go or {}
         if go ~= false then
           require("dap-go").setup({
@@ -61,8 +68,16 @@ function M.plugins()
         end
       end,
     },
-    -- точки останова грузятся с файлом, даже если отладчик ещё не запускали
-    { "Weissle/persistent-breakpoints.nvim", event = "BufReadPost", opts = { load_breakpoints_event = { "BufReadPost" } } },
+    -- сохранённые точки останова — после отрисовки (тянут dap, ~6 мс), дальше — с каждым открытым файлом
+    {
+      "Weissle/persistent-breakpoints.nvim",
+      event = "VeryLazy",
+      opts = { load_breakpoints_event = { "BufReadPost" } },
+      config = function(_, opts)
+        require("persistent-breakpoints").setup(opts)
+        require("persistent-breakpoints.api").load_breakpoints()
+      end,
+    },
   }
 end
 
