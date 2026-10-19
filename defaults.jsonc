@@ -207,6 +207,7 @@
     "modes": {
       "auto_normal_ms": 5000, // не печатаешь 5 с — выход из вставки; 0 — никогда
     },
+    "commands": true, // свои команды-скрипты на Python и др. (раздел commands ниже, docs/extensions.ru.md)
     "sessions": true, // сессии проектов: вкладки и разбиения возвращаются (раздел sessions ниже)
     "autosave": true, // файл пишется сам, изменения снаружи подхватываются
     "russian": {
@@ -467,6 +468,14 @@
   "ai": {
     "side": "right",
     "width": 0.4,
+  },
+
+  // Свои команды-скрипты (docs/extensions.ru.md): скрипт читает stdin, пишет stdout.
+  // input: selection | file | line | word | none; output: replace | insert | window | notify | none
+  // :ExtensionNew имя — заготовка extensions/имя.py + строка здесь; :Commands (пробел C) — список
+  "commands": {
+    "Сортировать строки": { "run": "python3 extensions/sort_lines.py", "input": "selection", "output": "replace", "key": "x <leader>xs" },
+    "Инфо о файле": { "run": "python3 extensions/file_info.py", "input": "file", "output": "notify", "key": "n <leader>xi" },
   },
 
   // Сессии проектов: открыл ownvim в папке без файлов — вернулось, как было (пробел q s / q S / q d)
@@ -819,7 +828,8 @@
     "nt <C-/>": "terminal.toggle",
     "nt <C-_>": "terminal.toggle",
     "n <leader>l": { "do": ":Lazy", "desc": "Плагины" },
-    "n <leader>L": "store", // магазин плагинов (:Plugins)
+    "n <leader>L": "store",
+    "n <leader>C": { "do": ":Commands", "desc": "Мои команды-скрипты" }, // магазин плагинов (:Plugins)
     "n <leader>h": "keymaps", // все клавиши с описаниями
     "n <leader>qq": { "do": ":qa", "desc": "Выйти из всего" },
     "n <leader>qs": "session.load",
