@@ -239,7 +239,7 @@
     "ai": true, // Claude Code в nvim (раздел ai ниже)
     "http": true, // Postman в файле (.http) и эндпоинты Gin
     "autotest": true, // тесты Go в фоне после сохранения
-    "error_lens": { "preset": "modern", "break_after": 60 }, // ошибки справа от строки, как Error Lens
+    "error_lens": { "preset": "modern", "break_after": 60, "insert": true }, // ошибки справа от строки, как Error Lens; insert — и во вставке
     "multicursor": true, // мультикурсоры: ctrl-n, пробел m
     "dial": { // ctrl-a / ctrl-x: свои циклы по языкам (по слову, если в паре есть буквы)
       "go": [[":=", "="], ["==", "!="], ["var", "const"], ["Error", "Fatal"], ["Errorf", "Fatalf"],
@@ -274,6 +274,7 @@
         "settings": {
           "gopls": {
             "gofumpt": true,
+            "diagnosticsDelay": "300ms", // ошибки — через 0,3 с после последней клавиши (по умолчанию 1 с)
             "staticcheck": true,
             "usePlaceholders": true,
             "completeUnimported": true,
@@ -318,7 +319,7 @@
   // Ошибки и предупреждения — как vim.diagnostic.config. Уровни можно словами: "error", "warn", "info", "hint"
   "diagnostics": {
     "underline": true,
-    "update_in_insert": false,
+    "update_in_insert": true, // ошибки обновляются прямо во вставке, пока печатаешь
     "severity_sort": true,
     "virtual_text": { "spacing": 4, "source": "if_many", "prefix": "●" },
     "signs": { "text": { "error": "\uf057 ", "warn": "\uf071 ", "hint": "\uf0eb ", "info": "\uf05a " } },
