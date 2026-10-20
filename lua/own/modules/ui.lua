@@ -5,6 +5,46 @@ local M = {}
 
 local settings = require("own.settings")
 
+-- секция «project» стартового экрана: ветка, что изменено, статус compose — того проекта, где открыт nvim
+local function project_section(self)
+  local cwd = vim.fn.getcwd()
+  local items = {}
+  local st = vim.fn.systemlist({ "git", "-C", cwd, "status", "--porcelain=v1", "--branch" })
+  if vim.v.shell_error == 0 and st[1] then
+    local branch = st[1]:match("^## No commits yet on (%S+)") or st[1]:match("^## ([^%s%.]+)")
+    local ahead, behind = st[1]:match("ahead (%d+)"), st[1]:match("behind (%d+)")
+    local head = { { branch or "?", hl = "Title" } }
+    if ahead then head[#head + 1] = { "  ↑" .. ahead, hl = "DiagnosticWarn" } end
+    if behind then head[#head + 1] = { "  ↓" .. behind, hl = "DiagnosticWarn" } end
+    head[#head + 1] = #st > 1 and { ("  · изменено: %d"):format(#st - 1), hl = "Comment" } or { "  · чисто", hl = "DiagnosticOk" }
+    items[#items + 1] = { text = head }
+    local HL = { M = "DiagnosticWarn", A = "DiagnosticOk", D = "DiagnosticError", R = "DiagnosticInfo", ["?"] = "Comment" }
+    for i = 2, math.min(#st, 6) do
+      local code, file = st[i]:sub(1, 2), st[i]:sub(4)
+      items[#items + 1] = { text = { { code .. " ", hl = HL[vim.trim(code):sub(1, 1)] or "Comment" }, { file, hl = "Normal" } } }
+    end
+    if #st > 6 then items[#items + 1] = { text = { { ("   … ещё %d"):format(#st - 6), hl = "Comment" } } } end
+  end
+  local docker = package.loaded["own.modules.docker"]
+  -- статуса ещё нет — docker спросится в фоне, и экран перерисуется
+  local data = docker and docker.project_status(cwd, function() pcall(self.update, self) end)
+  if data and not data.down then
+    local line = { { "\u{f308} compose  ", hl = "Comment" } }
+    if next(data.list) == nil then line[#line + 1] = { "не запущен", hl = "Comment" } end
+    for name, c in vim.spairs(data.list) do
+      local ok = c.State == "running" and c.Health ~= "unhealthy"
+      line[#line + 1] = { (ok and "● " or "○ ") .. name .. "  ", hl = ok and "DiagnosticOk" or "DiagnosticError" }
+    end
+    items[#items + 1] = { text = line }
+  end
+  if #items == 0 then return nil end
+  items.title = vim.fs.basename(cwd)
+  items.icon = "\u{e702} "
+  items.indent = 2
+  items.padding = 1
+  return items
+end
+
 -- стартовый экран из раздела "dashboard": header, buttons (do — действие из keys, :команда или клавиши), sections
 local function dashboard()
   local d = (settings.current or {}).dashboard or {}
@@ -24,6 +64,7 @@ local function dashboard()
     recent = { icon = "\u{f1da} ", title = "Недавние файлы", section = "recent_files", cwd = true, indent = 2, padding = 1, limit = d.recent or 5 },
     projects = { icon = "\u{f07b} ", title = "Проекты", section = "projects", indent = 2, padding = 1, limit = d.projects or 5 },
     startup = { section = "startup" },
+    project = project_section,
   }
   local sections = {}
   for _, name in ipairs(d.sections or { "header", "buttons", "startup" }) do

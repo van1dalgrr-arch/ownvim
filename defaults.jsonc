@@ -94,7 +94,8 @@
       { "key": "l", "icon": "\uf487", "desc": "Плагины", "do": ":Lazy" },
       { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
     ],
-    "sections": ["header", "buttons", "startup"],
+    // секции: header, buttons, project (ветка, изменения, статус compose), recent, projects, startup
+    "sections": ["header", "buttons", "project", "startup"],
     "recent": 5,
     "projects": 5,
   },
@@ -253,6 +254,7 @@
     "comfort": true, // enter — прыжок на строку по метке
     "learn": { "hints_visible": false, "hardtime": true }, // подсказки движений и тренер привычек (подсказывает, не мешает)
     "system": { "containers": "orbstack", "github": "gw" }, // alt-o — контейнеры, alt-w — GitHub, пробел P — скриншот кода
+    "docker": true, // compose: статус сервисов справа, enter — действия, ${VAR} ↔ .env; Dockerfile: вес слоёв
     "kubernetes": true, // пробел k — kubectl.nvim (если есть kubectl)
     "git": true, // изменения на полях, blame, merge, история, lazygit (раздел git ниже)
     "lsp": true, // языковые серверы: ошибки, переходы, переименование (разделы lsp, diagnostics, tools ниже)
