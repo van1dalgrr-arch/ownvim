@@ -16,7 +16,7 @@ local TOP = { theme = true, options = true, globals = true, modules = true, keys
   test = true, debug = true, database = true,
   colors = true, appearance = true, icons = true, statusline = true,
   tabline = true, breadcrumbs = true, dashboard = true, font = true, animations = true, git = true,
-  go = true, tasks = true, ai = true, sessions = true, explorer = true, commands = true }
+  go = true, tasks = true, ai = true, sessions = true, explorer = true, commands = true, auto = true }
 
 M.current = nil -- последние применённые настройки
 M.problems = {} -- путь → { диагностика }
@@ -50,7 +50,7 @@ local function check(path, text, value, problems)
     if not TOP[key] then
       local lnum, col = jsonc.find_key(text, key)
       problems[#problems + 1] = { lnum = (lnum or 1) - 1, col = col or 0, severity = vim.diagnostic.severity.WARN,
-        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, git, go, tasks, ai, sessions, explorer, commands"):format(key) }
+        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, git, go, tasks, ai, sessions, explorer, commands, auto"):format(key) }
     end
   end
   for name in pairs(value.modules or {}) do
@@ -116,7 +116,11 @@ function M.load(skip_user)
     local p = M.problems[path][1]
     return nil, ("%s:%d — %s"):format(vim.fn.fnamemodify(path, ":t"), p.lnum + 1, p.message)
   end
-  return merge(defaults, user)
+  local s = merge(defaults, user)
+  -- языки, для которых ownvim сам включил инструменты (own.auto), — между умолчаниями и settings.jsonc
+  local ok, layer = pcall(function() return require("own.auto").layer(s) end)
+  if ok and layer then s = merge(merge(defaults, layer), user) end
+  return s
 end
 
 --- Модуль включён? (true / объект без enabled=false)

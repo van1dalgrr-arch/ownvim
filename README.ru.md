@@ -98,7 +98,7 @@ ownvim                                   # первый запуск сам по
 | `system` · `kubernetes` | `alt-o` — контейнеры, `alt-w` — GitHub (gw), `пробел P` — скриншот кода · `пробел k` — kubectl.nvim |
 | `commands` | свои команды-скрипты на Python и др.: вход — выделение/файл/строка, выход — заменить/вставить/окно/уведомление; `:ExtensionNew`, `пробел C`. [Как писать](docs/extensions.ru.md) |
 | `sessions` | сессии проектов: открыл ownvim в папке без файлов — вернулись вкладки и разбиения; `пробел q s/S/d` |
-| `lsp` | языковые серверы для Go, C/C++ (clangd + clang-tidy, `пробел c s` — `.h` ↔ `.cpp`), CMake, SQL (Postgres), Docker, Python, Rust, JSON, YAML — ставятся сами через mason; ошибки на строках, `gd`/`gr`/`K`, переименование `пробел c r`, исправления `пробел c a`, подсказки типов. Разделы `lsp`, `diagnostics`, `tools` |
+| `lsp` | языковые серверы для Go, C/C++ (clangd + clang-tidy, `пробел c s` — `.h` ↔ `.cpp`), CMake, SQL (Postgres), Docker, Python, Rust, JSON, YAML — ставятся сами через mason; открыл файл любого другого языка — сервер, форматтер и линтер для него тоже ставятся сами (раздел `auto`); ошибки на строках, `gd`/`gr`/`K`, переименование `пробел c r`, исправления `пробел c a`, подсказки типов. Разделы `lsp`, `diagnostics`, `tools` |
 
 Код модулей — `lua/own/modules/<имя>.lua`, ядро — `lua/own/` (настройки, JSONC, клавиши, действия).
 

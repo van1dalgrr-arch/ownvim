@@ -499,6 +499,42 @@
     "install": "mason",
   },
 
+  // Всё ставится само: открыл файл языка, для которого ничего не настроено, — ownvim включает
+  // языковой сервер, форматтер и линтер и ставит их через mason (не спрашивая, как просил бы VS Code).
+  // languages — проверенный набор; любой другой язык ищется в реестре mason ("discover"): один сервер —
+  // ставится, несколько — спросит один раз. Язык: false — ничего не ставить. Свой список — сюда же или в
+  // lsp/format/lint (settings.jsonc всегда сильнее). Что включилось — :AutoTools; :AutoTools <язык> — забыть.
+  "auto": {
+    "enabled": true,
+    "discover": true,
+    "languages": {
+      "typescript": { "lsp": ["vtsls"], "format": ["prettierd"] },
+      "javascript": { "lsp": ["vtsls"], "format": ["prettierd"] },
+      "typescriptreact": { "lsp": ["vtsls"], "format": ["prettierd"] },
+      "javascriptreact": { "lsp": ["vtsls"], "format": ["prettierd"] },
+      "svelte": { "lsp": ["svelte"], "format": ["prettierd"] },
+      "astro": { "lsp": ["astro"], "format": ["prettierd"] },
+      "html": { "lsp": ["html"], "format": ["prettierd"] },
+      "css": { "lsp": ["cssls"], "format": ["prettierd"] },
+      "scss": { "lsp": ["cssls"], "format": ["prettierd"] },
+      "less": { "lsp": ["cssls"], "format": ["prettierd"] },
+      "graphql": { "lsp": ["graphql"], "format": ["prettierd"] },
+      "markdown": { "lsp": ["marksman"], "format": ["prettierd"] },
+      "lua": { "lsp": ["lua_ls"], "format": ["stylua"] },
+      "sh": { "lsp": ["bashls"], "lint": ["shellcheck"] },
+      "bash": { "lsp": ["bashls"], "format": ["shfmt"], "lint": ["shellcheck"] },
+      "toml": { "lsp": ["taplo"] },
+      "zig": { "lsp": ["zls"] },
+      "php": { "lsp": ["intelephense"] },
+      "terraform": { "lsp": ["terraformls"] },
+      "proto": { "lsp": ["buf_ls"], "format": ["buf"] },
+      "xml": { "lsp": ["lemminx"] },
+      "tex": { "lsp": ["texlab"] },
+      "helm": { "lsp": ["helm_ls"] },
+      "nix": { "lsp": ["nil_ls"] },
+    },
+  },
+
   // Клавиши: "режимы клавиша": что делать. Режимы — буквы подряд: n обычный, i вставка, x выделение,
   // s выбор, o после оператора, t терминал, c командная строка.
   // Что делать: имя действия ("files" — список в пробел s k и lua/own/actions.lua), клавиши ("<C-w>h"),

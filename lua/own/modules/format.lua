@@ -80,7 +80,11 @@ function M.setup()
 end
 
 function M.reload()
-  if package.loaded["conform"] then apply() end
+  if package.loaded["conform"] then return apply() end
+  -- conform ещё не загружен (грузится при первом сохранении) — программы ставим уже сейчас
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) then ensure_ft(vim.bo[buf].filetype) end
+  end
 end
 
 return M

@@ -146,6 +146,7 @@ function M.setup()
   apply_theme(s)
   apply_keys(s)
 
+  require("own.auto").setup()
   require("own.store").setup()
   require("own.tree").setup()
   vim.api.nvim_create_user_command("OwnHealth", "checkhealth own", { desc = "Всё ли на месте" })
