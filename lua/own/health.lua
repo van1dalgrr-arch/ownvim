@@ -24,6 +24,30 @@ local function check_settings()
   h.info(("модулей включено: %d"):format(#enabled))
 end
 
+-- Go-ядро: программа ownvimd (core/), движок настроек, мост
+local function check_core()
+  h.start("Go-ядро (core/, ownvimd)")
+  local core = require("own.core")
+  if vim.fn.executable("go") ~= 1 then
+    h.warn("нет go — ядро не пересоберётся после правок; настройки читает запасной Lua-движок", { "brew install go" })
+  end
+  if not vim.uv.fs_stat(core.bin) then
+    return h.error("ownvimd не собран: " .. tostring(core.error or "?"), { "cd ~/dev/ownvim/core && go build -o " .. core.bin .. " ./cmd/ownvimd" })
+  end
+  local v = vim.system({ core.bin, "version" }, { text = true }):wait(3000)
+  h.ok(("ownvimd %s — %s"):format(vim.trim(v.stdout or "?"), core.bin))
+  if core.stale() then h.warn("Go-код новее программы — пересоберётся в фоне после старта (или :lua require'own.core'.build())") end
+  if core.error then h.error("последняя сборка упала:\n" .. core.error) end
+  local cache = vim.fn.stdpath("data") .. "/own-settings.cache.json"
+  if vim.uv.fs_stat(cache) then h.ok("настройки читаются из кэша ядра: " .. cache) else h.warn("кэша настроек нет — соберётся при следующем чтении") end
+  local ok, res = pcall(function()
+    local t = vim.uv.hrtime()
+    for _ = 1, 50 do core.request("ping") end
+    return (vim.uv.hrtime() - t) / 1e6 / 50
+  end)
+  if ok then h.ok(("мост работает: %.3f мс на вызов"):format(res)) else h.error("мост не отвечает: " .. tostring(res)) end
+end
+
 local function check_programs()
   h.start("Программы")
   local need = {
@@ -38,7 +62,7 @@ local function check_programs()
     { "fd", "brew install fd — быстрее поиск файлов" },
     { "freeze", "brew install charmbracelet/tap/freeze — скриншот кода (пробел P)" },
     { "cmake", "brew install cmake — задачи C/C++" },
-    { "cargo", "brew install rustup && rustup-init — Rust" },
+    { "cargo", "brew install rustup && rustup default stable — Rust" },
   }
   for _, p in ipairs(need) do
     if vim.fn.executable(p[1]) == 1 then h.ok(p[1]) else h.error(p[1] .. " не найден", p[2]) end
@@ -131,6 +155,7 @@ end
 
 function M.check()
   check_settings()
+  check_core()
   check_programs()
   check_lsp()
   check_tools("format", "Форматтеры")

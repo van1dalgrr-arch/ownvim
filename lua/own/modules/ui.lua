@@ -6,6 +6,7 @@ local M = {}
 local settings = require("own.settings")
 
 -- секция «project» стартового экрана: ветка, что изменено, статус compose — того проекта, где открыт nvim
+local asked = {}
 local function project_section(self)
   local cwd = vim.fn.getcwd()
   local items = {}
@@ -25,9 +26,29 @@ local function project_section(self)
     end
     if #st > 6 then items[#items + 1] = { text = { { ("   … ещё %d"):format(#st - 6), hl = "Comment" } } } end
   end
-  local docker = package.loaded["own.modules.docker"]
-  -- статуса ещё нет — docker спросится в фоне, и экран перерисуется
-  local data = docker and docker.project_status(cwd, function() pcall(self.update, self) end)
+  -- статус compose — из Go-расширения docker: спросить в фоне, ответ придёт в ext.data — и экран перерисуется
+  local data
+  local has_compose = false
+  for _, n in ipairs({ "compose.yaml", "compose.yml", "docker-compose.yaml", "docker-compose.yml" }) do
+    if vim.uv.fs_stat(cwd .. "/" .. n) then has_compose = true end
+  end
+  local ext = package.loaded["own.ext"]
+  if has_compose and ext and vim.fn.executable("docker") == 1 then
+    local key = "docker.status:" .. cwd
+    data = ext.data[key]
+    if not data and not asked[key] then
+      asked[key] = true
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "OwnExtData",
+        callback = function(ev)
+          if ev.data.key ~= key then return end
+          pcall(self.update, self)
+          return true
+        end,
+      })
+      ext.call("docker.status", { dir = cwd }, "docker")
+    end
+  end
   if data and not data.down then
     local line = { { "\u{f308} compose  ", hl = "Comment" } }
     if next(data.list) == nil then line[#line + 1] = { "не запущен", hl = "Comment" } end

@@ -3,6 +3,9 @@
 -- Сохранил settings.jsonc — тема, опции, клавиши и настройки модулей применяются сразу;
 -- включить/выключить модуль или плагин — после :restart. Ошибка в файле — подсветка на её строке,
 -- редактор продолжает работать на прошлых настройках.
+-- Читает, проверяет и сливает слои Go-ядро (core/settings, программа ownvimd); его ответ кэшируется вместе
+-- с отпечатком исходных файлов, и на старте читается кэш — программа запускается, только если что-то поменялось.
+-- Нет Go — работает прежний Lua-движок ниже (legacy_load).
 local jsonc = require("own.jsonc")
 
 local M = {}
@@ -16,7 +19,7 @@ local TOP = { theme = true, options = true, globals = true, modules = true, keys
   test = true, debug = true, database = true,
   colors = true, appearance = true, icons = true, statusline = true,
   tabline = true, breadcrumbs = true, dashboard = true, font = true, animations = true, git = true,
-  go = true, tasks = true, ai = true, sessions = true, explorer = true, commands = true, auto = true }
+  go = true, tasks = true, ai = true, sessions = true, explorer = true, commands = true, auto = true, extensions = true, checks = true }
 
 M.current = nil -- последние применённые настройки
 M.problems = {} -- путь → { диагностика }
@@ -40,7 +43,16 @@ local function merge(base, over)
   if not (is_dict(base) and is_dict(over)) then return over end
   local out = {}
   for k, v in pairs(base) do out[k] = v end
-  for k, v in pairs(over) do out[k] = merge(base[k], v) end
+  for k, v in pairs(over) do
+    if type(k) ~= "string" or k:sub(-1) ~= "+" then out[k] = merge(base[k], v) end
+  end
+  -- "ключ+": [ … ] — дописать к списку ключа (как в core/settings/merge.go)
+  for k, v in pairs(over) do
+    if type(k) == "string" and k:sub(-1) == "+" and vim.islist(v) then
+      local name = k:sub(1, -2)
+      out[name] = vim.list_extend(vim.deepcopy(type(out[name]) == "table" and out[name] or {}), v)
+    end
+  end
   return out
 end
 
@@ -50,7 +62,7 @@ local function check(path, text, value, problems)
     if not TOP[key] then
       local lnum, col = jsonc.find_key(text, key)
       problems[#problems + 1] = { lnum = (lnum or 1) - 1, col = col or 0, severity = vim.diagnostic.severity.WARN,
-        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, git, go, tasks, ai, sessions, explorer, commands, auto"):format(key) }
+        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, git, go, tasks, ai, sessions, explorer, commands, auto, extensions, checks"):format(key) }
     end
   end
   for name in pairs(value.modules or {}) do
@@ -98,16 +110,19 @@ end
 
 -- показать проблемы в открытых буферах файлов настроек (и снять, когда исправлено)
 function M.show_problems()
-  for _, path in pairs(M.files) do
+  local paths = vim.tbl_values(M.files)
+  for path in pairs(M.problems) do -- и JSONC-наборы (extensions/*.jsonc)
+    if not vim.tbl_contains(paths, path) then paths[#paths + 1] = path end
+  end
+  for _, path in ipairs(paths) do
     local buf = vim.fn.bufnr(path)
     if buf == -1 then buf = vim.fn.bufnr(vim.fn.resolve(path)) end
     if buf ~= -1 then vim.diagnostic.set(ns, buf, M.problems[path] or {}) end
   end
 end
 
---- Прочитать и слить оба слоя. Если файл не разобрался — nil и сообщение.
---- skip_user — только умолчания (когда settings.jsonc сломан; его ошибка остаётся в problems)
-function M.load(skip_user)
+--- Lua-движок: прочитать и слить оба слоя (если Go-ядра нет). skip_user — только умолчания.
+local function legacy_load(skip_user)
   if not skip_user then M.problems = {} end
   local defaults = load_file(M.files.defaults)
   local user = skip_user and {} or load_file(M.files.user)
@@ -121,6 +136,85 @@ function M.load(skip_user)
   local ok, layer = pcall(function() return require("own.auto").layer(s) end)
   if ok and layer then s = merge(merge(defaults, layer), user) end
   return s
+end
+
+-- ── Go-ядро: кэш и вызов ─────────────────────────────────────────────────────
+
+local data = vim.fn.stdpath("data")
+local cache_path = data .. "/own-settings.cache.json"
+local options_path = data .. "/own-options.json"
+local JSON = { luanil = { object = true, array = true } }
+
+local function stamp_of(p)
+  local st = vim.uv.fs_stat(p)
+  if not st then return "-" end
+  return ("%d.%09d:%d"):format(st.mtime.sec, st.mtime.nsec, st.size)
+end
+
+-- отпечаток наборов (extensions/*.jsonc) — как core/settings.pluginsStamp: папка и каждый файл
+local function plugins_stamp()
+  local pdir = dir .. "/extensions"
+  local parts = { stamp_of(pdir) }
+  local files = vim.fn.glob(pdir .. "/*.jsonc", false, true)
+  table.sort(files)
+  for _, f in ipairs(files) do parts[#parts + 1] = vim.fs.basename(f) .. "=" .. stamp_of(f) end
+  return table.concat(parts, ";")
+end
+
+-- отпечаток — тот же, что считает core/settings.Stamp
+local function stamp()
+  return {
+    defaults = stamp_of(M.files.defaults),
+    user = stamp_of(M.files.user),
+    auto = stamp_of(data .. "/own-auto.json"),
+    options = stamp_of(options_path),
+    modules = stamp_of(dir .. "/lua/own/modules"),
+    plugins = plugins_stamp(),
+    engine = stamp_of(require("own.core").bin),
+  }
+end
+
+local function from_cache()
+  local text = read(cache_path)
+  if not text then return nil end
+  local ok, r = pcall(vim.json.decode, text, JSON)
+  if not ok or type(r) ~= "table" or not vim.deep_equal(r.stamp, stamp()) then return nil end
+  return r
+end
+
+-- имена опций nvim для проверки раздела options (Go их сам не знает); заново — после обновления nvim
+local function ensure_options()
+  local version = tostring(vim.version())
+  local ok, f = pcall(vim.json.decode, read(options_path) or "", JSON)
+  if ok and type(f) == "table" and f.version == version then return end
+  local names = {}
+  for name, info in pairs(vim.api.nvim_get_all_options_info()) do
+    names[#names + 1] = name
+    if info.shortname and info.shortname ~= "" then names[#names + 1] = info.shortname end
+  end
+  local out = io.open(options_path, "w")
+  if out then out:write(vim.json.encode({ version = version, names = names })); out:close() end
+end
+
+local function from_engine()
+  ensure_options()
+  local r = require("own.core").run({ "settings", "load", "--config", dir, "--data", data })
+  if not r or r.code ~= 0 then return nil end
+  local ok, res = pcall(vim.json.decode, r.stdout, JSON)
+  return ok and type(res) == "table" and res or nil
+end
+
+M.legacy_load = legacy_load -- для проверки: Go-движок должен давать то же самое
+
+--- Прочитать и слить слои. Если файл не разобрался — nil и сообщение.
+--- skip_user — только умолчания (когда settings.jsonc сломан; его ошибка остаётся в problems)
+function M.load(skip_user)
+  local r = from_cache() or from_engine()
+  if not r then return legacy_load(skip_user) end
+  if not skip_user then M.problems = r.problems or {} end
+  if skip_user then return r.fallback or r.settings end
+  if r.error then return nil, r.error end
+  return r.settings
 end
 
 --- Модуль включён? (true / объект без enabled=false)
@@ -149,7 +243,9 @@ function M.watch(on_change)
     pattern = "*.jsonc",
     nested = true, -- иначе смена темы не догрузит её плагин (lazy ловит ColorSchemePre) и не сработают ColorScheme-хуки
     callback = function(ev)
-      if not targets[vim.fn.resolve(vim.api.nvim_buf_get_name(ev.buf))] then return end
+      local path = vim.fn.resolve(vim.api.nvim_buf_get_name(ev.buf))
+      -- свой файл настроек или JSONC-набор (extensions/*.jsonc)
+      if not targets[path] and not path:find(vim.fn.resolve(dir) .. "/extensions/[^/]+%.jsonc$") then return end
       local new, err = M.load()
       M.show_problems()
       if not new then
@@ -166,7 +262,8 @@ function M.watch(on_change)
     group = group,
     pattern = "*.jsonc",
     callback = function(ev)
-      if targets[vim.fn.resolve(vim.api.nvim_buf_get_name(ev.buf))] then vim.schedule(M.show_problems) end
+      local path = vim.fn.resolve(vim.api.nvim_buf_get_name(ev.buf))
+      if targets[path] or path:find(vim.fn.resolve(dir) .. "/extensions/[^/]+%.jsonc$") then vim.schedule(M.show_problems) end
     end,
   })
 end
@@ -206,6 +303,19 @@ end
 --- Записать верхний ключ в settings.jsonc, не трогая комментарии и остальное (как VS Code пишет settings.json).
 --- Применяется как при сохранении — через on_change, переданный в watch.
 function M.set(key, value)
+  local r = require("own.core").run({ "settings", "set", "--config", dir, key, vim.json.encode(value) })
+  if r and r.code == 0 then
+    local buf = vim.fn.bufnr(M.files.user)
+    if buf ~= -1 then vim.api.nvim_buf_call(buf, function() vim.cmd("silent! checktime") end) end
+    local new = M.load()
+    if new and M.on_change then
+      local old = M.current
+      M.current = new
+      M.on_change(new, old)
+    end
+    return
+  end
+  if r then vim.notify("настройки не записаны: " .. vim.trim(r.stderr or ""), vim.log.levels.ERROR) return end
   local path = M.files.user
   local text = read(path) or "{\n}\n"
   local json = vim.json.encode(value)

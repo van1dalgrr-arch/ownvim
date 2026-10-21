@@ -3,7 +3,8 @@
 --   "style": "bubbles" | "arrows" | "slant" | "flat" | "plain" — форма крайних блоков
 --   "left": ["mode", "branch", "diagnostics", "file"], "right": ["search", "macro", "lsp", "position", "time"]
 --     блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time,
---     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), а также свои из "custom"
+--     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), rest (пора отдохнуть / ☕ перерыв),
+--     quiet (тихий режим включён), а также свои из "custom"
 --   "custom": { "k8s": { "shell": "kubectl config current-context", "every_ms": 10000, "icon": "…" },
 --               "hi":  { "text": "привет", "color": "pink" } } — свой текст или вывод команды (не блокирует)
 --   "mode_names": { "n": "ОБЫЧНЫЙ", "i": "ВСТАВКА", … } — подписи режимов (буква — первая буква режима)
@@ -64,9 +65,9 @@ local function define()
   for _, name in ipairs({ "Added", "Changed", "Removed" }) do
     vim.api.nvim_set_hl(0, "OwnSL" .. name, { fg = color(name), bg = base_bg })
   end
-  for _, name in ipairs({ "red", "orange", "yellow", "green", "cyan", "blue", "purple", "pink" }) do
+  for _, name in ipairs({ "red", "orange", "yellow", "green", "cyan", "blue", "purple", "pink", "grey" }) do
     local src = ({ red = "DiagnosticError", orange = "Number", yellow = "DiagnosticWarn", green = "String",
-      cyan = "Special", blue = "Function", purple = "Statement", pink = "OwnIconPink" })[name]
+      cyan = "Special", blue = "Function", purple = "Statement", pink = "OwnIconPink", grey = "Comment" })[name]
     vim.api.nvim_set_hl(0, "OwnSLColor_" .. name, { fg = color(src), bg = base_bg })
   end
 end
@@ -168,13 +169,38 @@ function C.diff()
   return #out > 0 and table.concat(out, " ") .. hl("OwnSL", "") or nil
 end
 
+-- тесты в фоне — надпись Go-расширения autotest (старое имя блока; новое — ext, там все расширения)
 function C.tests()
-  local ok, at = pcall(require, "own.tools.autotest")
-  if not ok then return nil end
-  local s = at.status()
-  if not s or s == "" then return nil end
-  local color = s:find("✗") and "red" or "green"
-  return hl("OwnSLColor_" .. color, esc(s)) .. hl("OwnSL", "")
+  local e = package.loaded["own.ext"]
+  local s = e and e.status.autotest
+  if not s or (#s.filetypes > 0 and not vim.tbl_contains(s.filetypes, vim.bo[buf()].filetype)) then return nil end
+  return s.color ~= "" and hl("OwnSLColor_" .. s.color, esc(s.text)) .. hl("OwnSL", "") or esc(s.text)
+end
+
+-- отдых: «⏱ пора отдохнуть», во время перерыва — ☕ и отсчёт (модуль rest)
+function C.rest()
+  local r = package.loaded["own.modules.rest"]
+  if not r then return nil end
+  local text, color = r.status()
+  if not text then return nil end
+  return color and hl("OwnSLColor_" .. color, esc(text)) .. hl("OwnSL", "") or esc(text)
+end
+
+-- надписи Go-расширений (c.SetStatus): тесты в фоне и любые свои
+function C.ext()
+  local e = package.loaded["own.ext"]
+  if not e then return nil end
+  local out = {}
+  for _, s in ipairs(e.status_for(buf())) do
+    out[#out + 1] = s.color ~= "" and hl("OwnSLColor_" .. s.color, esc(s.text)) .. hl("OwnSL", "") or esc(s.text)
+  end
+  return #out > 0 and table.concat(out, "  ") or nil
+end
+
+-- тихий режим включён (пробел uq) — чтобы не забыть, что украшения спрятаны
+function C.quiet()
+  if not vim.g.own_quiet then return nil end
+  return "\u{f0a91} тихо"
 end
 
 function C.position() return "%l:%c" end

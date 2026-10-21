@@ -8,6 +8,12 @@ function M.mason() return ((settings.current or {}).tools or {}).install ~= "sys
 
 --- Папка программ mason — в PATH сразу, без загрузки самого mason (он тянет реестр — ~6 мс на старте)
 function M.add_path()
+  -- Rust из brew-rustup: cargo и rustc — в папке, которой может не быть в PATH (ownvim запущен не из своего терминала)
+  if vim.fn.executable("cargo") == 0 then
+    for _, dir in ipairs({ "/opt/homebrew/opt/rustup/bin", vim.fn.expand("~/.cargo/bin") }) do
+      if vim.uv.fs_stat(dir .. "/cargo") then vim.env.PATH = dir .. ":" .. vim.env.PATH; break end
+    end
+  end
   if not M.mason() then return end
   local bin = vim.fn.stdpath("data") .. "/mason/bin"
   if not (vim.env.PATH or ""):find(bin, 1, true) then vim.env.PATH = bin .. ":" .. vim.env.PATH end
