@@ -6,7 +6,7 @@ function M.plugins(opts)
   return {
     {
       "nvim-treesitter/nvim-treesitter-context",
-      event = { "BufReadPost", "BufNewFile" },
+      event = "VeryLazy", -- после первой отрисовки: файл виден раньше, украшение — через миг
       -- trim_scope inner: не влезает — отбрасываются внутренние уровни, имя функции видно всегда (как в VS Code)
       opts = { max_lines = opts.max_lines or 3, mode = opts.mode or "cursor", multiline_threshold = 1, trim_scope = "inner" },
     },

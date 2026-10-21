@@ -88,11 +88,17 @@ local function attach(win)
   local buf = vim.api.nvim_win_get_buf(win)
   local cfg = vim.api.nvim_win_get_config(win)
   local normal = cfg.relative == "" and vim.bo[buf].buftype == "" and vim.api.nvim_buf_get_name(buf) ~= ""
+    and not vim.g.own_quiet_crumbs -- тихий режим (пробел uq) прячет крошки
   if normal and vim.wo[win].winbar == "" then
     vim.wo[win].winbar = WINBAR
   elseif not normal and vim.wo[win].winbar == WINBAR then
     vim.wo[win].winbar = ""
   end
+end
+
+--- Перерисовать крошки во всех окнах (тихий режим включили или выключили)
+function M.refresh()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do pcall(attach, win) end
 end
 
 function M.setup()

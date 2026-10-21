@@ -85,14 +85,43 @@ function M.plugins()
     {
       "saghen/blink.cmp",
       version = "1.*", -- готовая быстрая сборка поиска (Rust) скачивается сама
-      lazy = false, -- при загрузке отдаёт серверам свои возможности — до их старта
+      -- грузится при первом наборе, а не на старте (~6 мс): возможности для серверов ownvim отдаёт сам (CAPS ниже)
+      event = { "InsertEnter", "CmdlineEnter" },
       dependencies = { "rafamadriz/friendly-snippets" },
       opts = build,
     },
   }
 end
 
-function M.setup() applied = static(c()) end
+-- что дополнение умеет — серверам при их старте; то же отдаёт сам blink при загрузке
+-- (blink.cmp.sources.lib.get_lsp_capabilities), но он грузится позже — при первом наборе
+local CAPS = {
+  textDocument = {
+    completion = {
+      completionItem = {
+        snippetSupport = true,
+        commitCharactersSupport = false,
+        documentationFormat = { "markdown", "plaintext" },
+        deprecatedSupport = true,
+        preselectSupport = false,
+        tagSupport = { valueSet = { 1 } },
+        insertReplaceSupport = true,
+        resolveSupport = { properties = { "documentation", "detail", "additionalTextEdits", "command", "data" } },
+        insertTextModeSupport = { valueSet = { 1 } },
+        labelDetailsSupport = true,
+      },
+      completionList = { itemDefaults = { "commitCharacters", "editRange", "insertTextFormat", "insertTextMode", "data" } },
+      contextSupport = true,
+      insertTextMode = 1,
+    },
+  },
+}
+
+function M.setup()
+  applied = static(c())
+  local user = vim.lsp.config["*"] and vim.lsp.config["*"].capabilities
+  vim.lsp.config("*", { capabilities = vim.tbl_deep_extend("force", CAPS, user or {}) })
+end
 
 -- blink читает свой конфиг на каждом показе меню — поменять поля в нём и есть «применить на лету»
 local function apply_live()

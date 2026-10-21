@@ -75,7 +75,7 @@ function M.plugins()
   return {
     {
       "mfussenegger/nvim-lint",
-      event = { "BufReadPost", "BufNewFile", "BufWritePost" },
+      event = { "VeryLazy", "BufWritePost" }, -- после первой отрисовки: замечания линтера и так приходят позже
       config = function()
         apply()
         vim.defer_fn(run, 150)

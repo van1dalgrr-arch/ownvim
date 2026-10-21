@@ -15,22 +15,23 @@
   //               "[dev-night]": { "palette": { "bg": "#000000" } } } — только для этой темы
   "colors": {},
 
-  // Иконки: тема — icons/<имя>.json: default, mono (один цвет), accent (цвет акцента), backend (Go/SQL/Docker
+  // Иконки: тема — icons/<имя>.json: material (папки со своими значками), default, mono (один цвет), accent (цвет акцента), backend (Go/SQL/Docker
   // заметнее), ascii (без Nerd Font). Выбрать — :IconTheme; по ссылке — :IconThemeInstall; своя — скопируй любую.
   // overrides — свои значки поверх: { "extension": { "go": { "glyph": "\ue627", "color": "cyan" } }, "file": {…},
   // "directory": {…}, "filetype": {…}, "lsp": { "Function": {…} } }; цвет — red…pink, grey, accent или "#rrggbb"
   "icons": {
-    "theme": "default",
+    "theme": "material", // material — у папок свой значок по смыслу; default, backend, accent, mono, ascii
     "overrides": {},
   },
 
   // Статусная строка — блоки, как элементы status bar в VS Code. Стили: "bubbles", "arrows", "slant", "flat", "plain".
-  // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro
+  // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro,
+  // ext (надписи Go-расширений: тесты в фоне ✓ 42 / ✗ 1 и свои), rest (пора отдохнуть / ☕ перерыв), quiet (тихий режим)
   // и свои из custom: { "имя": { "text": "…", "color": "pink" } } или { "shell": "команда", "every_ms": 10000, "icon": "…" }
   "statusline": {
     "style": "bubbles",
     "left": ["mode", "branch", "diagnostics", "file"],
-    "right": ["search", "macro", "tests", "diff", "lsp", "position", "time"],
+    "right": ["rest", "quiet", "search", "macro", "ext", "diff", "lsp", "position", "time"],
     "path": "relative", // "name" — только имя файла, "full" — от ~
     "time_format": "%H:%M",
     "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
@@ -73,7 +74,7 @@
   },
 
   // Стартовый экран. buttons: do — действие из keys ("files", "recent"…), ":команда" или клавиши.
-  // sections: header, buttons, recent, projects, startup — или любой текст
+  // sections: header, buttons, project (ветка, изменения, compose), recent, projects, startup — или любой текст
   "dashboard": {
     "header": [
       " ██████╗ ██╗    ██╗███╗   ██╗",
@@ -94,7 +95,6 @@
       { "key": "l", "icon": "\uf487", "desc": "Плагины", "do": ":Lazy" },
       { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
     ],
-    // секции: header, buttons, project (ветка, изменения, статус compose), recent, projects, startup
     "sections": ["header", "buttons", "project", "startup"],
     "recent": 5,
     "projects": 5,
@@ -113,9 +113,11 @@
       "insert": true, // и при наборе (как cursorSmoothCaretAnimation)
       "stiffness": 0.8, // скорость: 1 — мгновенно
       "trailing_stiffness": 0.6, // как быстро догоняет хвост
+      "insert_stiffness": 0.9, // скорость во вставке — быстрее, чтобы набор не тянулся
+      "min_distance": 2, // сдвиг короче 2 символов (набор, h/l) — без шлейфа, мгновенно; прыжки — плавно
       "between_buffers": true,
     },
-    "scroll": { "enabled": true, "duration_ms": 150 }, // плавная прокрутка (ctrl-d, ctrl-u, мышь)
+    "scroll": { "enabled": true, "duration_ms": 100 }, // плавная прокрутка (ctrl-d, ctrl-u, мышь)
     "indent_scope": { "enabled": false }, // рамка текущего блока проявляется плавно
   },
 
@@ -204,9 +206,11 @@
     "breadcrumbs": true, // хлебные крошки: папка › файл › функция (раздел breadcrumbs ниже)
     "statusline": true, // своя статусная строка (раздел statusline ниже)
     "icons": true, // темы иконок (раздел icons ниже)
-    "themes": true, // tokyonight, rose-pine в цветах терминала и ещё семь — alt-s
+    "themes": true, // свои Dev Night/Day, Sunset, tokyonight, rose-pine, One Dark Pro, GitHub, Dark+, Dracula, Monokai Pro, Material, Ayu… — alt-s
     "modes": {
       "auto_normal_ms": 5000, // не печатаешь 5 с — выход из вставки; 0 — никогда
+      "escape": ["jk", "ол"], // быстро две буквы — выход из вставки (первая сразу становится текстом); [] — выкл
+      "escape_ms": 200, // сколько ждать вторую букву
     },
     "commands": true, // свои команды-скрипты на Python и др. (раздел commands ниже, docs/extensions.ru.md)
     "sessions": true, // сессии проектов: вкладки и разбиения возвращаются (раздел sessions ниже)
@@ -254,6 +258,10 @@
     "comfort": true, // enter — прыжок на строку по метке
     "learn": { "hints_visible": false, "hardtime": true }, // подсказки движений и тренер привычек (подсказывает, не мешает)
     "system": { "containers": "orbstack", "github": "gw" }, // alt-o — контейнеры, alt-w — GitHub, пробел P — скриншот кода
+    "rest": { "work_min": 50, "break_min": 5, "show": "due" }, // отдых: напомнить о перерыве после 50 минут непрерывной работы; "always" — показывать время
+    "checks": true, // свои проверки без кода (раздел checks): команда на событие, ошибки — на строках
+    "quiet": true, // тихий режим (пробел uq): { "hide": ["inlay_hints", "error_lens", "codelens", "blame", "implements", "animations", "indent", "sticky_scroll", "breadcrumbs", "scrollbar"] }
+    "rust": true, // Rust: версии зависимостей в Cargo.toml (crates.nvim), отладка «собрать и отладить» — F9
     "docker": true, // compose: статус сервисов справа, enter — действия, ${VAR} ↔ .env; Dockerfile: вес слоёв
     "kubernetes": true, // пробел k — kubectl.nvim (если есть kubectl)
     "git": true, // изменения на полях, blame, merge, история, lazygit (раздел git ниже)
@@ -310,8 +318,15 @@
       // Python
       "basedpyright": true,
       "ruff": true,
-      // Rust
-      "rust_analyzer": true,
+      // Rust: clippy при сохранении; подсказки имён параметров выключены (шумят), «}» подписывается только у длинных блоков
+      "rust_analyzer": {
+        "settings": {
+          "rust-analyzer": {
+            "check": { "command": "clippy" },
+            "inlayHints": { "parameterHints": { "enable": false }, "closingBraceHints": { "minLines": 30 } },
+          },
+        },
+      },
       // JSON и YAML (settings.jsonc, package.json, k8s, GitHub Actions)
       "jsonls": true,
       "yamlls": true,
@@ -461,6 +476,10 @@
       { "name": "cmake: собрать", "cmd": "cmake --build build -j", "when": ["CMakeLists.txt"] },
       { "name": "cmake: тесты (ctest)", "cmd": "ctest --test-dir build --output-on-failure", "when": ["CMakeLists.txt"] },
       { "name": "make", "cmd": "make -j", "when": ["Makefile"] },
+      { "name": "cargo run", "cmd": "cargo run", "when": ["Cargo.toml"] },
+      { "name": "cargo test", "cmd": "cargo test", "when": ["Cargo.toml"] },
+      { "name": "cargo clippy — все замечания", "cmd": "cargo clippy --all-targets", "when": ["Cargo.toml"] },
+      { "name": "cargo build --release", "cmd": "cargo build --release", "when": ["Cargo.toml"] },
       { "name": "C++: собрать и запустить текущий файл", "cmd": "clang++ -std=c++20 -g -Wall -Wextra -o /tmp/a.out ${file} && /tmp/a.out", "ft": ["cpp"] },
       { "name": "dot project doctor", "cmd": "dot project doctor ${root}" },
       { "name": "dot work — что поднято", "cmd": "dot work" },
@@ -471,6 +490,17 @@
   "ai": {
     "side": "right",
     "width": 0.4,
+  },
+
+  // Свои проверки без кода: команда по событию, её вывод «файл:строка:столбец: текст» — замечания на строках.
+  // { "run": "команда (${file}, ${root}, ${file_dir})", "pattern": "*.go", "on": ["BufWritePost"], "cwd": "root" | "file",
+  //   "severity": "warn", "format": "регулярка с группами file, line, message (col, severity)" }; :Checks — прогнать сейчас
+  //   "checks": { "shellcheck": { "run": "shellcheck -f gcc ${file}", "pattern": "*.sh" } }
+  "checks": {},
+
+  // Настройки Go-расширений (core/extensions/<имя>, docs/go-extensions.md): "<имя>": { … } — в расширении c.Setting("ключ", умолчание)
+  "extensions": {
+    "examples": { "max_lines": 40 }, // :LongFuncs — функции длиннее стольких строк красным
   },
 
   // Свои команды-скрипты (docs/extensions.ru.md): скрипт читает stdin, пишет stdout.
@@ -535,6 +565,9 @@
       "tex": { "lsp": ["texlab"] },
       "helm": { "lsp": ["helm_ls"] },
       "nix": { "lsp": ["nil_ls"] },
+      // не код — серверы проверки орфографии и грамматики сюда не нужны
+      "text": false, "gitcommit": false, "gitrebase": false, "log": false, "csv": false, "tsv": false,
+      "conf": false, "mail": false, "diff": false, "help": false,
     },
   },
 
@@ -551,7 +584,6 @@
     "n n": "search.next",
     "n N": "search.prev",
     "ins <esc>": "esc",
-    "i jk": { "do": "<esc>", "desc": "Выйти из вставки" }, // выйти из вставки: быстро j и k (в русской раскладке «ол» — нет, выручает автовыход)
 
     // окна
     "n <C-h>": { "do": "<C-w>h", "desc": "Окно слева" },
@@ -568,6 +600,7 @@
     "n <leader>wm": "window.zoom",
     "n <leader>uZ": "window.zoom",
     "n <leader>uz": "zen",
+    "n <leader>uq": "quiet", // тихий режим: без подсказок типов, плашек, анимаций, крошек — ещё раз вернуть
 
     // буферы
     "n <S-h>": { "do": ":bprevious", "desc": "Предыдущая вкладка-файл" },
@@ -622,6 +655,8 @@
     "n <leader>/": "grep",
     "n <leader>:": "command.history",
     "n <leader>n": "notifications",
+    "nx <leader>?": "notes.add", // неудобно — записать вместе с местом; разбор потом
+    "n <leader>N": "notes.list",
     "ni <D-p>": "files", // cmd-p как в Zed
     "ni <D-S-p>": "commands",
     "n <leader>ff": "files",
@@ -830,6 +865,7 @@
     "n <leader>rh": "http.file",
     "n <M-p>": "http.file",
     "n <leader>tA": "autotest.toggle",
+    "n <leader>tv": "autotest.panel", // панель «Тесты в фоне»: пакеты и тесты, enter — к тесту, r — перезапустить
 
     // Claude
     "nti <M-c>": "ai.toggle",

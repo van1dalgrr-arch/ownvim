@@ -30,7 +30,7 @@ local function ensure_ft(ft)
       ensured[name] = true
       local bin = command_of(name)
       tools.ensure_bin(bin, name, nil,
-        (bin == "rustfmt" and "rustfmt берётся из rustup: brew install rustup && rustup-init" or ("нет программы %q для форматтера %s"):format(bin, name)), ft)
+        (bin == "rustfmt" and "rustfmt берётся из rustup: brew install rustup && rustup default stable" or ("нет программы %q для форматтера %s"):format(bin, name)), ft)
     end
   end
 end

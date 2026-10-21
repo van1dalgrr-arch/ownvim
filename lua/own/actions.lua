@@ -107,6 +107,7 @@ M.list = {
   ["buffer.others"] = { function() Snacks.bufdelete.other() end, "Закрыть остальные буферы" },
   ["window.zoom"] = { toggle(function() return Snacks.toggle.zoom() end), "Окно на весь экран" },
   zen = { toggle(function() return Snacks.toggle.zen() end), "Zen: только код" },
+  quiet = { function() require("own.modules.quiet").toggle() end, "Тихий режим: убрать всё, что отвлекает" },
   terminal = { function() Snacks.terminal() end, "Терминал (папка запуска)" },
   ["terminal.root"] = { function() Snacks.terminal(nil, { cwd = root.get() }) end, "Терминал (проект)" },
   ["terminal.toggle"] = { function() Snacks.terminal.focus(nil, { cwd = root.get() }) end, "Терминал снизу" },
@@ -353,9 +354,12 @@ M.list = {
   tasks = { "<cmd>OverseerRun<cr>", "Задачи (как ctrl-r в Zed)" },
   ["tasks.running"] = { "<cmd>OverseerToggle!<cr>", "Что запущено" },
   lazydocker = { function() Snacks.terminal("lazydocker", { cwd = root.get() }) end, "lazydocker" },
-  endpoints = { function() require("own.tools.endpoints").pick() end, "Эндпоинты API (Gin)" },
-  ["http.file"] = { function() require("own.tools.endpoints").http_file() end, "api.http — Postman в файле" },
-  ["autotest.toggle"] = { function() require("own.tools.autotest").toggle() end, "Тесты в фоне вкл/выкл" },
+  endpoints = { "<cmd>Endpoints<cr>", "Эндпоинты API (Gin)" },
+  ["http.file"] = { "<cmd>ApiHttp<cr>", "api.http — Postman в файле" },
+  ["notes.add"] = { function() require("own.tools.notes").add() end, "Записать неудобство (с местом)" },
+  ["notes.list"] = { function() require("own.tools.notes").list() end, "Заметки о неудобствах" },
+  ["autotest.toggle"] = { "<cmd>AutoTests<cr>", "Тесты в фоне вкл/выкл" },
+  ["autotest.panel"] = { "<cmd>TestsPanel<cr>", "Панель «Тесты в фоне»" },
 
   -- Claude
   ["ai.toggle"] = { function() require("own.modules.ai").toggle() end, "Claude: спрятать / показать" },

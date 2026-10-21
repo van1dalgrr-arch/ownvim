@@ -1,6 +1,7 @@
 -- Темы: свои JSON (themes/*.json — Dev Night, Dev Day, Sunset; движок — lua/own/theme), tokyonight,
 -- rose-pine в цветах терминала (палитра из themes/<тема>.sh — та же,
--- что красит Ghostty, если стоят dotfiles), и ещё семь на выбор — alt-s, предпросмотр на всём редакторе.
+-- что красит Ghostty, если стоят dotfiles), kanagawa, catppuccin и др., и популярные темы VS Code (One Dark Pro,
+-- GitHub, Dark+, Dracula, Monokai Pro, Material, Ayu, Nordic, Everforest, Oxocarbon) — alt-s, предпросмотр на всём редакторе.
 -- Какая стоит — раздел theme: "auto" — та, что выбрана в alt-s (по умолчанию tokyonight),
 -- или имя темы, например "rose-pine" / "kanagawa-dragon" / "catppuccin-mocha".
 local M = {}
@@ -42,6 +43,17 @@ M.plugins = {
       vim.g.gruvbox_material_transparent_background = 1
     end,
   },
+  -- самые популярные темы VS Code — их родные версии для nvim (грузятся, только когда выбраны)
+  { "olimorris/onedarkpro.nvim", lazy = true }, -- One Dark Pro: onedark, onedark_vivid, onedark_dark, onelight
+  { "projekt0n/github-nvim-theme", name = "github-theme", lazy = true }, -- github_dark_default, _dimmed, github_light…
+  { "Mofiqul/vscode.nvim", lazy = true }, -- vscode — Dark+ / Light+ (по фону)
+  { "Mofiqul/dracula.nvim", lazy = true }, -- dracula, dracula-soft
+  { "loctvl842/monokai-pro.nvim", lazy = true }, -- monokai-pro, -octagon, -spectrum, -machine, -ristretto, -classic
+  { "marko-cerovac/material.nvim", lazy = true }, -- material-darker, -oceanic, -palenight, -deep-ocean, -lighter
+  { "Shatur/neovim-ayu", lazy = true }, -- ayu-dark, ayu-mirage, ayu-light
+  { "AlexvZyl/nordic.nvim", lazy = true }, -- nordic
+  { "neanias/everforest-nvim", lazy = true }, -- everforest
+  { "nyoom-engineering/oxocarbon.nvim", lazy = true }, -- oxocarbon
 }
 
 local engine = require("own.theme")

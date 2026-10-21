@@ -142,6 +142,11 @@ function M.render()
       if e.dir then
         icon = state.open[path] and (fo.open or "\u{f07c}") or (fo.closed or "\u{f07b}")
         icon_hl = "OwnTreeFolder"
+        -- у темы иконок есть значок для этой папки (cmd, internal, migrations…) — он; у a/b/c — по последней
+        if icons_ok then
+          local g, hl, is_default = icons.get("directory", vim.fs.basename(path))
+          if not is_default then icon, icon_hl = g, hl end
+        end
       elseif icons_ok then
         icon, icon_hl = icons.get("file", path)
       else

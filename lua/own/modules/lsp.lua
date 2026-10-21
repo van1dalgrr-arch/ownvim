@@ -78,7 +78,7 @@ local function configure()
         tools.install(pkg, name, function() vim.lsp.enable(name) end)
       else
         tools.ensure_bin(bin, name, function() vim.lsp.enable(name) end,
-          name == "rust_analyzer" and "rust-analyzer берётся из rustup: brew install rustup && rustup-init" or nil)
+          name == "rust_analyzer" and "rust-analyzer берётся из rustup: brew install rustup && rustup default stable" or nil)
       end
     end
   end
@@ -99,7 +99,7 @@ end
 local function on_attach(client, buf)
   local o = lsp_opts()
   local hints = o.inlay_hints or {}
-  if hints.enabled ~= false and client:supports_method("textDocument/inlayHint")
+  if hints.enabled ~= false and not vim.g.own_quiet and client:supports_method("textDocument/inlayHint")
     and not vim.tbl_contains(hints.exclude or {}, vim.bo[buf].filetype) then
     vim.lsp.inlay_hint.enable(true, { bufnr = buf })
   end

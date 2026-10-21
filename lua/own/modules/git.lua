@@ -26,7 +26,7 @@ function M.plugins()
   return {
     {
       "lewis6991/gitsigns.nvim",
-      event = { "BufReadPost", "BufNewFile" },
+      event = "VeryLazy", -- после первой отрисовки: файл виден раньше, украшение — через миг (уже открытые буферы подхватит сам)
       opts = {
         signs = {
           add = { text = s.add or "▎" },

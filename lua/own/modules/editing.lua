@@ -66,7 +66,7 @@ return {
     },
     {
       "folke/todo-comments.nvim",
-      event = { "BufReadPost", "BufNewFile" },
+      event = "VeryLazy", -- после первой отрисовки: файл виден раньше, украшение — через миг
       opts = {},
       keys = {
         { "]t", function() require("todo-comments").jump_next() end, desc = "Следующий TODO" },

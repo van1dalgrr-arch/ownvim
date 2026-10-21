@@ -82,7 +82,26 @@ function M.plugins()
             return v
           end
           local confs = resolve((cpp or {}).configurations or {})
-          for _, ft in ipairs({ "c", "cpp", "rust" }) do dap.configurations[ft] = confs end
+          for _, ft in ipairs({ "c", "cpp" }) do dap.configurations[ft] = confs end
+          -- Rust: собрать через cargo и отладить — путь к бинарнику из вывода cargo (и в workspace), вводить не нужно
+          local function cargo_program()
+            vim.notify("cargo build…")
+            local r = vim.system({ "cargo", "build", "--message-format=json" }, { cwd = require("own.root").get(), text = true }):wait()
+            local exe
+            for line in (r.stdout or ""):gmatch("[^\n]+") do
+              local ok, m = pcall(vim.json.decode, line)
+              if ok and type(m) == "table" and m.reason == "compiler-artifact" and type(m.executable) == "string" then exe = m.executable end
+            end
+            if r.code ~= 0 or not exe then
+              vim.notify("cargo build не прошёл:\n" .. vim.trim(r.stderr or ""), vim.log.levels.ERROR)
+              return dap.ABORT
+            end
+            return exe
+          end
+          dap.configurations.rust = vim.list_extend({
+            { name = "Rust: собрать и отладить", type = "codelldb", request = "launch", program = cargo_program,
+              args = {}, cwd = "${workspaceFolder}", stopOnEntry = false },
+          }, vim.deepcopy(confs))
         end
         local go = o.go or {}
         if go ~= false then

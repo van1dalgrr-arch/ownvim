@@ -12,9 +12,17 @@ function M.plugins(opts)
   return {
     {
       "HiPhish/rainbow-delimiters.nvim",
-      event = { "BufReadPost", "BufNewFile" },
-      main = "rainbow-delimiters.setup",
+      event = "VeryLazy", -- после первой отрисовки: файл виден раньше, украшение — через миг
       opts = { highlight = hl },
+      config = function(_, o)
+        require("rainbow-delimiters.setup").setup(o)
+        -- файл открыли раньше, чем плагин загрузился, — раскрасить и его
+        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+          if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].filetype ~= "" then
+            pcall(require("rainbow-delimiters.lib").attach, buf)
+          end
+        end
+      end,
     },
   }
 end
