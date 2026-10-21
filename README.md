@@ -1,107 +1,72 @@
-# ownvim — my own Neovim build
+# ownvim
 
 🇷🇺 [Русская версия](README.ru.md)
 
-Neovim without LazyVim: ~4500 lines of own code, ideas taken from LazyVim. Everything is set in one
-JSON file, no Lua needed. Starts in 38 ms, 69 with a Go file open (the LazyVim build in dotfiles: 107 on the same file).
+**A terminal IDE for backend development, built on Neovim.** Go, SQL, Docker, C/C++, Python, Rust — and any other
+language, whose tools install themselves. Everything you see and how it behaves is configured in one JSON file, no Lua.
 
-**[Guide](docs/guide.md)** — install, settings recipes, troubleshooting · **[All keys](docs/keys.ru.md)** (Russian)
+- **Fast.** Code is on screen ~70 ms after launch; a typed letter appears ~6 ms after the keypress.
+- **Configured like VS Code.** `settings.jsonc` with key completion, descriptions and validation; save it and the
+  change applies immediately, no restart.
+- **Installs itself.** Plugins, parsers, language servers, formatters and linters — on first launch and the first
+  time you open a file in a new language.
+- **Built for backend work.** ▶ next to `main` and tests, tests running in the background, a debugger that attaches to
+  Docker, Go code generation, Gin endpoints, `.http` requests, databases, a live `compose.yaml`, layer sizes in Dockerfiles.
+- **Extensible without code and in Go.** No code — a JSONC bundle: keys, tasks, your own checks with errors on the lines
+  (`:PluginNew`). In Go — everything the built-ins can do: commands, entries in the completion menu, `K` descriptions,
+  fixes in `space ca`, your own panels and status line; save and it works without a restart (`:GoExtensionNew`).
+- **Good-looking.** 30+ themes (its own, popular VS Code themes, and any Marketplace theme via `:ThemeInstall`), folder
+  icons by meaning, status line and tabs from JSON, Error Lens, Sticky Scroll, a smooth cursor.
 
 ## Install
 
-Needs Neovim 0.12+, git, `tree-sitter` and `ripgrep` (`brew install neovim tree-sitter ripgrep`) and a Nerd Font.
+Requires Neovim 0.12+, git, Go, `tree-sitter`, `ripgrep` and a Nerd Font (Ghostty has the icons built in).
 
 ```bash
+brew install neovim tree-sitter ripgrep go
 git clone https://github.com/van1dalgrr-arch/ownvim ~/dev/ownvim
 ln -s ~/dev/ownvim ~/.config/ownvim
-alias ownvim="NVIM_APPNAME=ownvim nvim"   # in ~/.zshrc
-ownvim                                   # the first run installs the plugins
+echo 'alias ownvim="NVIM_APPNAME=ownvim nvim"' >> ~/.zshrc && exec zsh
+ownvim        # the first launch installs everything it needs (~1 minute)
 ```
 
-With [dotfiles](https://github.com/van1dalgrr-arch/dotfiles), `install.sh` does all this, and rose-pine
-takes the terminal theme's palette (`themes/<theme>.sh`).
+With the [dotfiles](https://github.com/van1dalgrr-arch/dotfiles), `install.sh` does all of this.
 
-## Settings
-
-- `defaults.jsonc` — every default with an explanation. Don't edit it.
-- `settings.jsonc` — **only what you change** (`space f c` or `:Settings`). Delete a line — the default is back.
-
-Save `settings.jsonc` — theme, options, keys and module settings **apply at once**.
-Turning a module or plugin on/off takes `:restart`. A JSON error or a typo in a name is marked on
-its line, and the editor keeps running on the previous settings.
+## Configure in a minute
 
 ```jsonc
+// settings.jsonc — space fc. Only what differs from defaults.jsonc
 {
-  "theme": "rose-pine",                                  // or "auto" — the one picked with alt-s
-  "options": { "relativenumber": true },                 // any option from :help options
-  "modules": {
-    "minimap": true,                                     // turn a module on
-    "modes": { "auto_normal_ms": 0 },                    // module settings
-  },
-  "keys": {
-    "n <leader>z": ":Lazy",                              // a command
-    "n <leader>ff": "files.git",                         // an action (list: space s k)
-    "i jk": false,                                       // remove a key
-  },
-  "plugins": {
-    "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} }, // any plugin, lazy.nvim style
-    "folke/flash.nvim": false,                           // drop a module's plugin
-  },
+  "theme": "onedark",                                  // or alt-s — pick with a live preview
+  "icons": { "theme": "material" },
+  "statusline": { "style": "arrows" },
+  "options": { "relativenumber": true },               // any Neovim option
+  "modules": { "minimap": true },                      // turn a module on
+  "keys": { "n <leader>z": ":Lazy" },                  // your own key
+  "plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode" } },  // any plugin
 }
 ```
 
-Comments and trailing commas are fine, as in Zed's and VS Code's settings.json.
+## Documentation
 
-## Modules
-
-| module | what's inside |
+| | |
 |---|---|
-| `basics` | yank highlight, cursor back where it was, `q` closes helper windows, a new file's folder is created |
-| `ui` | start screen from JSON (header, buttons, sections — section `dashboard`), notifications, which-key, indent guides |
-| `font` | the Ghostty font from `settings.jsonc` (family, size, ligatures, line height, OpenType features); `:Font` — pick an installed one, `:FontInstall <name>` — install via brew / Nerd Fonts. Ghostty has Nerd Font glyphs built in — any font works |
-| `tabline` | VS Code-like tabs: icon, name, ● when unsaved, close button; mouse click, middle click closes; same names get their folder; scrolls to the current one. Section `tabline` |
-| `breadcrumbs` | breadcrumbs on top: folder › file › type › function at the cursor (from the syntax tree, any language). Section `breadcrumbs` |
-| `statusline` | own status line: blocks in JSON (mode, branch, errors, file, LSP, position, time, search, macro + your own — text or a command's output on a timer), styles bubbles / arrows / slant / flat / plain, colors from the theme. Section `statusline` |
-| `picker` | find files, text, commands (Snacks); `alt-c` in a picker — project ↔ launch folder |
-| file tree | own (`space e`): git colors and letters, error dots, compact folders, create/rename/delete to trash/copy/paste; look — section `explorer` (`"engine": "snacks"` for the snacks tree) |
-| `treesitter` | highlighting, indent, folds; languages listed in settings, missing ones install themselves |
-| `editing` | pairs, text objects `af`/`ic`/`ao`, surround `gsa`/`gsd`/`gsr`, `s` to jump, TODO |
-| `icons` | icon themes — JSON in `icons/`: default, mono, accent, backend (Go/SQL/Docker/migrations stand out), ascii; `:IconTheme` — pick, `:IconThemeInstall` — from a link; own glyphs and colors — `"icons.overrides"`. Used in the tree, pickers, completion menu |
-| `themes` | own theme engine: a theme is JSON in `themes/` (Dev Night, Dev Day, Sunset); `:ThemeNew` — your own (save — it repaints), `:ThemeInstall publisher.name` — any VS Code theme (Open VSX / Marketplace), `:ThemeEdit`; `"theme": { "dark", "light" }` follows the system; `"colors"` — overrides on top, as in VS Code; `alt-s` — picker with a preview, writes settings.jsonc. Plugin themes (tokyonight, rose-pine…) still work |
-| `modes` | mode shown by cursor and line color, leaves insert after a pause |
-| `autosave` | files write themselves, outside changes are picked up |
-| `russian` | commands in the Russian layout (`о` = `j`, `вв` = `dd`), alt keys work in it too |
-| `scrollbar` | a scrollbar with marks for errors, git and search |
-| `animations` | smooth cursor (also while typing, like cursorSmoothCaretAnimation) and smooth scroll — each on/off, speed in `animations` |
-| `brackets` | colored bracket pairs, like VS Code; level colors from the theme |
-| `sticky_scroll` | the function header sticks on top, like VS Code's Sticky Scroll |
-| `panels` | like VS Code: an activity bar on the left (click — files, search, git, tests, debug, plugins, settings) and a bottom panel "Terminal · Problems · Tasks" (`space j`, `j t/p/o`) |
-| `image_panel` | a picture on the side instead of the minimap, per theme (`"themes"` in the module settings or `"image"` in the theme file); PNG as is, jpg/webp need ImageMagick; `space u p` |
-| `minimap` | a VS Code-like minimap on the right (off; `space u m`) |
-| `completion` | completion (blink): menu with docs, ghost text, signature help, snippets (own ones in `snippets/<lang>.json`, for Go: `ife`, `errw`, `tt`, `gh`…). Section `completion` |
-| `format` | format on save (conform): Go — goimports + gofumpt, SQL — pg_format, Python — ruff, Rust — rustfmt, shell — shfmt, TOML — taplo; the rest — the language server. `space c f`, `space u f` toggles. Section `format` |
-| `lint` | linters on top of the server (nvim-lint): Go — golangci-lint (with the project's `.golangci.yml`), Dockerfile — hadolint. Section `lint` |
-| `test` | tests (neotest): `space t r` — nearest, `t t` — file, `t T` — all, `t o` — output; a failed check is an error on its line. Go, Python (Rust — with cargo-nextest). Section `test` |
-| `debug` | debugger (nvim-dap + delve): F9 run, F8 step, F7 into, shift-F8 out, ctrl-F8 breakpoint (kept across restarts); panels and variable values in the code; attach to dlv in Docker. Section `debug` |
-| `database` | database (dadbod): `space D` / `alt-d` — connections and tables, the project's connection from `.env` by itself; table completion in `.sql`. Section `database` |
-| `git` | changes in the gutter, `]h`/`[h` — hunks, `space g h s/r/p` — stage / reset / preview, blame (`space u B`), diffview — three-way merge, file history, branch vs main (`space g m`), lazygit (`alt-g`), branches, commits, undo history without git (`space U`). Section `git` |
-| `go` | Go like GoLand: ▶ next to `main` and tests (`space r x`, debugger — `r X`), actions with a preview (`space c a`), refactorings (`c x/i/w`), "implements: io.Reader" on types, generation (`space G` — tags, interface, tests, if err, JSON → struct), peek (`gp d/r/i/t`), coverage (`G v`), Go scratch (`r g`). Section `go` |
-| `tasks` | tasks, like ctrl-r in Zed (`space r r`, `alt-t`): the list lives in `settings.jsonc`, with `when` and `${root}`/`${file}`. Section `tasks` |
-| `ai` | Claude Code: `alt-c` — show/hide, `space a x` — fix the error under the cursor, `a R` — branch review (findings on their lines). Section `ai` |
-| `http` | Postman in a file: `.http`, enter sends; Gin endpoints (`space r e`, `alt-a`), `api.http` from the routes (`r h`, `alt-p`) |
-| `autotest` | Go tests in the background after a save: `✓ 42` / `✗ 1` in the status line, a failed check on its line; `space t A` |
-| `error_lens` | errors to the right of the line, like Error Lens |
-| `multicursor` | multiple cursors: `ctrl-n`, `space m` |
-| `dial` | `ctrl-a`/`ctrl-x`: your own per-language cycles in settings (Go: `:=`↔`=`, `Error`↔`Fatal`, HTTP methods and statuses…) |
-| `cloak` · `yanky` · `files` | `.env` secrets masked · yank history (`space p`) · yazi, find-and-replace, structural replace (ast-grep) |
-| `comfort` · `learn` | `enter` — jump to a line · motion hints and a habit coach |
-| `system` · `kubernetes` | `alt-o` — containers, `alt-w` — GitHub (gw), `space P` — code screenshot · `space k` — kubectl.nvim |
-| `sessions` | project sessions: open ownvim in a folder with no files — tabs and splits come back; `space q s/S/d` |
-| `lsp` | language servers for Go, C/C++ (clangd + clang-tidy, `space c s` — `.h` ↔ `.cpp`), CMake, SQL (Postgres), Docker, Python, Rust, JSON, YAML — mason installs them; errors on their lines, `gd`/`gr`/`K`, rename `space c r`, fixes `space c a`, inlay hints. Sections `lsp`, `diagnostics`, `tools` |
+| [Getting started](docs/en/getting-started.md) | install, 13 keys for day one, coming from VS Code |
+| [Configuration](docs/en/configuration.md) | settings layers, what applies immediately, reference of every section |
+| [Appearance](docs/en/appearance.md) | themes, icons, font, status line, panels, animations |
+| [Languages](docs/en/languages.md) | servers, formatting, linters, automatic installation |
+| [Go](docs/en/go.md) · [DevOps](docs/en/devops.md) | run, tests, debugging, generation · Docker, databases, tasks |
+| [Working with code](docs/en/workflow.md) | search, editing, git, Claude, sessions, friction notes |
+| [JSONC plugins](docs/en/jsonc-plugins.md) ⭐ · [Go extensions](docs/en/go-extensions.md) ⭐ · [Extending](docs/en/extending.md) · [Scripts](docs/en/extensions.md) | your own commands, keys and events in Go; plugins; scripts |
+| [Modules](docs/en/reference/modules.md) · [Commands](docs/en/reference/commands.md) · [Keys](docs/keys.ru.md) (Russian) | references |
+| [Troubleshooting](docs/en/troubleshooting.md) · [Architecture](docs/en/architecture.md) | |
 
-Module code is `lua/own/modules/<name>.lua`, the core is `lua/own/` (settings, JSONC, keys, actions).
+Everything together — [docs/en/README.md](docs/en/README.md).
 
-## Next
+## About authorship
 
-All 4 stages of the plan are done ([ROADMAP](ROADMAP.md)): core and settings, IDE, own design, git and tools.
-Next — whatever is missing in daily work; once ownvim replaces the LazyVim build, it becomes the main `nvim`.
+ownvim is my idea and my design: what the editor should have, how it should look and behave, what is inconvenient
+and what to fix. But Lua and Neovim are not my stack, so **most of the code and documentation was written by an AI
+(Claude)** to my requirements, and I checked the result in real work.
+
+Ideas come from LazyVim, VS Code, GoLand and Zed. The code is ~8700 lines of Lua in `lua/own/` plus a Go core in `core/` (logic is moving from Lua to Go piece by piece; already in Go: the settings engine, the bridge, Docker, endpoints, the `.http` client, background tests, checks); roadmap — [ROADMAP](ROADMAP.md).
