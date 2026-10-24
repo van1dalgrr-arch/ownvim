@@ -108,6 +108,26 @@ local function on_attach(client, buf)
   end
 end
 
+-- подсказки (K, сигнатура, всплывающая ошибка) — с полями: текст не липнет к рамке. Слева — пустая колонка складок
+-- цветом окна, справа — лишняя клетка ширины; содержимое не трогается, markdown и блоки кода не ломаются
+local function pad_floats()
+  local util = vim.lsp.util
+  if util.own_padded then return end
+  util.own_padded = true
+  local open = util.open_floating_preview
+  util.open_floating_preview = function(...)
+    local buf, win = open(...)
+    if win and vim.api.nvim_win_is_valid(win) then
+      vim.wo[win].foldcolumn = "1"
+      vim.wo[win].fillchars = "fold: ,foldopen: ,foldclose: ,foldsep: ,eob: "
+      vim.wo[win].winhighlight = "FoldColumn:NormalFloat"
+      local width = vim.api.nvim_win_get_width(win)
+      vim.api.nvim_win_set_width(win, math.min(width + 2, vim.o.columns - 4))
+    end
+    return buf, win
+  end
+end
+
 function M.plugins()
   local list = {
     -- только данные: lsp/<сервер>.lua с cmd, filetypes и корнем проекта для сотен серверов
@@ -127,6 +147,7 @@ end
 
 function M.setup()
   tools.add_path()
+  pad_floats()
   apply_diagnostics()
   vim.api.nvim_create_autocmd("LspAttach", {
     group = vim.api.nvim_create_augroup("own.lsp", { clear = true }),

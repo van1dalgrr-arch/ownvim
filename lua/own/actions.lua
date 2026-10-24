@@ -241,6 +241,7 @@ M.list = {
   ["test.output"] = { function() require("neotest").output.open({ enter = true, auto_close = true }) end, "Вывод теста" },
   ["test.output_panel"] = { function() require("neotest").output_panel.toggle() end, "Панель вывода тестов" },
   ["test.watch"] = { function() require("neotest").watch.toggle(vim.fn.expand("%")) end, "Перезапускать при сохранении" },
+  ["test.switch"] = { function() require("own.tools.alternate").switch() end, "Перейти к тесту / к коду (любой язык)" },
 
   -- отладчик (nvim-dap)
   ["debug.breakpoint"] = { function() require("persistent-breakpoints.api").toggle_breakpoint() end, "Точка останова" },

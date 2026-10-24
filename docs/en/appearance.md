@@ -80,6 +80,19 @@ Like `workbench.colorCustomizations` in VS Code, without touching the theme file
 "appearance": { "transparent": true },  // background from the terminal: Ghostty's blur shows through
 ```
 
+More `appearance` switches:
+
+```jsonc
+"appearance": {
+  "terminal_edges": true,   // Ghostty's window padding takes the editor color — no frame of terminal background
+  "messages": "modern",     // long messages fold into [+3] instead of "Press ENTER" (g< — all); "classic" — the old way
+},
+```
+
+Small things that come with any JSON theme: the inactive split is a couple of percent darker, a yanked text
+flashes in the accent color and fades out, the matching bracket is accent-colored without a fill, float titles
+are accent badges.
+
 ## Icons
 
 ```jsonc

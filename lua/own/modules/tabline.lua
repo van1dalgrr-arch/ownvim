@@ -16,7 +16,10 @@ local function color(group, attr)
   return h[attr or "fg"]
 end
 
+local icon_hl = {} -- значок вкладки: цвет значка на фоне вкладки (у текущей — с той же линией снизу)
+
 local function define()
+  icon_hl = {}
   local fill = color("TabLineFill", "bg") or color("StatusLine", "bg") or 0x1e1e1e
   local sel_bg = color("Normal", "bg") or 0x000000
   local accent = color("OwnIconAccent") or color("Title") or 0xbb9af7
@@ -32,6 +35,31 @@ local function define()
   vim.api.nvim_set_hl(0, "OwnTabClose", { fg = muted, bg = fill })
   vim.api.nvim_set_hl(0, "OwnTabCloseSel", { fg = muted, bg = sel_bg })
   vim.api.nvim_set_hl(0, "OwnTabArrow", { fg = accent, bg = fill, bold = true })
+  vim.api.nvim_set_hl(0, "OwnTabOffset", { fg = color("WinSeparator") or muted, bg = fill })
+end
+
+local function icon_group(group, sel, line)
+  local key = group .. (sel and (line and "L" or "S") or "")
+  if not icon_hl[key] then
+    local name = "OwnTabIcon" .. key:gsub("[^%w]", "")
+    local spec = { fg = color(group), bg = sel and (color("Normal", "bg") or 0x000000) or (color("TabLineFill", "bg") or color("StatusLine", "bg")) }
+    if line then spec.underline, spec.sp = true, color("OwnIconAccent") or color("Title") end
+    vim.api.nvim_set_hl(0, name, spec)
+    icon_hl[key] = name
+  end
+  return icon_hl[key]
+end
+
+-- вкладки начинаются над редактором, а не над деревом или панелью слева: колонка первого окна с файлом
+local function offset()
+  local min
+  for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.api.nvim_win_get_config(w).relative == "" and vim.bo[vim.api.nvim_win_get_buf(w)].buftype == "" then
+      local col = vim.api.nvim_win_get_position(w)[2]
+      min = math.min(min or col, col)
+    end
+  end
+  return min or 0
 end
 
 local function listed()
@@ -91,7 +119,7 @@ function M.render()
       local ok, icons = pcall(require, "mini.icons")
       if ok then
         local glyph, group = icons.get("file", vim.api.nvim_buf_get_name(b))
-        s = s .. "%#" .. group .. "#" .. glyph .. "%#" .. base .. "# "
+        s = s .. "%#" .. icon_group(group, sel, sel and style == "underline") .. "#" .. glyph .. "%#" .. base .. "# "
       end
     end
     s = s .. name .. " %X"
@@ -104,7 +132,8 @@ function M.render()
     tabs[#tabs + 1] = s
   end
   -- прокрутка: текущая всегда видна
-  local avail = vim.o.columns - 2
+  local pad = offset()
+  local avail = vim.o.columns - 2 - pad
   local first, last = cur_i, cur_i
   local used = tabs[cur_i] and width(tabs[cur_i]) or 0
   while true do
@@ -113,7 +142,9 @@ function M.render()
     if first > 1 and used + width(tabs[first - 1]) <= avail then first = first - 1; used = used + width(tabs[first]); grew = true end
     if not grew then break end
   end
-  local out = (first > 1 and "%#OwnTabArrow#‹" or "") .. table.concat(vim.list_slice(tabs, first, last), "")
+  -- над деревом — пусто, на его границе — продолжение линии-разделителя
+  local lead = pad > 0 and ("%#OwnTabOffset#" .. (" "):rep(pad - 1) .. "│") or ""
+  local out = lead .. (first > 1 and "%#OwnTabArrow#‹" or "") .. table.concat(vim.list_slice(tabs, first, last), "")
   return out .. (last < #tabs and "%#OwnTabArrow#›" or "") .. "%#OwnTabFill#%T"
 end
 
@@ -129,6 +160,10 @@ function M.setup()
   update_visibility()
   local group = vim.api.nvim_create_augroup("own.tabline", { clear = true })
   vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = define })
+  vim.api.nvim_create_autocmd({ "WinResized", "WinNew", "WinClosed" }, {
+    group = group,
+    callback = function() vim.schedule(function() vim.cmd("redrawtabline") end) end,
+  })
   vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "BufWipeout", "BufEnter", "BufFilePost" }, {
     group = group,
     callback = function() vim.schedule(update_visibility) end,

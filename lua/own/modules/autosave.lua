@@ -15,7 +15,10 @@ function M.setup()
       if not vim.g.autosave or b.buftype ~= "" or not b.modifiable or b.readonly or not b.modified then return end
       local name = vim.api.nvim_buf_get_name(ev.buf)
       if name == "" or vim.fn.filereadable(name) == 0 then return end
+      -- метка для форматирования: недописанный код (незакрытая скобка) — не повод для всплывающей ошибки
+      vim.b[ev.buf].own_autosave = true
       vim.api.nvim_buf_call(ev.buf, function() vim.cmd("silent! write") end)
+      vim.b[ev.buf].own_autosave = nil
     end,
   })
   vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI", "BufEnter" }, {

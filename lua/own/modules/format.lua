@@ -63,8 +63,8 @@ function M.plugins()
   }
 end
 
-function M.format(buf)
-  require("conform").format(vim.tbl_extend("force", format_opts(), { bufnr = buf or 0 }))
+function M.format(buf, quiet)
+  require("conform").format(vim.tbl_extend("force", format_opts(), { bufnr = buf or 0, quiet = quiet }))
 end
 
 function M.setup()
@@ -74,7 +74,8 @@ function M.setup()
     group = group,
     callback = function(ev)
       if f().on_save == false or vim.g.autoformat == false or vim.b[ev.buf].autoformat == false then return end
-      M.format(ev.buf)
+      -- автосохранение — молча: ошибка форматтера на недописанном коде уходит в :ConformInfo, не в уведомление
+      M.format(ev.buf, vim.b[ev.buf].own_autosave == true)
     end,
   })
 end

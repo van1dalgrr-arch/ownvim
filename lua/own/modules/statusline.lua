@@ -203,7 +203,8 @@ function C.quiet()
   return "\u{f0a91} тихо"
 end
 
-function C.position() return "%l:%c" end
+-- колонка экранная (%v): с табами в Go и на пустой строке — как в VS Code, а не номер байта
+function C.position() return "%l:%v" end
 function C.progress() return "%P" end
 function C.time() return "\u{f43a} " .. os.date(o().time_format or "%H:%M") end
 

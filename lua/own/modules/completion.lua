@@ -16,6 +16,13 @@ local settings = require("own.settings")
 
 local M = {}
 
+-- вид подсказки справа в меню — тихо и по-русски
+local KIND = { Function = "функция", Method = "метод", Constructor = "конструктор", Field = "поле", Variable = "переменная",
+  Property = "свойство", Class = "класс", Interface = "интерфейс", Struct = "структура", Module = "пакет", Keyword = "слово",
+  Snippet = "шаблон", Text = "текст", Constant = "константа", Enum = "перечисление", EnumMember = "значение",
+  TypeParameter = "тип", Value = "значение", Operator = "оператор", Unit = "единица", File = "файл", Folder = "папка",
+  Reference = "ссылка", Event = "событие", Color = "цвет" }
+
 local LIVE = { sources = true, ghost_text = true, auto_show = true, documentation = true }
 
 local function c() return (settings.current or {}).completion or {} end
@@ -41,8 +48,14 @@ local function build()
         max_height = o.max_height or 10,
         draw = {
           treesitter = { "lsp" },
+          padding = { 1, 1 },
+          columns = { { "kind_icon" }, { "label", "label_description", gap = 1 }, { "kind" } },
           -- значок вида — из темы иконок (mini.icons, раздел icons), если она включена
           components = {
+            kind = {
+              text = function(ctx) return KIND[ctx.kind] or (ctx.kind or ""):lower() end,
+              highlight = "BlinkCmpLabelDescription",
+            },
             kind_icon = {
               text = function(ctx)
                 local ok, icons = pcall(require, "mini.icons")

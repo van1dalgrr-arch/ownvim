@@ -102,10 +102,13 @@ function M.build(t, opts)
 
   -- редактор
   g.Normal = { fg = p.fg, bg = bg }
-  g.NormalNC = { link = "Normal" }
+  -- неактивное окно чуть темнее (на светлой — чуть серее): сразу видно, где курсор; разница — пара процентов
+  local inactive = opts.transparent and "NONE" or color.shade(p.bg, light and -0.03 or -0.25)
+  g.NormalNC = { fg = p.fg, bg = inactive }
   g.NormalFloat = { fg = p.fg, bg = float_bg }
   g.FloatBorder = { fg = p.border, bg = float_bg }
-  g.FloatTitle = { fg = p.accent, bg = float_bg, bold = true }
+  -- заголовок всплывающего окна — плашкой акцента (с прозрачным фоном — просто цветом)
+  g.FloatTitle = opts.transparent and { fg = p.accent, bold = true } or { fg = p.bg, bg = p.accent, bold = true }
   g.FloatFooter = { fg = p.fg_muted, bg = float_bg }
   g.Cursor = { fg = p.bg, bg = p.accent }
   g.lCursor = { link = "Cursor" }
@@ -116,10 +119,11 @@ function M.build(t, opts)
   g.ColorColumn = { bg = p.bg_highlight }
   g.CursorLineNr = { fg = p.accent, bold = true }
   g.LineNr = { fg = p.fg_muted }
-  g.SignColumn = { bg = bg }
-  g.FoldColumn = { fg = p.fg_muted, bg = bg }
+  -- поля и разделители без своего фона — берут фон окна (активного или притушенного)
+  g.SignColumn = { bg = "NONE" }
+  g.FoldColumn = { fg = p.fg_muted, bg = "NONE" }
   g.Folded = { fg = p.fg_dim, bg = p.bg_alt }
-  g.WinSeparator = { fg = p.border, bg = bg }
+  g.WinSeparator = { fg = p.border, bg = "NONE" }
   g.VertSplit = { link = "WinSeparator" }
   g.EndOfBuffer = { fg = p.bg }
   g.Visual = { bg = p.bg_visual }
@@ -128,7 +132,7 @@ function M.build(t, opts)
   g.IncSearch = { fg = p.bg, bg = p.orange, bold = true }
   g.CurSearch = { link = "IncSearch" }
   g.Substitute = { fg = p.bg, bg = p.red }
-  g.MatchParen = { bg = blend(p.accent, p.bg, 0.3), bold = true }
+  g.MatchParen = { fg = p.accent, bold = true } -- парная скобка — цветом, без заливки
   g.Pmenu = { fg = p.fg, bg = p.bg_alt }
   g.PmenuSel = { bg = p.bg_visual, bold = true }
   g.PmenuSbar = { bg = p.bg_alt }
@@ -143,7 +147,7 @@ function M.build(t, opts)
   g.TabLineSel = { fg = p.fg, bg = p.bg, bold = true }
   g.TabLineFill = { bg = p.bg_alt }
   g.WinBar = { fg = p.fg_dim, bg = bg }
-  g.WinBarNC = { fg = p.fg_muted, bg = bg }
+  g.WinBarNC = { fg = p.fg_muted, bg = inactive }
   g.Title = { fg = p.accent, bold = true }
   g.Directory = { fg = p.blue }
   g.ErrorMsg = { fg = p.red }
@@ -179,7 +183,7 @@ function M.build(t, opts)
     g["Diagnostic" .. name] = { fg = c }
     g["DiagnosticVirtualText" .. name] = { fg = c, bg = blend(c, p.bg, 0.1) }
     g["DiagnosticUnderline" .. name] = { sp = c, undercurl = true }
-    g["DiagnosticSign" .. name] = { fg = c, bg = bg }
+    g["DiagnosticSign" .. name] = { fg = c, bg = "NONE" }
     g["DiagnosticFloating" .. name] = { fg = c, bg = float_bg }
   end
   g.DiagnosticUnnecessary = { fg = p.fg_muted }
@@ -332,22 +336,51 @@ function M.build(t, opts)
 
   -- плагины
   g.SnacksDashboardHeader = { fg = p.accent }
-  g.SnacksDashboardKey = { fg = p.orange, bold = true }
-  g.SnacksDashboardIcon = { fg = p.purple }
+  g.SnacksDashboardKey = { fg = p.accent, bold = true }
+  g.SnacksDashboardIcon = { fg = p.accent }
   g.SnacksDashboardDesc = { fg = p.fg }
   g.SnacksDashboardFooter = { fg = p.fg_muted, italic = true }
-  g.SnacksDashboardTitle = { fg = p.cyan, bold = true }
-  g.SnacksDashboardSpecial = { fg = p.pink }
+  g.SnacksDashboardTitle = { fg = p.fg, bold = true }
+  g.SnacksDashboardSpecial = { fg = p.accent }
+  g.SnacksDashboardFile = { fg = p.fg }
+  g.SnacksDashboardDir = { fg = p.fg_muted }
+  -- поиск: заголовки плашками, строка ввода — рамкой акцента, выбранная строка — мягкой подсветкой
   g.SnacksPickerMatch = { fg = p.accent, bold = true }
   g.SnacksPickerDir = { fg = p.fg_muted }
-  g.SnacksPickerTitle = { fg = p.accent, bold = true }
-  g.SnacksIndent = { fg = blend(p.fg, p.bg, 0.1) }
-  g.SnacksIndentScope = { fg = p.fg_muted }
-  g.SnacksNotifierBorderInfo = { fg = p.blue }
+  g.SnacksPickerTitle = { fg = float_bg == "NONE" and p.accent or p.bg, bg = float_bg == "NONE" and "NONE" or p.accent, bold = true }
+  g.SnacksPickerPreviewTitle = { fg = float_bg == "NONE" and p.blue or p.bg, bg = float_bg == "NONE" and "NONE" or p.blue, bold = true }
+  g.SnacksPickerListTitle = { link = "SnacksPickerTitle" }
+  g.SnacksPickerInputBorder = { fg = blend(p.accent, float_bg == "NONE" and p.bg or p.bg_alt, 0.55), bg = float_bg }
+  g.SnacksPickerInputTitle = { link = "SnacksPickerTitle" }
+  g.SnacksPickerPrompt = { fg = p.accent, bold = true }
+  g.SnacksPickerListCursorLine = { bg = blend(p.accent, p.bg_alt, 0.14) }
+  g.SnacksPickerCursorLine = { bg = blend(p.accent, p.bg_alt, 0.14) }
+  g.SnacksPickerTotals = { fg = p.fg_muted }
+  g.SnacksPickerSelected = { fg = p.green }
+  g.SnacksPickerToggle = { fg = p.accent, bg = blend(p.accent, p.bg_alt, 0.18), italic = true }
+  g.SnacksPickerSpinner = { fg = p.accent }
+  g.SnacksInputNormal = { link = "NormalFloat" }
+  g.SnacksInputBorder = { fg = blend(p.accent, float_bg == "NONE" and p.bg or p.bg_alt, 0.55), bg = float_bg }
+  g.SnacksInputTitle = { link = "FloatTitle" }
+  g.SnacksInputIcon = { fg = p.accent }
+  g.SnacksIndent = { fg = blend(p.fg, p.bg, 0.08) }
+  g.SnacksIndentScope = { fg = blend(p.accent, p.bg, 0.45) }
+  -- уведомления: рамка, значок и заголовок — цветом уровня
+  for lvl, c in pairs({ Info = p.blue, Warn = p.yellow, Error = p.red, Debug = p.fg_muted, Trace = p.purple }) do
+    g["SnacksNotifierBorder" .. lvl] = { fg = blend(c, p.bg, 0.55), bg = float_bg }
+    g["SnacksNotifierIcon" .. lvl] = { fg = c }
+    g["SnacksNotifierTitle" .. lvl] = { fg = c, bold = true }
+    g["SnacksNotifier" .. lvl] = { link = "NormalFloat" }
+  end
+  g.SnacksNotifierHistory = { link = "NormalFloat" }
+  g.SnacksNotifierHistoryTitle = { link = "FloatTitle" }
   g.BlinkCmpMenu = { link = "Pmenu" }
   g.BlinkCmpMenuBorder = { fg = p.border, bg = p.bg_alt }
   g.BlinkCmpMenuSelection = { link = "PmenuSel" }
   g.BlinkCmpLabelMatch = { fg = p.accent, bold = true }
+  g.BlinkCmpLabelDescription = { fg = p.fg_muted }
+  g.BlinkCmpLabelDetail = { fg = p.fg_muted }
+  g.BlinkCmpKind = { fg = p.fg_muted }
   g.BlinkCmpLabelDeprecated = { fg = p.fg_muted, strikethrough = true }
   g.BlinkCmpGhostText = { fg = p.fg_muted, italic = true }
   g.BlinkCmpDoc = { link = "NormalFloat" }
@@ -410,6 +443,46 @@ function M.build(t, opts)
   g.DotfilesRunMain = { fg = p.green }
   g.DotfilesRunTest = { fg = p.cyan }
   g.Goplements = { fg = p.purple, italic = true }
+  g.GitSignsCurrentLineBlame = { fg = p.fg_muted, italic = true }
+  g.GitSignsAddInline = { bg = blend(p.green, p.bg, 0.3) }
+  g.GitSignsDeleteInline = { bg = blend(p.red, p.bg, 0.3) }
+  g.GitSignsChangeInline = { bg = blend(p.blue, p.bg, 0.3) }
+  g.GitSignsStagedAdd = { fg = blend(p.green, p.bg, 0.5) }
+  g.GitSignsStagedChange = { fg = blend(p.blue, p.bg, 0.5) }
+  g.GitSignsStagedDelete = { fg = blend(p.red, p.bg, 0.5) }
+  -- значки в подсказке клавиш — цветами палитры
+  for name, c in pairs({ Azure = p.cyan, Blue = p.blue, Cyan = p.cyan, Green = p.green, Grey = p.fg_muted,
+    Orange = p.orange, Purple = p.purple, Red = p.red, Yellow = p.yellow }) do
+    g["WhichKeyIcon" .. name] = { fg = c }
+  end
+  g.WhichKeyIcon = { fg = p.accent }
+  g.WhichKeyValue = { fg = p.fg_muted }
+  -- markdown (render-markdown): заголовки — цветной полосой во всю строку, код — подложкой
+  for i, c in ipairs({ p.accent, p.blue, p.cyan, p.green, p.yellow, p.orange }) do
+    g["RenderMarkdownH" .. i] = { fg = c, bold = true }
+    g["RenderMarkdownH" .. i .. "Bg"] = { fg = c, bg = blend(c, p.bg, 0.12), bold = true }
+    g["@markup.heading." .. i .. ".markdown"] = { fg = c, bold = true }
+  end
+  g.RenderMarkdownCode = { bg = p.bg_alt }
+  g.RenderMarkdownCodeInline = { fg = p.fg, bg = p.bg_highlight }
+  g.RenderMarkdownBullet = { fg = p.accent }
+  g.RenderMarkdownDash = { fg = p.border }
+  g.RenderMarkdownTableHead = { fg = p.border }
+  g.RenderMarkdownTableRow = { fg = p.border }
+  g.RenderMarkdownQuote = { fg = p.fg_muted }
+  g.RenderMarkdownChecked = { fg = p.green }
+  g.RenderMarkdownUnchecked = { fg = p.fg_muted }
+  -- Lazy и Mason — в тон редактору
+  g.LazyH1 = { fg = p.bg, bg = p.accent, bold = true }
+  g.LazyButton = { fg = p.fg_dim, bg = p.bg_highlight }
+  g.LazyButtonActive = { fg = p.bg, bg = p.accent, bold = true }
+  g.LazySpecial = { fg = p.accent }
+  g.LazyProgressDone = { fg = p.accent, bold = true }
+  g.LazyProgressTodo = { fg = p.border }
+  g.MasonHeader = { fg = p.bg, bg = p.accent, bold = true }
+  g.MasonHighlight = { fg = p.accent }
+  g.MasonHighlightBlockBold = { fg = p.bg, bg = p.accent, bold = true }
+  g.MasonMutedBlock = { fg = p.fg_dim, bg = p.bg_highlight }
 
   -- правки самой темы — поверх всего
   for name, v in pairs(t.groups or {}) do g[name] = M.spec(v, p) end

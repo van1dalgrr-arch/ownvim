@@ -66,6 +66,70 @@ local function project_section(self)
   return items
 end
 
+-- цвета стартового экрана — из текущей темы (любой): градиент заголовка от акцента к синему, клавиши цветом акцента
+local function hex(group, attr)
+  local v = vim.api.nvim_get_hl(0, { name = group, link = false })[attr or "fg"]
+  return v and ("#%06x"):format(v) or nil
+end
+
+local GRADIENT = 6
+local function dash_colors()
+  local color = require("own.theme.color")
+  local bg = hex("Normal", "bg") or (vim.o.background == "light" and "#ffffff" or "#000000")
+  local from = hex("OwnIconAccent") or hex("Statement") or hex("Title") or "#bb9af7"
+  local to = hex("Function") or hex("Special") or "#7aa2f7"
+  for i = 1, GRADIENT do
+    vim.api.nvim_set_hl(0, "OwnDashGrad" .. i, { fg = color.blend(to, from, (i - 1) / (GRADIENT - 1)), bold = true })
+  end
+  vim.api.nvim_set_hl(0, "OwnDashKey", { fg = from, bold = true })
+  vim.api.nvim_set_hl(0, "OwnDashKeyBracket", { fg = color.blend(from, bg, 0.45) })
+  vim.api.nvim_set_hl(0, "OwnDashTagline", { fg = hex("Comment") or color.blend(hex("Normal") or "#cccccc", bg, 0.5), italic = true })
+end
+
+-- заголовок: строки из «█╗» — градиентом, остальные (подпись) — тихим курсивом; каждая строка по центру
+local function header_section(header)
+  local lines = type(header) == "table" and header or vim.split(header or "ownvim", "\n", { plain = true })
+  return function()
+    dash_colors()
+    local w = 0
+    for _, l in ipairs(lines) do w = math.max(w, vim.api.nvim_strwidth(l)) end
+    -- блоки и рамки (█ ╗ ═) — по регулярке vim: в шаблонах Lua диапазоны байтовые
+    local function is_art(l) return vim.fn.match(l, [=[[\u2580-\u259f\u2500-\u257f]]=]) >= 0 end
+    local total = #vim.tbl_filter(is_art, lines)
+    local texts, n, prev_art = {}, 0, false
+    for i, l in ipairs(lines) do
+      local art = is_art(l)
+      local hl = "OwnDashTagline"
+      if art then
+        n = n + 1
+        hl = "OwnDashGrad" .. (total > 1 and math.floor((n - 1) * (GRADIENT - 1) / (total - 1) + 1.5) or 1)
+      end
+      local gap = (prev_art and not art) and "\n" or "" -- воздух между логотипом и подписью
+      local pad = (" "):rep(math.floor((w - vim.api.nvim_strwidth(l)) / 2))
+      texts[#texts + 1] = { gap .. pad .. l .. (i < #lines and "\n" or ""), hl = hl }
+      prev_art = art
+    end
+    return { text = texts, align = "center", padding = 2 }
+  end
+end
+
+-- «⚡ 43 мс · 6 из 80 плагинов» — по-русски, вместо английской строки snacks
+local function startup_section()
+  local ok, stats = pcall(function() return require("lazy.stats").stats() end)
+  if not ok or not stats then return nil end
+  local ms = math.floor(stats.startuptime + 0.5)
+  return {
+    align = "center",
+    padding = 1,
+    text = {
+      { "\u{f0e7}  ", hl = "OwnDashGrad1" },
+      { ("%d мс"):format(ms), hl = "OwnDashKey" },
+      { "  ·  ", hl = "footer" },
+      { ("%d из %d плагинов загружено"):format(stats.loaded, stats.count), hl = "footer" },
+    },
+  }
+end
+
 -- стартовый экран из раздела "dashboard": header, buttons (do — действие из keys, :команда или клавиши), sections
 local function dashboard()
   local d = (settings.current or {}).dashboard or {}
@@ -79,22 +143,45 @@ local function dashboard()
     end
     keys[#keys + 1] = { icon = (b.icon or "") .. " ", key = b.key, desc = b.desc or what, action = action }
   end
+  local names = d.sections or { "header", "buttons", "startup" }
+  -- кнопки с воздухом, если на экране только они; с недавними файлами и проектами — плотнее, чтобы всё влезло
+  local busy = #vim.tbl_filter(function(n) return n == "recent" or n == "projects" or n == "project" end, names) > 0
   local SECTIONS = {
-    header = { section = "header" },
-    buttons = { section = "keys", gap = 1, padding = 1 },
+    header = header_section(d.header),
+    buttons = { section = "keys", gap = busy and 0 or 1, padding = 2 },
     recent = { icon = "\u{f1da} ", title = "Недавние файлы", section = "recent_files", cwd = true, indent = 2, padding = 1, limit = d.recent or 5 },
     projects = { icon = "\u{f07b} ", title = "Проекты", section = "projects", indent = 2, padding = 1, limit = d.projects or 5 },
-    startup = { section = "startup" },
+    startup = startup_section,
     project = project_section,
   }
   local sections = {}
-  for _, name in ipairs(d.sections or { "header", "buttons", "startup" }) do
+  for _, name in ipairs(names) do
     sections[#sections + 1] = SECTIONS[name] or { text = name, align = "center", padding = 1 }
   end
-  local header = d.header
-  if type(header) == "table" then header = table.concat(header, "\n") end
-  return { preset = { header = header or "ownvim", keys = keys }, sections = sections }
+  return {
+    preset = { keys = keys },
+    sections = sections,
+    -- клавиша — цветом акцента в тихих скобках: [f]
+    formats = {
+      key = function(item)
+        return { { "[", hl = "OwnDashKeyBracket" }, { item.key, hl = "OwnDashKey" }, { "]", hl = "OwnDashKeyBracket" } }
+      end,
+    },
+  }
 end
+
+-- сообщения и командная строка — новый интерфейс nvim 0.12 (ui2): длинное сообщение сворачивается в «[+3]»
+-- вместо «Press ENTER» и не сдвигает экран; g< — все сообщения. "appearance": { "messages": "classic" } — как было
+local function messages()
+  local want = ((settings.current or {}).appearance or {}).messages ~= "classic"
+  local ok, ui2 = pcall(require, "vim._core.ui2")
+  if not ok or M.ui2 == want then return end
+  if want or M.ui2 ~= nil then pcall(ui2.enable, { enable = want }) end
+  M.ui2 = want
+end
+
+function M.setup() messages() end
+function M.reload() messages() end
 
 function M.plugins() return {
   {
@@ -123,6 +210,54 @@ function M.plugins() return {
     event = "VeryLazy",
     opts = {
       preset = "helix",
+      -- значки по смыслу описания — у всех пунктов, а не только у тех, что which-key узнаёт по-английски.
+      -- Описания по-русски, а :lower() в Lua кириллицу не трогает — поэтому основы слов без первой буквы
+      icons = {
+        rules = {
+          { pattern = "ерев", icon = "\u{f0645} ", color = "green" },
+          { pattern = "уфер", icon = "\u{f04e9} ", color = "cyan" },
+          { pattern = "азделить", icon = "\u{eb56} ", color = "blue" },
+          { pattern = "кно", icon = "\u{eb7f} ", color = "blue" },
+          { pattern = "кна", icon = "\u{eb7f} ", color = "blue" },
+          { pattern = "вкладк", icon = "\u{f04e9} ", color = "blue" },
+          { pattern = "лавиш", icon = "\u{f030c} ", color = "purple" },
+          { pattern = "лагин", icon = "\u{f487} ", color = "purple" },
+          { pattern = "ведомлен", icon = "\u{f009a} ", color = "yellow" },
+          { pattern = "еудобств", icon = "\u{f249} ", color = "orange" },
+          { pattern = "опирован", icon = "\u{f0147} ", color = "yellow" },
+          { pattern = "криншот", icon = "\u{f0100} ", color = "purple" },
+          { pattern = "равок", icon = "\u{f1da} ", color = "orange" },
+          { pattern = "оманд", icon = "\u{f120} ", color = "cyan" },
+          { pattern = "данных", icon = "\u{f1c0} ", color = "azure" },
+          { pattern = "есси", icon = "\u{f021} ", color = "azure" },
+          { pattern = "ерминал", icon = "\u{ea85} ", color = "red" },
+          { pattern = "тест", icon = "\u{f0668} ", color = "green" },
+          { pattern = "Тест", icon = "\u{f0668} ", color = "green" },
+          { pattern = "тлад", icon = "\u{f188} ", color = "red" },
+          { pattern = "ормат", icon = "\u{f0262} ", color = "purple" },
+          { pattern = "ереимен", icon = "\u{f0455} ", color = "orange" },
+          { pattern = "шибк", icon = "\u{f0159} ", color = "red" },
+          { pattern = "ультикурсор", icon = "\u{f01c0} ", color = "purple" },
+          { pattern = "анель", icon = "\u{f018d} ", color = "blue" },
+          { pattern = "енерац", icon = "\u{f0626} ", color = "cyan" },
+          { pattern = "ереключ", icon = "\u{f205} ", color = "grey" },
+          { pattern = "астройк", icon = "\u{f013} ", color = "grey" },
+          { pattern = "апуск", icon = "\u{f04b} ", color = "green" },
+          { pattern = "ыход", icon = "\u{f05fc} ", color = "red" },
+          { pattern = "ыйти", icon = "\u{f05fc} ", color = "red" },
+          { pattern = "складк", icon = "\u{f0dc} ", color = "grey" },
+          { pattern = "брамлен", icon = "\u{f016a} ", color = "purple" },
+          { pattern = "уски", icon = "\u{f440} ", color = "orange" },
+          { pattern = "claude", icon = "\u{f06a9} ", color = "orange" },
+          { pattern = "kubernetes", icon = "\u{f10fe} ", color = "blue" },
+          { pattern = "оиск", icon = "\u{f002} ", color = "green" },
+          { pattern = "айти", icon = "\u{f002} ", color = "green" },
+          { pattern = "айл", icon = "\u{f0214} ", color = "cyan" },
+          { pattern = "ереход", icon = "\u{f061} ", color = "blue" },
+          { pattern = "код", icon = "\u{f121} ", color = "cyan" },
+          { pattern = "Код", icon = "\u{f121} ", color = "cyan" },
+        },
+      },
       spec = {
         {
           mode = { "n", "x" },

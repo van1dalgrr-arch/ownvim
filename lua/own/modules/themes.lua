@@ -21,6 +21,8 @@ M.plugins = {
         hl.CursorLineNr = { fg = c.orange, bold = true }
         hl.LspInlayHint = { fg = c.dark3, italic = true }
         hl.LspCodeLens = { fg = c.dark3, italic = true }
+        hl.TreesitterContext = { bg = c.bg_highlight }
+        hl.TreesitterContextBottom = { sp = c.fg_gutter, underline = true }
         hl.Goplements = { fg = c.purple, italic = true }
         hl.DotfilesRunMain = { fg = c.green }
         hl.DotfilesRunTest = { fg = c.teal }

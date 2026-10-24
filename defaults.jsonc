@@ -124,6 +124,8 @@
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
+    "terminal_edges": true, // Ghostty: поля окна — цветом редактора, без рамки фона терминала по краям (window-padding-color)
+    "messages": "modern", // "modern" — длинные сообщения сворачиваются в [+3] без «Press ENTER» (g< — все); "classic" — как в старом vim
   },
 
   // Переменные vim.g
@@ -451,7 +453,9 @@
   },
 
   // Задачи (пробел r r, alt-t): when — видна, если в корне есть файл/папка; ft — если открыт файл этого языка;
-  // в cmd: ${root}, ${file}, ${file_dir}, ${image}
+  // в cmd: ${root}, ${file}, ${file_dir}, ${image}, ${input:Подсказка} — спросить при запуске;
+  // "env": ".env" (или список файлов) — переменные проекта для задачи. Свои — "list+": [ … ] в settings.jsonc
+  // (дописать к этим). Правка видна сразу, без :restart
   "tasks": {
     "list": [
       { "name": "up — зависимости из compose + приложение", "cmd": "zsh -ic up", "when": ["go.mod"] },
@@ -764,6 +768,7 @@
     "n <leader>to": "test.output",
     "n <leader>tO": "test.output_panel",
     "n <leader>tw": "test.watch",
+    "n <leader>tg": "test.switch", // к тесту и обратно (любой язык; теста нет — создаётся)
 
     // отладчик — F-клавиши как в GoLand (на маке через fn)
     "n <F9>": "debug.continue",

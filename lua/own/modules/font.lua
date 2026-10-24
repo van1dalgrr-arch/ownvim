@@ -3,6 +3,7 @@
 --   "features": ["ss01", "zero"] — свои OpenType-фичи
 -- ownvim пишет ~/.config/ghostty/ownvim.ghostty и просит Ghostty перечитать конфиг. В основном конфиге Ghostty
 -- должна быть строка config-file = ?ownvim.ghostty (dotfiles её содержат; иначе ownvim добавит её сам).
+-- Там же — поля окна (appearance.terminal_edges): window-padding-color = extend, фон редактора до самых краёв.
 -- Значки Nerd Font у Ghostty встроены — подходит любой шрифт. Шрифт в Ghostty общий для всех окон.
 -- :Font — выбрать из установленных (сразу видно), :FontInstall <имя> — поставить (brew: все Google Fonts и
 -- Nerd Fonts; иначе — релиз Nerd Fonts в ~/Library/Fonts).
@@ -48,7 +49,7 @@ local last
 
 function M.apply()
   local f = o()
-  local lines = { "# пишет ownvim из settings.jsonc (раздел font) — править там" }
+  local lines = { "# пишет ownvim из settings.jsonc (разделы font и appearance) — править там" }
   if f.family then
     lines[#lines + 1] = 'font-family = ""' -- сбросить список из основного конфига
     lines[#lines + 1] = "font-family = " .. f.family
@@ -60,6 +61,9 @@ function M.apply()
   for _, feat in ipairs(f.features or {}) do lines[#lines + 1] = "font-feature = " .. feat end
   if f.line_height then lines[#lines + 1] = "adjust-cell-height = " .. f.line_height end
   if f.thicken ~= nil then lines[#lines + 1] = "font-thicken = " .. tostring(f.thicken) end
+  -- поля окна — цветом ближайшей клетки: вокруг редактора нет рамки фона терминала, строка статуса — до низа окна
+  local edges = ((settings.current or {}).appearance or {}).terminal_edges
+  if edges ~= nil then lines[#lines + 1] = "window-padding-color = " .. (edges and "extend" or "background") end
   local text = table.concat(lines, "\n") .. "\n"
   if text == last then return end
   last = text

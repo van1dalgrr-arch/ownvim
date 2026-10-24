@@ -5,4 +5,111 @@
 //   "modules": { "minimap": true, "modes": { "auto_normal_ms": 0 } },
 //   "keys": { "n <leader>z": ":Lazy", "i jk": false },
 //   "plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} } },
-{}
+{
+  "theme": {"dark":"onedark_dark","light":"catppuccin-latte"}, // tokyonight night, прозрачная — как в старом nvim
+
+  "diagnostics": {
+    // на полях — тонкие значки (codicons): значки Font Awesome Ghostty растягивает в квадратные плашки
+    "signs": { "text": { "error": "", "warn": "", "hint": "", "info": "" } },
+  },
+  "animations": {
+    "cursor": { "insert": false }, // при наборе курсор без шлейфа; прыжки — по-прежнему плавно
+  },
+  // дерево: .env, .github, .golangci.yml, .air.toml видны сразу — как в GoLand (секреты в .env и так под звёздочками)
+  "explorer": { "hidden": true },
+  // стартовый экран: проекты и недавние файлы — открыл ownvim и сразу выбрал, куда идти
+  "dashboard": {
+    "buttons": [
+      { "key": "f", "icon": "\uf002", "desc": "Найти файл", "do": "files" },
+      { "key": "r", "icon": "\uf1da", "desc": "Недавние файлы", "do": "recent" },
+      { "key": "p", "icon": "\uf07c", "desc": "Проекты", "do": "projects" },
+      { "key": "s", "icon": "\uf021", "desc": "Вернуть сессию", "do": "session.load" },
+      { "key": "g", "icon": "\uf422", "desc": "Поиск по проекту", "do": "grep" },
+      { "key": "c", "icon": "\uf013", "desc": "Мои настройки", "do": "settings" },
+      { "key": "t", "icon": "\uf1fc", "desc": "Тема", "do": "themes" },
+      { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
+    ],
+    "sections": ["header", "buttons", "project", "recent", "projects", "startup"],
+  },
+  "font": { "line_height": "10%" }, // чуть больше воздуха между строками, как в GoLand (пишется в Ghostty)
+  "options": {
+    "spelllang": "en,ru", // в заметках и коммитах русские слова не подчёркиваются
+    "title": true, // во вкладке Ghostty — открытый файл, а не «zsh»
+    "titlestring": "%t%( %M%) · ownvim",
+  },
+  "keys": {
+    // переименование с живым превью: имя меняется во всех местах, пока печатаешь
+    "n <leader>cr": { "do": "':IncRename ' . expand('<cword>')", "expr": true, "desc": "Переименовать (с превью)" },
+    "n <S-F6>": { "do": "':IncRename ' . expand('<cword>')", "expr": true, "desc": "Переименовать (shift-F6, как в GoLand)" },
+    "n <leader>co": { "do": ":Outline<cr>", "desc": "Структура файла (как Structure в GoLand)" },
+    "n <leader>cj": { "do": ":TSJToggle<cr>", "desc": "Аргументы / поля структуры: в строку ↔ столбиком" },
+
+    // Буфер обмена не затирается мелочами: скопировал в браузере — x, ciw, dd по пустой строке его не трогают
+    "nx x": { "do": "\"_x", "desc": "Удалить символ (без копирования)" },
+    "n X": { "do": "\"_X", "desc": "Удалить символ слева (без копирования)" },
+    "nx c": { "do": "\"_c", "desc": "Изменить (без копирования)" },
+    "n C": { "do": "\"_C", "desc": "Изменить до конца строки (без копирования)" },
+    "n dd": { "do": "getline('.') =~ '^\\s*$' ? '\"_dd' : 'dd'", "expr": true, "desc": "Удалить строку (пустую — без копирования)" },
+    "x p": { "do": "P", "desc": "Вставить поверх выделения (буфер остаётся)" },
+    // мелочи
+    "n <Esc>": { "do": "<cmd>nohlsearch<cr><Esc>", "desc": "Убрать подсветку поиска" },
+    "n J": { "do": "mzJ`z", "desc": "Склеить строки (курсор на месте)" },
+
+    // Клавиши GoLand (macOS). cmd-d, cmd-w, cmd-[ ] заняты Ghostty — для них пробел-клавиши из ownvim
+    "n <D-b>": "lsp.definition", // перейти к объявлению
+    "n <D-M-b>": "lsp.implementation", // к реализациям
+    "n <M-F7>": "lsp.references", // найти использования
+    "n <D-y>": "peek.definition", // быстрый просмотр объявления, не уходя из файла
+    "ni <D-e>": "recent", // недавние файлы
+    "ni <D-S-o>": "files", // перейти к файлу
+    "ni <D-o>": "lsp.workspace_symbols", // перейти к типу / функции во всём проекте
+    "n <D-F12>": "lsp.symbols", // структура файла — список
+    "ni <D-S-f>": "grep", // найти в проекте
+    "ni <D-S-a>": "commands", // найти действие
+    "ni <M-CR>": "lsp.code_action", // alt-enter — исправления и действия
+    "n <D-S-F12>": "window.zoom", // редактор на весь экран
+    "n <C-S-r>": "test.nearest", // запустить тест под курсором
+    "n <C-S-d>": "test.debug", // отладить тест под курсором
+    // расширить / сузить выделение по смыслу: слово → выражение → строка → блок → функция (alt-↑/↓ в GoLand)
+    "n <M-Up>": { "do": "v<cmd>lua vim.lsp.buf.selection_range(1)<cr>", "desc": "Расширить выделение" },
+    "x <M-Up>": { "do": "<cmd>lua vim.lsp.buf.selection_range(1)<cr>", "desc": "Расширить выделение" },
+    "x <M-Down>": { "do": "<cmd>lua vim.lsp.buf.selection_range(-1)<cr>", "desc": "Сузить выделение" },
+    "n <C-Space>": { "do": "v<cmd>lua vim.lsp.buf.selection_range(1)<cr>", "desc": "Расширить выделение" },
+    "x <C-Space>": { "do": "<cmd>lua vim.lsp.buf.selection_range(1)<cr>", "desc": "Расширить выделение" },
+    "x <BS>": { "do": "<cmd>lua vim.lsp.buf.selection_range(-1)<cr>", "desc": "Сузить выделение" },
+    // ctrl-enter — меню Generate: теги, реализовать интерфейс, if err, тесты, комментарий
+    "n <C-CR>": { "do": "<cmd>lua require('which-key').show({ keys = '<leader>G' })<cr>", "desc": "Generate (как в GoLand)" },
+    // к тесту и обратно — в любом языке: foo.go ↔ foo_test.go, api.ts ↔ api.test.ts, calc.py ↔ test_calc.py,
+    // Rust — к mod tests; теста нет — создаётся (Go — сразу с package и import "testing")
+    "n <D-S-t>": "test.switch",
+  },
+
+  // Задачи (пробел r r, alt-t) — дописываются к стандартным. Цели Makefile overseer находит сам.
+  // ${input:…} — спросить при запуске; "env": ".env" — переменные проекта (DB_PASSWORD, DATABASE_URL)
+  "tasks": {
+    "list+": [
+      // migrate: база — DATABASE_URL из .env, иначе как у пробел D: postgres://postgres:$DB_PASSWORD@localhost:5432/<папка>
+      { "name": "migrate: применить все (up)", "env": ".env", "when": ["migrations"],
+        "cmd": "migrate -path migrations -database \"${DATABASE_URL:-postgres://postgres:$DB_PASSWORD@localhost:5432/$(basename \"$PWD\")?sslmode=disable}\" up" },
+      { "name": "migrate: откатить последнюю (down 1)", "env": ".env", "when": ["migrations"],
+        "cmd": "migrate -path migrations -database \"${DATABASE_URL:-postgres://postgres:$DB_PASSWORD@localhost:5432/$(basename \"$PWD\")?sslmode=disable}\" down 1" },
+      { "name": "migrate: версия базы", "env": ".env", "when": ["migrations"],
+        "cmd": "migrate -path migrations -database \"${DATABASE_URL:-postgres://postgres:$DB_PASSWORD@localhost:5432/$(basename \"$PWD\")?sslmode=disable}\" version" },
+      { "name": "migrate: новая миграция", "when": ["migrations"],
+        "cmd": "migrate create -ext sql -dir migrations -seq -digits 5 ${input:Имя миграции (create_users)}" },
+      { "name": "sqlc generate", "cmd": "sqlc generate", "when": ["sqlc.yaml", "sqlc.yml", "sqlc.json"] },
+      { "name": "go generate ./...", "cmd": "go generate ./...", "when": ["go.mod"] },
+      { "name": "go test -race — весь проект", "cmd": "go test -race -count=1 ./...", "when": ["go.mod"] },
+      { "name": "go get — добавить зависимость", "cmd": "go get ${input:Модуль (github.com/…@latest)} && go mod tidy", "when": ["go.mod"] },
+      { "name": "запустить с .env (go run ./cmd/api)", "cmd": "go run ./cmd/api", "env": ".env", "when": ["go.mod"] },
+    ],
+  },
+
+  "plugins": {
+    "alyxshang/nuwa.nvim": true,
+    "hedyhli/outline.nvim": { "cmd": "Outline", "opts": { "outline_window": { "width": 28, "relative_width": false } } },
+    "MeanderingProgrammer/render-markdown.nvim": { "ft": ["markdown"], "opts": {} },
+    "smjonas/inc-rename.nvim": { "cmd": "IncRename", "opts": {} },
+    "Wansmer/treesj": { "cmd": "TSJToggle", "opts": { "max_join_length": 150, "use_default_keymaps": false } },
+  },
+}
