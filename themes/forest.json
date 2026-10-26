@@ -1,0 +1,43 @@
+// Forest — тёмный лес: мох, хвоя, кора и янтарь; спокойная, для долгой работы
+{
+  "name": "Forest",
+  "type": "dark",
+  "palette": {
+    "bg": "#121612",
+    "bg_alt": "#161b16",
+    "bg_highlight": "#1b211b",
+    "bg_visual": "#2b3a2b",
+    "border": "#263026",
+    "fg": "#dcd8c8",
+    "fg_dim": "#a8ab98",
+    "fg_muted": "#5f6a5a",
+    "accent": "#a3be8c",
+    "red": "#e07a6b",
+    "orange": "#e0a060",
+    "yellow": "#d8c27a",
+    "green": "#a3be8c",
+    "cyan": "#7fb8a4",
+    "blue": "#86a8c4",
+    "purple": "#b399c4",
+    "pink": "#d39bb0"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "orange",
+    "function": "green",
+    "string": "yellow",
+    "type": "cyan",
+    "number": "purple",
+    "constant": "purple",
+    "boolean": "purple",
+    "property": "#c2c9a0",
+    "parameter": "#e6dcc0",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

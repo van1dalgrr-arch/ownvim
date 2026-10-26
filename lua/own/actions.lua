@@ -54,6 +54,8 @@ M.list = {
   explorer = {
     function()
       if (((require("own.settings").current or {}).explorer or {}).engine or "own") == "own" then
+        local ws = package.loaded["own.modules.workspace"]
+        if ws then return ws.toggle("tree") end
         return require("own.tree").toggle(root.get())
       end
       Snacks.explorer({ cwd = root.get() })
@@ -110,7 +112,11 @@ M.list = {
   quiet = { function() require("own.modules.quiet").toggle() end, "Тихий режим: убрать всё, что отвлекает" },
   terminal = { function() Snacks.terminal() end, "Терминал (папка запуска)" },
   ["terminal.root"] = { function() Snacks.terminal(nil, { cwd = root.get() }) end, "Терминал (проект)" },
-  ["terminal.toggle"] = { function() Snacks.terminal.focus(nil, { cwd = root.get() }) end, "Терминал снизу" },
+  ["terminal.toggle"] = { function()
+    local ws = package.loaded["own.modules.workspace"]
+    if ws then return ws.toggle("terminal") end
+    Snacks.terminal.focus(nil, { cwd = root.get() })
+  end, "Терминал снизу" },
 
   -- ошибки
   ["diagnostic.float"] = { vim.diagnostic.open_float, "Ошибка строки целиком" },
@@ -161,10 +167,31 @@ M.list = {
     "Автовыход из вставки",
   },
   inspect = { vim.show_pos, "Что за подсветка под курсором" },
-  panel = { function() require("own.modules.panels").toggle() end, "Нижняя панель (терминал, проблемы, задачи)" },
-  ["panel.terminal"] = { function() require("own.modules.panels").show("terminal") end, "Панель: терминал" },
-  ["panel.problems"] = { function() require("own.modules.panels").show("problems") end, "Панель: проблемы" },
-  ["panel.tasks"] = { function() require("own.modules.panels").show("tasks") end, "Панель: вывод задачи" },
+  -- рабочее место (modules.workspace): панели слева и снизу, режимы, запуск
+  panel = { function() require("own.modules.workspace").toggle_pos("bottom") end, "Нижняя панель: спрятать / вернуть" },
+  sidebar = { function() require("own.modules.workspace").toggle_pos("left") end, "Левая панель: спрятать / вернуть" },
+  ["panel.terminal"] = { function() require("own.modules.workspace").show("terminal") end, "Панель: терминал" },
+  ["panel.problems"] = { function() require("own.modules.workspace").show("problems") end, "Панель: проблемы" },
+  ["panel.tasks"] = { function() require("own.modules.workspace").show("tasks") end, "Панель: задачи" },
+  ["panel.run"] = { function() require("own.modules.workspace").show("run") end, "Панель: вывод запуска" },
+  ["panel.test_output"] = { function() require("own.modules.workspace").show("test_output") end, "Панель: вывод тестов" },
+  ["view.outline"] = { function() require("own.modules.workspace").toggle("outline") end, "Структура файла (слева)" },
+  ["view.tests"] = { function() require("own.modules.workspace").toggle("tests") end, "Дерево тестов (слева)" },
+  ["view.db"] = { function() require("own.modules.workspace").toggle("db") end, "База данных (слева)" },
+  ["mode.code"] = { function() require("own.modules.workspace").set_mode("code") end, "Режим: код" },
+  ["mode.test"] = { function() require("own.modules.workspace").set_mode("test") end, "Режим: тесты" },
+  ["mode.debug"] = { function() require("own.modules.workspace").set_mode("debug") end, "Режим: отладка" },
+  ["mode.git"] = { function() require("own.modules.workspace").set_mode("git") end, "Режим: git (все изменения)" },
+  ["mode.db"] = { function() require("own.modules.workspace").set_mode("db") end, "Режим: база данных" },
+  ["run.run"] = { function() require("own.tools.launch").run() end, "▶ Запустить конфигурацию (идёт — перезапустить)" },
+  ["run.debug"] = { function() require("own.tools.launch").debug() end, "Отладить конфигурацию" },
+  ["run.stop"] = { function() require("own.tools.launch").stop() end, "■ Остановить запуск" },
+  ["run.choose"] = { function() require("own.tools.launch").choose() end, "Выбрать конфигурацию запуска" },
+  usages = { function() require("own.modules.workspace").usages("lsp_references") end, "Использования символа (панель снизу, как Find Usages)" },
+  ["usages.calls"] = { function() require("own.modules.workspace").usages("lsp_incoming_calls") end, "Кто вызывает (панель снизу)" },
+  ["usages.impl"] = { function() require("own.modules.workspace").usages("lsp_implementations") end, "Реализации (панель снизу)" },
+  ["panel.usages"] = { function() require("own.modules.workspace").show("usages") end, "Панель: использования" },
+  everywhere = { function() require("own.tools.everywhere").open() end, "Везде: файлы, действия, запуск, темы" },
   image_panel = { function() require("own.modules.image_panel").toggle() end, "Картинка сбоку (вкл/выкл)" },
   store = { function() require("own.store").open() end, "Магазин плагинов" },
   health = { "<cmd>checkhealth own<cr>", "Проверка здоровья ownvim" },
@@ -237,7 +264,11 @@ M.list = {
   ["test.last"] = { function() require("neotest").run.run_last() end, "Повторить последний" },
   ["test.debug"] = { function() require("neotest").run.run({ strategy = "dap" }) end, "Тест под курсором — в отладчике" },
   ["test.stop"] = { function() require("neotest").run.stop() end, "Остановить тесты" },
-  ["test.summary"] = { function() require("neotest").summary.toggle() end, "Дерево тестов" },
+  ["test.summary"] = { function()
+    local ws = package.loaded["own.modules.workspace"]
+    if ws then return ws.toggle("tests") end
+    require("neotest").summary.toggle()
+  end, "Дерево тестов" },
   ["test.output"] = { function() require("neotest").output.open({ enter = true, auto_close = true }) end, "Вывод теста" },
   ["test.output_panel"] = { function() require("neotest").output_panel.toggle() end, "Панель вывода тестов" },
   ["test.watch"] = { function() require("neotest").watch.toggle(vim.fn.expand("%")) end, "Перезапускать при сохранении" },
@@ -408,7 +439,11 @@ M.list = {
   ["cloak.toggle"] = { "<cmd>CloakToggle<cr>", "Секреты в .env: показать / спрятать" },
 
   -- база данных (dadbod)
-  database = { "<cmd>DBUIToggle<cr>", "База данных" },
+  database = { function()
+    local ws = package.loaded["own.modules.workspace"]
+    if ws then return ws.toggle("db") end
+    vim.cmd("DBUIToggle")
+  end, "База данных" },
   ["database.add"] = { "<cmd>DBUIAddConnection<cr>", "Добавить подключение" },
   ["format.info"] = { "<cmd>ConformInfo<cr>", "Чем форматируется этот файл" },
   ["toggle.format"] = {

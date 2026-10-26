@@ -1,0 +1,43 @@
+// Graphite — нейтральный серый без оттенка, пастельные цвета; ничего не отвлекает
+{
+  "name": "Graphite",
+  "type": "dark",
+  "palette": {
+    "bg": "#151515",
+    "bg_alt": "#191919",
+    "bg_highlight": "#1e1e1e",
+    "bg_visual": "#303030",
+    "border": "#2a2a2a",
+    "fg": "#d6d6d6",
+    "fg_dim": "#a0a0a0",
+    "fg_muted": "#626262",
+    "accent": "#8ab4f8",
+    "red": "#f28b82",
+    "orange": "#fcad70",
+    "yellow": "#fdd663",
+    "green": "#81c995",
+    "cyan": "#78d9ec",
+    "blue": "#8ab4f8",
+    "purple": "#c58af9",
+    "pink": "#ff8bcb"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#b8c8e8",
+    "parameter": "#e8e8e8",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

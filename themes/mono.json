@@ -1,0 +1,49 @@
+// Mono — почти без цвета: оттенки серого и один фиолетовый акцент; код читается по форме, а не по радуге
+{
+  "name": "Mono",
+  "type": "dark",
+  "palette": {
+    "bg": "#111111",
+    "bg_alt": "#151515",
+    "bg_highlight": "#1a1a1a",
+    "bg_visual": "#2c2638",
+    "border": "#262626",
+    "fg": "#d4d4d4",
+    "fg_dim": "#a3a3a3",
+    "fg_muted": "#5c5c5c",
+    "accent": "#a78bfa",
+    "red": "#f87171",
+    "orange": "#d4d4d4",
+    "yellow": "#e5e5e5",
+    "green": "#a3a3a3",
+    "cyan": "#c4c4c4",
+    "blue": "#e5e5e5",
+    "purple": "#a78bfa",
+    "pink": "#c4b5fd"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": {
+      "fg": "fg_dim",
+      "bold": true
+    },
+    "function": {
+      "fg": "#ffffff",
+      "bold": true
+    },
+    "string": "#a3a3a3",
+    "type": "purple",
+    "number": "#e5e5e5",
+    "constant": "#e5e5e5",
+    "boolean": "#e5e5e5",
+    "property": "#c4c4c4",
+    "parameter": "#bdbdbd",
+    "builtin": "pink",
+    "operator": "fg_muted",
+    "variable": "fg",
+    "punctuation": "fg_muted"
+  }
+}

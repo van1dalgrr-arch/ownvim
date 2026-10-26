@@ -74,7 +74,7 @@ function M.setup()
   })
   au("FileType", {
     pattern = { "help", "lspinfo", "man", "notify", "qf", "query", "checkhealth", "startuptime", "tsplayground",
-      "gitsigns-blame", "grug-far", "dbout", "neotest-output", "neotest-summary", "neotest-output-panel" },
+      "gitsigns-blame", "grug-far", "dbout", "neotest-output", "neotest-summary", "neotest-output-panel", "own_problems" },
     callback = function(ev)
       vim.bo[ev.buf].buflisted = false
       vim.schedule(function()

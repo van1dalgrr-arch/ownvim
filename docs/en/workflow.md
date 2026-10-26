@@ -17,7 +17,8 @@ The essentials; every key — [Keys](../keys.ru.md) or `space sk` inside ownvim.
 
 | key | what |
 |---|---|
-| `space space` / `cmd-p` | find a file in the project |
+| `space space` | everywhere: files, actions, run, modes, themes ([workspace](workspace.md#search-everywhere)) |
+| `cmd-p` / `space ff` | find a file in the project |
 | `space /` | text in the project (`space sw` — the word under the cursor) |
 | `space ,` | open buffers |
 | `space fr` / `fR` | recent files / recent in this folder |

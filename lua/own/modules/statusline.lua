@@ -1,10 +1,11 @@
 -- Своя статусная строка (вместо lualine): блоки из settings.jsonc, как элементы status bar в VS Code.
 -- Раздел "statusline":
---   "style": "bubbles" | "arrows" | "slant" | "flat" | "plain" — форма крайних блоков
+--   "style": "bubbles" | "arrows" | "slant" | "flat" | "plain" — форма крайних блоков;
+--     "frame" — рамкой, как промпт dotfiles: ╰─( ОБЫЧНЫЙ )─[ main ]─[ main.go ]────[ 12:4 ]─╯
 --   "left": ["mode", "branch", "diagnostics", "file"], "right": ["search", "macro", "lsp", "position", "time"]
 --     блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time,
 --     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), rest (пора отдохнуть / ☕ перерыв),
---     quiet (тихий режим включён), а также свои из "custom"
+--     quiet (тихий режим включён), ram (занято памяти), uptime (сколько работает Mac), а также свои из "custom"
 --   "custom": { "k8s": { "shell": "kubectl config current-context", "every_ms": 10000, "icon": "…" },
 --               "hi":  { "text": "привет", "color": "pink" } } — свой текст или вывод команды (не блокирует)
 --   "mode_names": { "n": "ОБЫЧНЫЙ", "i": "ВСТАВКА", … } — подписи режимов (буква — первая буква режима)
@@ -51,6 +52,8 @@ local function define()
   }
   vim.api.nvim_set_hl(0, "OwnSL", { fg = base_fg, bg = base_bg })
   vim.api.nvim_set_hl(0, "OwnSLMuted", { fg = color("Comment") or base_fg, bg = base_bg })
+  -- линии рамки (стиль frame) — приглушённым цветом темы
+  vim.api.nvim_set_hl(0, "OwnSLFrame", { fg = color("Comment") or base_fg, bg = base_bg })
   vim.api.nvim_set_hl(0, "OwnSLBlock", { fg = color("Normal") or base_fg, bg = block_bg })
   vim.api.nvim_set_hl(0, "OwnSLBlockEdge", { fg = block_bg, bg = base_bg })
   for kind, c in pairs(kinds) do
@@ -132,7 +135,7 @@ function C.file()
   local name = vim.api.nvim_buf_get_name(b)
   -- служебные окна — понятным словом, а не «[без имени]»
   local SPECIAL = { own_tree = "\u{f0645} Дерево файлов", snacks_dashboard = "Старт", lazy = "Плагины", mason = "Mason",
-    qf = "Список", help = "Справка", own_panel = "Панель", own_image = "Картинка" }
+    qf = "Список", help = "Справка", own_problems = "Проблемы", own_image = "Картинка" }
   local ft = vim.bo[b].filetype
   if SPECIAL[ft] then return SPECIAL[ft] end
   if vim.bo[b].buftype == "terminal" then return "\u{f489} Терминал" end
@@ -208,6 +211,27 @@ function C.position() return "%l:%v" end
 function C.progress() return "%P" end
 function C.time() return "\u{f43a} " .. os.date(o().time_format or "%H:%M") end
 
+-- память и время работы Mac — как сегменты Kali-промпта; считаются в самом nvim (libuv), без внешних команд,
+-- память — не чаще раза в 5 с. Занято > 85% — красным: на 8 ГБ это уже своп
+local ram_at, ram_pct = 0, nil
+function C.ram()
+  local now = vim.uv.now()
+  if now - ram_at > 5000 then
+    ram_at = now
+    local total, avail = vim.uv.get_total_memory(), vim.uv.get_available_memory and vim.uv.get_available_memory()
+    ram_pct = total > 0 and avail and math.floor((1 - avail / total) * 100 + 0.5) or nil
+  end
+  if not ram_pct then return nil end
+  local text = ("\u{f035b} %d%%%%"):format(ram_pct)
+  return ram_pct > 85 and hl("OwnSLColor_red", text) .. hl("OwnSL", "") or text
+end
+
+function C.uptime()
+  local s = math.floor(vim.uv.uptime())
+  local d, h, m = math.floor(s / 86400), math.floor(s % 86400 / 3600), math.floor(s % 3600 / 60)
+  return "\u{f0425} " .. (d > 0 and ("%dд %dч"):format(d, h) or ("%dч %dм"):format(h, m))
+end
+
 function C.search()
   if vim.v.hlsearch == 0 then return nil end
   local ok, s = pcall(vim.fn.searchcount, { maxcount = 999, timeout = 50 })
@@ -250,10 +274,38 @@ local function edge_block(text, kind, side, style)
   return out .. hl("OwnSL", "")
 end
 
+-- стиль frame: ╰─( РЕЖИМ )─[ блок ]─[ блок ]──── … ────[ блок ]─[ блок ]─╯
+-- середину заполняет сам nvim знаком из fillchars (stl = "─", ставит set_fill)
+local function render_frame(opts, text, kind)
+  local function F(s) return hl("OwnSLFrame", s) end
+  local function side(list)
+    local out = {}
+    for _, name in ipairs(list) do
+      if name == "mode" then
+        out[#out + 1] = F("─(") .. hl("OwnSLMode" .. kind .. "Text", " " .. text .. " ") .. F(")")
+      else
+        local v = component(name)
+        if v then out[#out + 1] = F("─[ ") .. v .. F(" ]") end
+      end
+    end
+    return table.concat(out)
+  end
+  local left = side(opts.left or { "mode", "branch", "diagnostics", "file" })
+  local right = side(opts.right or { "search", "macro", "lsp", "position", "time" })
+  return F(" ╰") .. left .. F("─%=") .. right .. F("─╯ ")
+end
+
+-- знак заполнения статусной строки: «─» для рамки, пробел для остальных стилей
+local function set_fill(style)
+  local ch = style == "frame" and "─" or " "
+  vim.opt.fillchars:append({ stl = ch, stlnc = ch })
+end
+
 function M.render()
   local opts = o()
   local style = opts.style or "bubbles"
   local text, kind = mode_info()
+  if style == "frame" then return render_frame(opts, text, kind) end
   local function side(list, is_left)
     local parts = {}
     for i, name in ipairs(list) do
@@ -276,6 +328,7 @@ end
 
 function M.setup()
   define()
+  set_fill(o().style)
   vim.o.statusline = "%!v:lua.require'own.modules.statusline'.render()"
   local group = vim.api.nvim_create_augroup("own.statusline", { clear = true })
   vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = define })
@@ -297,6 +350,7 @@ end
 
 function M.reload()
   custom_at = {}
+  set_fill(o().style)
   vim.cmd("redrawstatus")
 end
 

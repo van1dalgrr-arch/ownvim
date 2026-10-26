@@ -137,6 +137,22 @@ local function check_look()
   if not vim.o.termguicolors then h.warn("нет 24-битного цвета", "терминал без truecolor: Ghostty, iTerm2, WezTerm, kitty") end
 end
 
+-- отладка на macOS: delve запускает программу через debugserver, а тот без режима разработчика
+-- каждый раз ждёт пароль в системном окне — со стороны отладка просто висит на «Building…»
+local function check_debug()
+  h.start("Отладка")
+  if vim.fn.executable("dlv") == 1 then h.ok("dlv") else h.info("dlv нет — поставится сам при первом Go-файле") end
+  if vim.fn.has("mac") == 1 and vim.fn.executable("DevToolsSecurity") == 1 then
+    local r = vim.system({ "DevToolsSecurity", "-status" }, { text = true }):wait()
+    if (r.stdout or ""):find("enabled") then
+      h.ok("режим разработчика macOS включён — отладчик запускается без пароля")
+    else
+      h.warn("режим разработчика macOS выключен — отладка будет ждать пароль в системном окне (или висеть на «Building…»)",
+        { "sudo DevToolsSecurity -enable", "и добавь себя в группу: sudo dseditgroup -o edit -a $(whoami) -t user _developer" })
+    end
+  end
+end
+
 local function check_speed()
   h.start("Скорость старта")
   local out = vim.fn.tempname()
@@ -162,6 +178,7 @@ function M.check()
   check_tools("lint", "Линтеры")
   check_treesitter()
   check_look()
+  check_debug()
   check_speed()
 end
 

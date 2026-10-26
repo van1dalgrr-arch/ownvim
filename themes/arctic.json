@@ -1,0 +1,43 @@
+// Arctic — холодная, как Nord, но темнее: лёд, сталь и полярное небо
+{
+  "name": "Arctic",
+  "type": "dark",
+  "palette": {
+    "bg": "#0f1217",
+    "bg_alt": "#13171d",
+    "bg_highlight": "#181d25",
+    "bg_visual": "#273142",
+    "border": "#222a36",
+    "fg": "#d8dee9",
+    "fg_dim": "#a3adbf",
+    "fg_muted": "#5c6779",
+    "accent": "#88c0d0",
+    "red": "#bf616a",
+    "orange": "#d08770",
+    "yellow": "#ebcb8b",
+    "green": "#a3be8c",
+    "cyan": "#88c0d0",
+    "blue": "#81a1c1",
+    "purple": "#b48ead",
+    "pink": "#d0a0c0"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "blue",
+    "function": "cyan",
+    "string": "green",
+    "type": "#8fbcbb",
+    "number": "purple",
+    "constant": "purple",
+    "boolean": "purple",
+    "property": "#c0d0e0",
+    "parameter": "#e5e9f0",
+    "builtin": "orange",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

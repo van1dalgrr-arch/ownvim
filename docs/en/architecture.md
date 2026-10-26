@@ -65,8 +65,9 @@ lua/own/
   themes.lua · palette.lua theme picker (alt-s), rose-pine in terminal colors
   modes.lua               mode colors, leaving insert mode after a pause
   theme/                  theme engine: palette → highlight groups, VS Code theme converter, installation
-  modules/<name>.lua      modules — one per feature
-  tools/                  tools: ▶ run, background tests, Claude review, screenshot, notes
+  modules/<name>.lua      modules — one per feature; modules/workspace.lua — panels in fixed places (edgy), modes, layout per project
+  tools/                  tools: ▶ run, background tests, Claude review, screenshot, notes;
+                          launch.lua — run configurations (top right), everywhere.lua — search everywhere
 scripts/keys.lua          docs/keys.ru.md from defaults.jsonc
 scripts/bench_*.py        speed measurements: paint after launch, typing latency
 ```

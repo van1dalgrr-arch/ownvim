@@ -1,0 +1,46 @@
+// Ember — угли: графит, тлеющий оранжевый, тёплое золото
+{
+  "name": "Ember",
+  "type": "dark",
+  "palette": {
+    "bg": "#141110",
+    "bg_alt": "#191514",
+    "bg_highlight": "#201a18",
+    "bg_visual": "#3d2620",
+    "border": "#2e2421",
+    "fg": "#ecdfd6",
+    "fg_dim": "#bfa89b",
+    "fg_muted": "#76615a",
+    "accent": "#f08a4b",
+    "red": "#ea6962",
+    "orange": "#f08a4b",
+    "yellow": "#f2c66d",
+    "green": "#b8d47a",
+    "cyan": "#e0a8a0",
+    "blue": "#e8a090",
+    "purple": "#f07a8a",
+    "pink": "#f2a8c4"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": {
+      "fg": "red",
+      "bold": true
+    },
+    "function": "orange",
+    "string": "yellow",
+    "type": "#f5bf8f",
+    "number": "pink",
+    "constant": "pink",
+    "boolean": "pink",
+    "property": "#f5d5b8",
+    "parameter": "#f0d8cc",
+    "builtin": "purple",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

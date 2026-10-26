@@ -66,7 +66,7 @@ Open a file in a language nothing is configured for, and its server, formatter a
 | accept a completion | `tab` or `enter` (the grey inline continuation — also `tab`) |
 | save | `cmd-s` (files save themselves anyway) |
 | copy / paste / cut | `cmd-c` / `cmd-v` / `cmd-x` (without a selection — the line), `cmd-a` — all, `cmd-z` — undo |
-| find a file | `space space` or `cmd-p` |
+| find anything: a file, an action, a run, a theme | `space space` (files only — `cmd-p`) |
 | search text in the project | `space /` |
 | file tree | `space e` |
 | jump to a line | `enter` — letters appear next to the lines, press one |
@@ -86,7 +86,7 @@ Commands also work in the Russian layout (`о` = `j`, `Ж` = `:`), no need to sw
 | `settings.json` | `settings.jsonc` (`space fc`) — the same JSON with comments, with key completion and validation |
 | Default Settings | `defaults.jsonc` (`space fC`) — every default with an explanation |
 | Command Palette (`cmd-shift-p`) | `cmd-shift-p` — all commands; `space sk` — all keys and actions |
-| Quick Open (`cmd-p`) | `cmd-p` or `space space` |
+| Quick Open (`cmd-p`) | `cmd-p`; everything at once, like Search Everywhere, — `space space` |
 | Search in project (`cmd-shift-f`) | `space /`; find and replace — `space sr` |
 | Explorer | `space e` or the icon on the left |
 | Extensions | `:Plugins` (`space L`) — a catalog of ~1400 plugins |

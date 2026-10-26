@@ -1,0 +1,46 @@
+// Neon — synthwave: почти чёрный, неоновые розовый, голубой и жёлтый (ярко, но не ядовито)
+{
+  "name": "Neon",
+  "type": "dark",
+  "palette": {
+    "bg": "#0d0b14",
+    "bg_alt": "#120f1c",
+    "bg_highlight": "#1a1528",
+    "bg_visual": "#35184a",
+    "border": "#2a2040",
+    "fg": "#efe8fb",
+    "fg_dim": "#b7a8d6",
+    "fg_muted": "#665a85",
+    "accent": "#ff4fd8",
+    "red": "#ff5c7a",
+    "orange": "#ffa552",
+    "yellow": "#fff07a",
+    "green": "#4dffb0",
+    "cyan": "#4de4ff",
+    "blue": "#6aa6ff",
+    "purple": "#bd7bff",
+    "pink": "#ff4fd8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": {
+      "fg": "pink",
+      "bold": true
+    },
+    "function": "cyan",
+    "string": "yellow",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#9ad7ff",
+    "parameter": "#ffc0f2",
+    "builtin": "red",
+    "operator": "pink",
+    "variable": "fg",
+    "punctuation": "fg_muted"
+  }
+}

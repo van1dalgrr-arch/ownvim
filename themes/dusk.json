@@ -1,0 +1,43 @@
+// Dusk — сумерки: приглушённые сирень, персик и золото на тёмно-сером; очень мягкая
+{
+  "name": "Dusk",
+  "type": "dark",
+  "palette": {
+    "bg": "#16141a",
+    "bg_alt": "#1a1820",
+    "bg_highlight": "#201d27",
+    "bg_visual": "#352f42",
+    "border": "#2b2734",
+    "fg": "#ddd6e6",
+    "fg_dim": "#a9a0b8",
+    "fg_muted": "#6a6278",
+    "accent": "#c3a6e0",
+    "red": "#e08a9a",
+    "orange": "#e8b090",
+    "yellow": "#e6cf98",
+    "green": "#a8cfa0",
+    "cyan": "#98c8d0",
+    "blue": "#9fb4e0",
+    "purple": "#c3a6e0",
+    "pink": "#e6a8c8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "yellow",
+    "type": "pink",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#c8bce0",
+    "parameter": "#ebe0f0",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

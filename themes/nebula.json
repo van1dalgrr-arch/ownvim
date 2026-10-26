@@ -1,0 +1,46 @@
+// Nebula — туманность: глубокий фиолетовый, розовые и голубые звёзды
+{
+  "name": "Nebula",
+  "type": "dark",
+  "palette": {
+    "bg": "#130f1f",
+    "bg_alt": "#181327",
+    "bg_highlight": "#1e1830",
+    "bg_visual": "#33264f",
+    "border": "#2a2142",
+    "fg": "#e6defa",
+    "fg_dim": "#ab9fcc",
+    "fg_muted": "#625785",
+    "accent": "#c084fc",
+    "red": "#fb7185",
+    "orange": "#fdba74",
+    "yellow": "#fde68a",
+    "green": "#86efac",
+    "cyan": "#67e8f9",
+    "blue": "#93c5fd",
+    "purple": "#c084fc",
+    "pink": "#f9a8d4"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": {
+      "fg": "purple",
+      "bold": true
+    },
+    "function": "pink",
+    "string": "cyan",
+    "type": "yellow",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#d8b4fe",
+    "parameter": "#f5d0fe",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

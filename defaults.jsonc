@@ -4,7 +4,7 @@
 // включить/выключить модуль или плагин — после :restart.
 {
   // Тема: имя, или { "dark": …, "light": … } — по тёмной/светлой теме системы, или "auto" — выбранная в alt-s.
-  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, sunset; новая — :ThemeNew <имя>, правка — :ThemeEdit,
+  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, sunset, aurora, midnight, nebula, forest, matcha, ember, mocha, ocean, arctic, dusk, graphite, mono, neon; новая — :ThemeNew <имя>, правка — :ThemeEdit,
   // из VS Code — :ThemeInstall <издатель.расширение>. Темы-плагины тоже: "tokyonight", "rose-pine", "kanagawa",
   // "carbonfox", "cyberdream", "vesper", "gruvbox-material", "catppuccin-mocha"…
   "theme": { "dark": "dev-night", "light": "dev-day" },
@@ -24,14 +24,16 @@
     "overrides": {},
   },
 
-  // Статусная строка — блоки, как элементы status bar в VS Code. Стили: "bubbles", "arrows", "slant", "flat", "plain".
+  // Статусная строка — блоки, как элементы status bar в VS Code. Стили: "bubbles", "arrows", "slant", "flat", "plain",
+  // "frame" — рамкой, как промпт dotfiles: ╰─( ОБЫЧНЫЙ )─[  main ]─[ main.go ]────[ 12:4 ]─╯
   // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro,
-  // ext (надписи Go-расширений: тесты в фоне ✓ 42 / ✗ 1 и свои), rest (пора отдохнуть / ☕ перерыв), quiet (тихий режим)
+  // ext (надписи Go-расширений: тесты в фоне ✓ 42 / ✗ 1 и свои), rest (пора отдохнуть / ☕ перерыв), quiet (тихий режим),
+  // ram (занято памяти, > 85% — красным), uptime (сколько работает Mac) — без внешних команд
   // и свои из custom: { "имя": { "text": "…", "color": "pink" } } или { "shell": "команда", "every_ms": 10000, "icon": "…" }
   "statusline": {
-    "style": "bubbles",
+    "style": "frame",
     "left": ["mode", "branch", "diagnostics", "file"],
-    "right": ["rest", "quiet", "search", "macro", "ext", "diff", "lsp", "position", "time"],
+    "right": ["rest", "quiet", "search", "macro", "ext", "diff", "lsp", "ram", "uptime", "position", "time"],
     "path": "relative", // "name" — только имя файла, "full" — от ~
     "time_format": "%H:%M",
     "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
@@ -52,13 +54,13 @@
     "indent": "│ ", // "  " — без линий
     "compact": true, // папка с одной папкой — одной строкой: internal/user/repo
     "follow": true, // подсвечивать открытый файл
-    "folder_icons": { "open": "\uf07c", "closed": "\uf07b" },
+    "folder_icons": { "open": "\udb81\udf70", "closed": "\udb80\ude4b" }, // Material Design: Font Awesome Ghostty растягивает
   },
 
   // Вкладки, как в VS Code: клик — перейти, клик по крестику или средней кнопкой — закрыть; shift-h/l — соседняя
   "tabline": {
-    "show": "auto", // "auto" — когда файлов больше одного, "always", "never"
-    "style": "underline", // текущая: "underline" (линия цвета акцента), "bar" (полоса слева), "slant", "plain"
+    "show": "always", // "always" — всегда (там же запуск и переключатель панели), "auto" — когда файлов больше одного, "never"
+    "style": "ide", // текущая: "ide" (на фоне кода, полоска акцента), "underline" (линия акцента), "bar", "slant", "plain"
     "close_button": true,
     "icons": true,
     "max_name": 24,
@@ -74,15 +76,16 @@
   },
 
   // Стартовый экран. buttons: do — действие из keys ("files", "recent"…), ":команда" или клавиши.
-  // sections: header, buttons, project (ветка, изменения, compose), recent, projects, startup — или любой текст
+  // sections: header, info (рамка, как fastfetch: кто, nvim, старт, тема, дата), buttons, project (ветка, изменения, compose),
+  // recent, projects, startup — или любой текст
   "dashboard": {
     "header": [
-      " ██████╗ ██╗    ██╗███╗   ██╗",
-      "██╔═══██╗██║    ██║████╗  ██║",
-      "██║   ██║██║ █╗ ██║██╔██╗ ██║",
-      "██║   ██║██║███╗██║██║╚██╗██║",
-      "╚██████╔╝╚███╔███╔╝██║ ╚████║",
-      " ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝",
+      " ██████╗ ██╗    ██╗███╗   ██╗ ██╗   ██╗██╗███╗   ███╗",
+      "██╔═══██╗██║    ██║████╗  ██║ ██║   ██║██║████╗ ████║",
+      "██║   ██║██║ █╗ ██║██╔██╗ ██║ ██║   ██║██║██╔████╔██║",
+      "██║   ██║██║███╗██║██║╚██╗██║ ╚██╗ ██╔╝██║██║╚██╔╝██║",
+      "╚██████╔╝╚███╔███╔╝██║ ╚████║  ╚████╔╝ ██║██║ ╚═╝ ██║",
+      " ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝   ╚═══╝  ╚═╝╚═╝     ╚═╝",
       "своя сборка · настройки в settings.jsonc",
     ],
     "buttons": [
@@ -95,9 +98,13 @@
       { "key": "l", "icon": "\uf487", "desc": "Плагины", "do": ":Lazy" },
       { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
     ],
-    "sections": ["header", "buttons", "project", "startup"],
+    "sections": ["header", "info", "buttons", "project"],
     "recent": 5,
     "projects": 5,
+    "intro": true, // при запуске без файла — дождь знаков цветами темы на миг (intro_ms, 400), потом экран
+    "animate": true, // логотип переливается, пока стартовый экран на виду
+    "watermark": true, // в пустом окне — бледный логотип по центру (только на экране, в файл не пишется)
+    "outro": true, // при выходе — рамка «до встречи · 2ч 14м · 12 файлов» на миг (outro_ms, 450)
   },
 
   // Шрифт — в Ghostty (nvim в терминале сам шрифт не задаёт); общий для всех окон Ghostty. Пусто — шрифт терминала.
@@ -126,6 +133,17 @@
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
     "terminal_edges": true, // Ghostty: поля окна — цветом редактора, без рамки фона терминала по краям (window-padding-color)
     "messages": "modern", // "modern" — длинные сообщения сворачиваются в [+3] без «Press ENTER» (g< — все); "classic" — как в старом vim
+    // курсив поверх любой темы (буквы JetBrains Mono в курсиве — с хвостиками, как f в tokyonight):
+    // comment, keyword, function, type, string, parameter, builtin; [] — как задумано темой
+    "italic": ["comment", "keyword"],
+    // окна поверх кода (дополнение, поиск, K, which-key, уведомления) — в цвет панелей, рамка и заголовок — акцентом темы;
+    // одинаково у любой темы, и своих, и плагинов. false — как задумано темой
+    "unified_floats": true,
+    // рамки, как промпт dotfiles и Kali: окна поверх кода — ╭─[ заголовок ]─╮, панели — ─[ ПРОЕКТ ]──,
+    // строка файла — ─[ main.go › main ]──, номер текущей строки — ❯ 10. false — как было
+    "frames": true,
+    "frames_by_mode": true, // рамка живёт режимом: во вставке все линии — цветом режима, в выделении — своим
+    "save_flash": true, // сохранил — рамка на миг вспыхивает акцентом
   },
 
   // Переменные vim.g
@@ -210,7 +228,7 @@
     "icons": true, // темы иконок (раздел icons ниже)
     "themes": true, // свои Dev Night/Day, Sunset, tokyonight, rose-pine, One Dark Pro, GitHub, Dark+, Dracula, Monokai Pro, Material, Ayu… — alt-s
     "modes": {
-      "auto_normal_ms": 5000, // не печатаешь 5 с — выход из вставки; 0 — никогда
+      "auto_normal_ms": 0, // не печатаешь N мс — выход из вставки (5000 — через 5 с); 0 — никогда
       "escape": ["jk", "ол"], // быстро две буквы — выход из вставки (первая сразу становится текстом); [] — выкл
       "escape_ms": 200, // сколько ждать вторую букву
     },
@@ -226,13 +244,11 @@
     "brackets": { "colors": ["yellow", "purple", "blue"] }, // цветные пары скобок, как в VS Code
     "sticky_scroll": { "max_lines": 3 }, // шапка функции прилипает сверху, как Sticky Scroll в VS Code
     // картинка сбоку вместо миникарты (своя у каждой темы — "themes" или "image" в файле темы); пробел u p
-    // панели как в VS Code: полоса значков слева (клик — файлы, поиск, git, тесты, отладка, плагины, настройки)
-    // и нижняя панель «Терминал · Проблемы · Задачи» (пробел j). items: files, search, git, tests, debug, plugins,
-    // database, claude, settings
-    "panels": {
-      "activity_bar": { "enabled": true, "items": ["files", "search", "git", "tests", "debug", "plugins", "settings"] },
-      "bottom": { "height": 12, "tabs": ["terminal", "problems", "tasks"] },
-    },
+    // рабочее место, как в IDE: слева — Проект · Структура · Тесты · База (переключатель над панелью), снизу —
+    // Терминал · Запуск · Проблемы · Задачи · Вывод тестов; режимы пробел 1…5 (Код, Тесты, Отладка, Git, База);
+    // раскладка помнится для каждого проекта. default — что открыть в новом проекте: left/bottom — имя вида или false
+    "progress": true, // прогресс языковых серверов в углу: gopls индексирует — видно, а не «завис»
+    "workspace": { "restore": true, "default": { "left": "tree", "bottom": false }, "left_width": 32, "bottom_height": 12 },
     "image_panel": { "enabled": false, "image": "", "side": "right", "width": 32, "themes": {}, "auto": true },
     "minimap": false, // миникарта справа, как в VS Code ({ "width": 18 }); полоса прокрутки с метками — легче
     "completion": true, // автодополнение (раздел completion ниже)
@@ -258,9 +274,9 @@
     "yanky": true, // история копирования: пробел p
     "files": true, // yazi, найти-заменить по проекту, структурная замена, правка списка ошибок
     "comfort": true, // enter — прыжок на строку по метке
-    "learn": { "hints_visible": false, "hardtime": true }, // подсказки движений и тренер привычек (подсказывает, не мешает)
+    "learn": false, // подсказки движений и тренер привычек: { "hints_visible": false, "hardtime": true }
     "system": { "containers": "orbstack", "github": "gw" }, // alt-o — контейнеры, alt-w — GitHub, пробел P — скриншот кода
-    "rest": { "work_min": 50, "break_min": 5, "show": "due" }, // отдых: напомнить о перерыве после 50 минут непрерывной работы; "always" — показывать время
+    "rest": false, // отдых: { "work_min": 50, "break_min": 5, "show": "due" } — напомнить о перерыве после 50 минут работы
     "checks": true, // свои проверки без кода (раздел checks): команда на событие, ошибки — на строках
     "quiet": true, // тихий режим (пробел uq): { "hide": ["inlay_hints", "error_lens", "codelens", "blame", "implements", "animations", "indent", "sticky_scroll", "breadcrumbs", "scrollbar"] }
     "rust": true, // Rust: версии зависимостей в Cargo.toml (crates.nvim), отладка «собрать и отладить» — F9
@@ -491,6 +507,12 @@
   },
 
   // Claude Code в nvim
+  // Конфигурации запуска (справа в строке вкладок, пробел r r / r d / r s / r c). Свои — к найденным сами
+  // (Go: каждый package main, cargo run, docker compose up, npm run dev/start, задачи без ${input:…}):
+  //   { "name": "api :8080", "cmd": "go run ./cmd/api -port 8080", "env": ".env", "cwd": ".",
+  //     "debug": { "type": "go", "request": "launch", "program": "${workspaceFolder}/cmd/api", "args": ["-port", "8080"] } }
+  "run": { "configs": [] },
+
   "ai": {
     "side": "right",
     "width": 0.4,
@@ -654,7 +676,17 @@
     "x <D-/>": { "do": "gc", "remap": true, "desc": "Комментарий (cmd-/)" },
 
     // файлы и поиск
-    "n <leader><space>": "files",
+    "n <leader><space>": "everywhere", // всё в одном окне: файлы, действия, запуск, режимы, темы
+    "n <leader>1": "mode.code",
+    "n <leader>2": "mode.test",
+    "n <leader>3": "mode.debug",
+    "n <leader>4": "mode.git",
+    "n <leader>5": "mode.db",
+    "n <leader>0": "sidebar", // левая панель: спрятать / вернуть
+    "n <leader>co": "view.outline",
+    "n <leader>cu": "usages", // использования символа — списком в нижней панели (как Find Usages / alt-F7 в GoLand)
+    "n <leader>cU": "usages.calls", // кто вызывает функцию
+    "n <leader>cM": "usages.impl", // реализации интерфейса
     "n <leader>,": "buffers",
     "n <leader>/": "grep",
     "n <leader>:": "command.history",
@@ -732,6 +764,9 @@
     "n <leader>j": "panel",
     "n <leader>jt": "panel.terminal",
     "n <leader>jp": "panel.problems",
+    "n <leader>jr": "panel.run",
+    "n <leader>jT": "panel.test_output",
+    "n <leader>ju": "panel.usages",
     "n <leader>jo": "panel.tasks",
     "n <leader>uC": "themes",
     "n <M-s>": "themes", // alt-s — тема с предпросмотром
@@ -861,10 +896,14 @@
     "n <leader>Gs": "go.coverage_summary",
 
     // задачи, HTTP, эндпоинты
-    "n <leader>rr": "tasks",
+    "n <leader>rr": "run.run", // ▶ выбранная конфигурация (справа вверху); идёт — перезапустить
+    "n <leader>rd": "run.debug",
+    "n <leader>rs": "run.stop",
+    "n <leader>rc": "run.choose",
+    "n <leader>rt": "tasks",
     "n <M-t>": "tasks",
     "n <leader>rl": "tasks.running",
-    "n <leader>rd": "lazydocker",
+    "n <leader>rD": "lazydocker",
     "n <leader>re": "endpoints",
     "n <M-a>": "endpoints",
     "n <leader>rh": "http.file",
@@ -885,7 +924,7 @@
 
     // система, файлы, удобство
     "nt <M-o>": "containers",
-    "n <leader>rc": "containers",
+    "n <leader>rC": "containers",
     "nt <M-w>": "github",
     "n <leader>gw": "github",
     "nx <leader>P": "shot",

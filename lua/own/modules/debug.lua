@@ -30,6 +30,17 @@ local function signs()
   end
 end
 
+-- dapui и значения в коде — один раз: перед первой отладкой или когда открыли режим «Отладка» (пробел 3)
+local ready = false
+function M.prepare()
+  if ready then return end
+  ready = true
+  local o = d()
+  require("dap")
+  if o.ui ~= false then require("dapui").setup(o.dapui or {}) end
+  if o.virtual_text ~= false then require("nvim-dap-virtual-text").setup({}) end
+end
+
 function M.plugins()
   local o = d()
   return {
@@ -45,15 +56,8 @@ function M.plugins()
         local dap = require("dap")
         signs()
         -- панели и значения в коде — при первом запуске отладки, а не при загрузке dap (точки останова тянут dap на старте)
-        local ready = false
-        local function prepare()
-          if ready then return end
-          ready = true
-          if o.ui ~= false then require("dapui").setup(o.dapui or {}) end
-          if o.virtual_text ~= false then require("nvim-dap-virtual-text").setup({}) end
-        end
-        dap.listeners.before.launch.own = prepare
-        dap.listeners.before.attach.own = prepare
+        dap.listeners.before.launch.own = M.prepare
+        dap.listeners.before.attach.own = M.prepare
         if o.ui ~= false then
           dap.listeners.after.event_initialized.own = function() require("dapui").open({}) end
           dap.listeners.before.event_terminated.own = function() require("dapui").close({}) end

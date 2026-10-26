@@ -102,6 +102,7 @@ local function on_change(new, old)
     if mod and mod.reload then mod.reload(settings.module_opts(new, name)) end
   end
   apply_theme(new)
+  require("own.italic").reload(new, old)
   apply_keys(new)
   settings.show_problems()
   if needs_restart(new, old) then
@@ -111,7 +112,30 @@ local function on_change(new, old)
   end
 end
 
+-- ownvim . / ownvim ~/dev/api — открыть проект, а не папку как файл: перейти в неё и стартовать как без файлов
+-- (вернётся сессия проекта или стартовый экран). Файлы из списка ещё не открыты — их открывают после конфига
+local function open_dir_arg()
+  if vim.fn.argc(-1) ~= 1 then return end
+  local dir = vim.fn.fnamemodify(vim.fn.argv(0, -1), ":p")
+  if vim.fn.isdirectory(dir) == 0 then return end
+  vim.cmd.cd(vim.fn.fnameescape(dir))
+  vim.cmd("silent! %argdelete")
+  -- буфер папки nvim заводит ещё при разборе аргументов (это буфер 1) — снять с него имя: он становится пустым
+  -- стартовым буфером, как при запуске без аргументов (иначе он вытесняет файл из сессии, а стартовый экран не встаёт)
+  for _, b in ipairs(vim.api.nvim_list_bufs()) do
+    local name = vim.api.nvim_buf_get_name(b)
+    if name ~= "" and vim.fn.isdirectory(name) == 1 then
+      if b == vim.api.nvim_get_current_buf() then
+        vim.cmd("silent! 0file")
+      else
+        pcall(vim.api.nvim_buf_delete, b, { force = true })
+      end
+    end
+  end
+end
+
 function M.setup()
+  open_dir_arg()
   local s, err = settings.load()
   if not s then
     -- сломанный settings.jsonc не должен ломать редактор: стартуем на умолчаниях
@@ -144,6 +168,7 @@ function M.setup()
     end
   end
   apply_theme(s)
+  require("own.italic").setup()
   apply_keys(s)
 
   require("own.auto").setup()

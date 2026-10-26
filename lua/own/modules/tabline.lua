@@ -2,7 +2,7 @@
 -- клик по крестику (или средней кнопкой) — закрыть. Одинаковые имена различаются папкой. Не влезают — прокрутка
 -- к текущей. shift-h / shift-l — соседняя вкладка, пробел b d — закрыть. Раздел "tabline":
 --   "show": "auto" (когда файлов больше одного) | "always" | "never"
---   "style": "underline" | "bar" | "slant" | "plain" — как выделена текущая
+--   "style": "ide" | "underline" | "bar" | "slant" | "plain" — как выделена текущая
 --   "close_button": true, "icons": true, "max_name": 24, "modified": "●"
 -- Цвета — из темы. На лету.
 local settings = require("own.settings")
@@ -113,7 +113,10 @@ function M.render()
     name = name:gsub("%%", "%%%%")
     local base = sel and (style == "underline" and "OwnTabSelLine" or "OwnTabSel") or "OwnTab"
     local s = "%" .. b .. "@v:lua.OwnTabClick@"
-    if sel and style == "bar" then s = s .. "%#OwnTabBar#▎" else s = s .. "%#" .. base .. "# " end
+    if style == "ide" then
+      -- ide: текущая — на фоне кода с полоской акцента, как вкладка, из которой «вырастает» редактор; остальные — тихо
+      s = s .. (sel and "%#OwnTabBar#▎" or "%#OwnTab# ") .. "%#" .. base .. "# "
+    elseif sel and style == "bar" then s = s .. "%#OwnTabBar#▎" else s = s .. "%#" .. base .. "# " end
     if sel and style == "slant" then s = "%#OwnTabSlant#\u{e0ba}" .. s end
     if opts.icons ~= false then
       local ok, icons = pcall(require, "mini.icons")
@@ -125,15 +128,27 @@ function M.render()
     s = s .. name .. " %X"
     if vim.bo[b].modified then
       s = s .. "%#" .. (sel and "OwnTabModifiedSel" or "OwnTabModified") .. "#" .. (opts.modified or "●") .. " "
-    elseif opts.close_button ~= false then
-      s = s .. "%" .. b .. "@v:lua.OwnTabClose@%#" .. (sel and "OwnTabCloseSel" or "OwnTabClose") .. "#\u{f00d}%X "
+    elseif opts.close_button ~= false and (sel or style ~= "ide") then
+      s = s .. "%" .. b .. "@v:lua.OwnTabClose@%#" .. (sel and "OwnTabCloseSel" or "OwnTabClose") .. "#\u{ea76}%X "
+    elseif style == "ide" then
+      s = s .. "%#OwnTab#  "
     end
+    if style == "ide" then s = s .. "%#" .. (sel and "OwnTabSel" or "OwnTab") .. "# " end
     if sel and style == "slant" then s = s .. "%#OwnTabSlant#\u{e0bc}" end
     tabs[#tabs + 1] = s
   end
   -- прокрутка: текущая всегда видна
   local pad = offset()
-  local avail = vim.o.columns - 2 - pad
+  -- над левой панелью — переключатель её видов (рабочее место), справа — что запускается (конфигурация запуска)
+  local ws = package.loaded["own.modules.workspace"]
+  local lead
+  if ws then
+    lead = ws.tabline_lead(pad > 0 and pad or (#ws.order.left * 3 + 2))
+  else
+    lead = pad > 0 and ("%#OwnTabOffset#" .. (" "):rep(pad - 1) .. "│") or ""
+  end
+  local right = ws and require("own.tools.launch").widget() or ""
+  local avail = vim.o.columns - 2 - width(lead) - width(right)
   local first, last = cur_i, cur_i
   local used = tabs[cur_i] and width(tabs[cur_i]) or 0
   while true do
@@ -142,17 +157,18 @@ function M.render()
     if first > 1 and used + width(tabs[first - 1]) <= avail then first = first - 1; used = used + width(tabs[first]); grew = true end
     if not grew then break end
   end
-  -- над деревом — пусто, на его границе — продолжение линии-разделителя
-  local lead = pad > 0 and ("%#OwnTabOffset#" .. (" "):rep(pad - 1) .. "│") or ""
   local out = lead .. (first > 1 and "%#OwnTabArrow#‹" or "") .. table.concat(vim.list_slice(tabs, first, last), "")
-  return out .. (last < #tabs and "%#OwnTabArrow#›" or "") .. "%#OwnTabFill#%T"
+  return out .. (last < #tabs and "%#OwnTabArrow#›" or "") .. "%#OwnTabFill#%T%=" .. right
 end
 
 local function update_visibility()
   local show = o().show or "auto"
   local n = #listed()
-  vim.o.showtabline = show == "always" and 2 or show == "never" and 0 or (n > 1 and 2 or 0)
+  -- на стартовом экране (файлов ещё нет) строка не нужна даже при "always"
+  vim.o.showtabline = show == "never" and 0 or n == 0 and 0 or show == "always" and 2 or (n > 1 and 2 or 0)
 end
+
+M.define = define
 
 function M.setup()
   define()

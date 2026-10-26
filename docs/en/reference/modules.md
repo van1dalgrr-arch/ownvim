@@ -22,15 +22,16 @@ Turning on and off — after `:restart`; module settings — usually immediately
 | `statusline` | ownvim's status line built from blocks | on | the `statusline` section |
 | `tabline` | tabs, like VS Code | on | the `tabline` section |
 | `breadcrumbs` | folder › file › type › function at the top | on | the `breadcrumbs` section |
-| `panels` | icon bar on the left, bottom panel "Terminal · Problems · Tasks" | on | `activity_bar`, `bottom` |
+| `progress` | language server progress in the corner (gopls indexing is visible, not "frozen") | on | — |
+| `workspace` | [workspace](../workspace.md): left and bottom panels in fixed places, modes `space 1…5`, run configurations, search everywhere; the layout is remembered per project | on | `restore`, `default`, `left_width`, `bottom_height` |
 | `animations` | smooth cursor and scrolling | on | the `animations` section |
-| `modes` | mode shown by cursor and line color; leaving insert with `jk` / `ол`; leaving insert after a pause | on | `escape`, `escape_ms`, `auto_normal_ms` |
+| `modes` | mode shown by cursor and line color; leaving insert with `jk` / `ол`; leaving insert after a pause (off by default) | on | `escape`, `escape_ms`, `auto_normal_ms` |
 | `scrollbar` | scrollbar with error, git and search marks | on | — |
 | `brackets` | colored bracket pairs | on | `colors` |
 | `sticky_scroll` | the function header sticks to the top | on | `max_lines` |
 | `error_lens` | errors to the right of the line, also while typing | on | `preset`, `break_after`, `insert`, `all_on_cursorline` |
 | `quiet` | quiet mode (`space uq`): hide type hints, error badges, animations, breadcrumbs… — again to restore | on | `hide` |
-| `rest` | remind you to take a break after 50 minutes of continuous work; `:Rest` — a break with a countdown | on | `work_min`, `break_min`, `show` |
+| `rest` | remind you to take a break after 50 minutes of continuous work; `:Rest` — a break with a countdown | off | `work_min`, `break_min`, `show` |
 | `minimap` | minimap on the right | **off** | `width` |
 | `image_panel` | a side image, a different one per theme | **off** | `image`, `themes`, `side`, `width` |
 
@@ -85,6 +86,6 @@ Turning on and off — after `:restart`; module settings — usually immediately
 | `autosave` | autosave, reloading external changes | on | — |
 | `comfort` | `enter` — jump to a line by labels | on | — |
 | `russian` | commands in the Russian layout | on | `langmap`, `alt_keys` |
-| `learn` | motion hints, habit coach | on | `hints_visible`, `hardtime` |
+| `learn` | motion hints, habit coach | off | `hints_visible`, `hardtime` |
 
 Detailed settings of each module — the header comments of its file and the `modules` section of `defaults.jsonc`.

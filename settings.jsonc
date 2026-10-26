@@ -6,7 +6,7 @@
 //   "keys": { "n <leader>z": ":Lazy", "i jk": false },
 //   "plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} } },
 {
-  "theme": {"dark":"onedark_dark","light":"catppuccin-latte"}, // tokyonight night, прозрачная — как в старом nvim
+  "theme": {"dark":"onedark_vivid","light":"onedark_dark"}, // tokyonight night, прозрачная — как в старом nvim
 
   "diagnostics": {
     // на полях — тонкие значки (codicons): значки Font Awesome Ghostty растягивает в квадратные плашки
@@ -29,7 +29,7 @@
       { "key": "t", "icon": "\uf1fc", "desc": "Тема", "do": "themes" },
       { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
     ],
-    "sections": ["header", "buttons", "project", "recent", "projects", "startup"],
+    "sections": ["header", "info", "buttons", "project", "recent", "projects"],
   },
   "font": { "line_height": "10%" }, // чуть больше воздуха между строками, как в GoLand (пишется в Ghostty)
   "options": {
@@ -58,7 +58,7 @@
     // Клавиши GoLand (macOS). cmd-d, cmd-w, cmd-[ ] заняты Ghostty — для них пробел-клавиши из ownvim
     "n <D-b>": "lsp.definition", // перейти к объявлению
     "n <D-M-b>": "lsp.implementation", // к реализациям
-    "n <M-F7>": "lsp.references", // найти использования
+    "n <M-F7>": "usages", // найти использования — панелью снизу, как Find Usages в GoLand
     "n <D-y>": "peek.definition", // быстрый просмотр объявления, не уходя из файла
     "ni <D-e>": "recent", // недавние файлы
     "ni <D-S-o>": "files", // перейти к файлу

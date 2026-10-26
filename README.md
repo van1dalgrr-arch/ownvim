@@ -5,6 +5,9 @@
 **A terminal IDE for backend development, built on Neovim.** Go, SQL, Docker, C/C++, Python, Rust — and any other
 language, whose tools install themselves. Everything you see and how it behaves is configured in one JSON file, no Lua.
 
+- **Like an IDE.** Every panel has its place: project, structure, tests or database on the left; terminal, run,
+  problems and tasks at the bottom. Modes Code · Tests · Debug · Git · Database on one key, "▶ api" at the top right as in
+  GoLand, search everywhere on `space space`. The layout is remembered per project.
 - **Fast.** Code is on screen ~70 ms after launch; a typed letter appears ~6 ms after the keypress.
 - **Configured like VS Code.** `settings.jsonc` with key completion, descriptions and validation; save it and the
   change applies immediately, no restart.
@@ -15,7 +18,7 @@ language, whose tools install themselves. Everything you see and how it behaves 
 - **Extensible without code and in Go.** No code — a JSONC bundle: keys, tasks, your own checks with errors on the lines
   (`:PluginNew`). In Go — everything the built-ins can do: commands, entries in the completion menu, `K` descriptions,
   fixes in `space ca`, your own panels and status line; save and it works without a restart (`:GoExtensionNew`).
-- **Good-looking.** 30+ themes (its own, popular VS Code themes, and any Marketplace theme via `:ThemeInstall`), folder
+- **Good-looking.** 60+ themes (its own, popular VS Code themes, and any Marketplace theme via `:ThemeInstall`), folder
   icons by meaning, status line and tabs from JSON, Error Lens, Sticky Scroll, a smooth cursor.
 
 ## Install
@@ -53,6 +56,7 @@ With the [dotfiles](https://github.com/van1dalgrr-arch/dotfiles), `install.sh` d
 |---|---|
 | [Getting started](docs/en/getting-started.md) | install, 13 keys for day one, coming from VS Code |
 | [Configuration](docs/en/configuration.md) | settings layers, what applies immediately, reference of every section |
+| [Workspace](docs/en/workspace.md) ⭐ | panels, modes, run configurations, search everywhere |
 | [Appearance](docs/en/appearance.md) | themes, icons, font, status line, panels, animations |
 | [Languages](docs/en/languages.md) | servers, formatting, linters, automatic installation |
 | [Go](docs/en/go.md) · [DevOps](docs/en/devops.md) | run, tests, debugging, generation · Docker, databases, tasks |

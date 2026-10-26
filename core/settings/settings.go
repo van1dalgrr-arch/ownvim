@@ -72,12 +72,12 @@ var top = map[string]bool{
 	"colors": true, "appearance": true, "icons": true, "statusline": true,
 	"tabline": true, "breadcrumbs": true, "dashboard": true, "font": true, "animations": true, "git": true,
 	"go": true, "tasks": true, "ai": true, "sessions": true, "explorer": true, "commands": true, "auto": true,
-	"extensions": true, "checks": true,
+	"extensions": true, "checks": true, "run": true,
 }
 
 const topList = "theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, " +
 	"test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, " +
-	"git, go, tasks, ai, sessions, explorer, commands, auto, extensions, checks"
+	"git, go, tasks, ai, sessions, explorer, commands, auto, extensions, checks, run"
 
 // Load читает оба файла, проверяет и сливает слои.
 func Load(p Paths) Result {

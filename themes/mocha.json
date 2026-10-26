@@ -1,0 +1,43 @@
+// Mocha — кофе: тёплый коричневый, карамель, сливки и корица
+{
+  "name": "Mocha",
+  "type": "dark",
+  "palette": {
+    "bg": "#16120f",
+    "bg_alt": "#1b1613",
+    "bg_highlight": "#221c18",
+    "bg_visual": "#3a2e26",
+    "border": "#2e2520",
+    "fg": "#e8dccd",
+    "fg_dim": "#b8a590",
+    "fg_muted": "#76665a",
+    "accent": "#d4a373",
+    "red": "#e0786a",
+    "orange": "#d4a373",
+    "yellow": "#e6c88a",
+    "green": "#a8c088",
+    "cyan": "#8fbcb0",
+    "blue": "#90aac8",
+    "purple": "#c8a0b8",
+    "pink": "#e0a8a0"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "#c8a0b8",
+    "function": "orange",
+    "string": "green",
+    "type": "yellow",
+    "number": "#e0a8a0",
+    "constant": "#e0a8a0",
+    "boolean": "#e0a8a0",
+    "property": "#e0c4a0",
+    "parameter": "#efe0c8",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

@@ -13,7 +13,7 @@ local M = {}
 local function list() return ((settings.current or {}).tasks or {}).list or {} end
 
 -- .env проекта → переменные задачи: KEY=value, export KEY=value, кавычки снимаются, # — комментарий
-local function read_env(path)
+function M.read_env(path)
   local env = {}
   local f = io.open(path)
   if not f then return env end
@@ -77,7 +77,7 @@ local function template(t)
       if t.env then
         env = {}
         for _, file in ipairs(type(t.env) == "table" and t.env or { t.env }) do
-          env = vim.tbl_extend("force", env, read_env(root .. "/" .. file))
+          env = vim.tbl_extend("force", env, M.read_env(root .. "/" .. file))
         end
       end
       return { name = t.name, cmd = expand(t.cmd, params), cwd = cwd, env = env }

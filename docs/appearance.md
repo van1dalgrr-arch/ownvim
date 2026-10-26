@@ -7,7 +7,7 @@
 - [Шрифт](#шрифт)
 - [Интерфейс](#интерфейс): статусная строка, вкладки, хлебные крошки
 - [Стартовый экран](#стартовый-экран)
-- [Панели](#панели) · [картинка сбоку](#картинка-сбоку)
+- [Панели](#панели) ([рабочее место](workspace.md)) · [картинка сбоку](#картинка-сбоку)
 - [Анимации и детали VS Code](#анимации)
 
 ## Темы
@@ -25,9 +25,9 @@
 
 | | темы |
 |---|---|
-| свои (JSON, движок ownvim) | `dev-night`, `dev-day`, `sunset` |
+| свои (JSON, движок ownvim) | `dev-night`, `dev-day`, `sunset`, `aurora`, `midnight`, `nebula`, `forest`, `matcha`, `ember`, `mocha`, `ocean`, `arctic`, `dusk`, `graphite`, `mono`, `neon` |
 | популярные темы VS Code | One Dark Pro (`onedark`, `onedark_vivid`, `onedark_dark`, `onelight`), GitHub (`github_dark_default`, `github_dark_dimmed`, `github_light`…), Dark+ (`vscode`), Dracula (`dracula`, `dracula-soft`), Monokai Pro (`monokai-pro`, `-spectrum`, `-octagon`, `-machine`, `-ristretto`, `-classic`), Material (`material-darker`, `-oceanic`, `-palenight`, `-deep-ocean`, `-lighter`), Ayu (`ayu-dark`, `ayu-mirage`, `ayu-light`) |
-| из мира Neovim | tokyonight, rose-pine (в цветах терминала, если стоят dotfiles), kanagawa, catppuccin, nightfox, cyberdream, vesper, gruvbox-material, nordic, everforest, oxocarbon |
+| из мира Neovim | tokyonight, rose-pine (в цветах терминала, если стоят dotfiles), kanagawa, catppuccin, nightfox, cyberdream, vesper, gruvbox-material, nordic, everforest, oxocarbon, gruvbox, nord, solarized-osaka, sonokai, edge, moonfly, nightfly, bamboo, flexoki, melange, poimandres, night-owl, vague, lackluster, modus, oldworld, fluoromachine, tokyodark, kanagawa-paper, kanso, jellybeans, evergarden, everblush |
 
 Темы-плагины грузятся, только когда выбраны, — на скорость запуска они не влияют.
 
@@ -86,11 +86,29 @@
 "appearance": {
   "terminal_edges": true,   // поля окна Ghostty — цветом редактора, без рамки фона терминала по краям
   "messages": "modern",     // длинные сообщения сворачиваются в [+3] вместо «Press ENTER» (g< — все); "classic" — как было
+  "italic": ["comment", "keyword"],  // курсив поверх любой темы, и плагинной (tokyonight): ещё function, type,
+                                     // string, parameter, builtin; [] — как задумано темой
+  "frames": true,           // рамки, как промпт dotfiles и Kali (ниже); false — как было
 },
 ```
 
 Мелочи, которые есть в любой JSON-теме: неактивное окно на пару процентов темнее, скопированное вспыхивает
 цветом акцента и плавно гаснет, парная скобка — цветом акцента без заливки, заголовки всплывающих окон — плашками.
+
+**Рамки** (`"frames": true`) — весь редактор в стиле статусной строки `frame` и промпта dotfiles:
+
+```
+─[ lua › own › frames.lua › M.on ]──────────────     строка файла над кодом
+❯ 10 function M.on() …                                номер текущей строки — стрелкой акцента
+╭──────[ Найти файл ]──────╮                          поиск, K, which-key, уведомления, окна плагинов
+─[ ПРОЕКТ ]────────────                               панели слева
+╰─( ОБЫЧНЫЙ )─[  main ]─[ main.go ]──────[ 10:1 ]─╯  статусная строка (style: frame)
+```
+
+Заголовки в скобки берутся у любого окна с рамкой — своих и плагинов, без настройки каждого.
+Рамка живёт режимом (`"frames_by_mode"`): во вставке все линии разом — цветом режима, в выделении — своим, в
+терминале — своим; сохранил — на миг вспыхивает акцентом (`"save_flash"`). Линия отступа блока под курсором — полутоном
+акцента.
 
 ## Иконки
 
@@ -144,7 +162,7 @@
 
 ```jsonc
 "statusline": {
-  "style": "bubbles",                          // arrows, slant, flat, plain
+  "style": "frame",                            // рамкой, как промпт dotfiles; ещё bubbles, arrows, slant, flat, plain
   "left": ["mode", "branch", "diagnostics", "file"],
   "right": ["search", "macro", "tests", "diff", "lsp", "position", "time"],
   "path": "relative",                          // name, full
@@ -157,13 +175,14 @@
 ```
 
 Блоки: `mode`, `branch`, `diagnostics`, `file`, `filetype`, `encoding`, `indent`, `lsp`, `diff`, `tests`
-(тесты в фоне, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time` и свои из `custom` — текст или
+(тесты в фоне, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, `ram` (занято памяти),
+`uptime` (сколько работает Mac) и свои из `custom` — текст или
 вывод команды (выполняется в фоне по таймеру).
 
 ### Вкладки и хлебные крошки
 
 ```jsonc
-"tabline": { "show": "auto", "style": "underline", "close_button": true },  // bar, slant, plain; always, never
+"tabline": { "show": "always", "style": "ide", "close_button": true },  // underline, bar, slant, plain; auto, never
 "breadcrumbs": { "separator": " › ", "max_depth": 3 },
 ```
 
@@ -176,28 +195,22 @@
 "dashboard": {
   "header": ["МОЙ РЕДАКТОР"],
   "buttons": [{ "key": "p", "icon": "", "desc": "Проекты", "do": "projects" }],
-  "sections": ["header", "buttons", "project", "recent", "startup"]
+  "sections": ["header", "info", "buttons", "project", "recent", "startup"]
 },
 ```
 
-Секции: `header`, `buttons`, **`project`** (ветка, сколько файлов изменено и какие, статус сервисов compose — для
+Секции: `header`, `info` (рамка, как у fastfetch: `dev㉿host`, nvim, время старта, тема, дата), `buttons`, **`project`** (ветка, сколько файлов изменено и какие, статус сервисов compose — для
 папки, где открыт ownvim), `recent` (недавние файлы этой папки), `projects`, `startup` или любой текст.
 `do` у кнопки — действие (как в `keys`), `:команда` или клавиши.
 
+«Включение» и «выключение» (раздел `dashboard`): `"intro": true` — при запуске без файла на миг идёт дождь знаков
+цветами темы, потом стартовый экран; `"animate": true` — логотип переливается, пока экран на виду; `"watermark": true` —
+в пустом окне бледный логотип по центру (только на экране); `"outro": true` — при выходе на миг рамка
+`до встречи · 2ч 14м · 12 файлов`.
+
 ## Панели
 
-```jsonc
-"modules": {
-  "panels": {
-    "activity_bar": { "enabled": true, "items": ["files", "search", "git", "tests", "debug", "database", "claude", "settings"] },
-    "bottom": { "height": 15, "tabs": ["terminal", "problems", "tasks"] },
-  },
-},
-```
-
-Как в VS Code: полоса значков слева (клик открывает вид; `settings` — шестерёнка внизу) и нижняя панель
-«Терминал · Проблемы · Задачи» — `пробел j`, вкладки — `пробел jt`, `jp` (все ошибки проекта, `enter` — к строке),
-`jo` (вывод последней задачи).
+Панели слева и снизу, режимы, запуск и «поиск везде» — [Рабочее место](workspace.md).
 
 ### Картинка сбоку
 

@@ -1,0 +1,43 @@
+// Aurora — северное сияние: глубокий синий, бирюза, мягкая зелень и сирень
+{
+  "name": "Aurora",
+  "type": "dark",
+  "palette": {
+    "bg": "#0b1020",
+    "bg_alt": "#0f1528",
+    "bg_highlight": "#141b33",
+    "bg_visual": "#1e2a4a",
+    "border": "#1f2a44",
+    "fg": "#d8e2f0",
+    "fg_dim": "#9aabc8",
+    "fg_muted": "#55658a",
+    "accent": "#5eead4",
+    "red": "#f38b8b",
+    "orange": "#f5b88a",
+    "yellow": "#f0dd9a",
+    "green": "#8fe0a8",
+    "cyan": "#6fd8c8",
+    "blue": "#8ccaf0",
+    "purple": "#bfb0f5",
+    "pink": "#e8a8ef"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "purple",
+    "function": "cyan",
+    "string": "green",
+    "type": "blue",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#a9b8f0",
+    "parameter": "#e0e7ff",
+    "builtin": "pink",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

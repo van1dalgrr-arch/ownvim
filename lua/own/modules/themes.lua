@@ -1,4 +1,5 @@
--- Темы: свои JSON (themes/*.json — Dev Night, Dev Day, Sunset; движок — lua/own/theme), tokyonight,
+-- Темы: свои JSON (themes/*.json — Dev Night, Dev Day, Sunset, Aurora, Midnight, Nebula, Forest, Matcha, Ember, Mocha,
+-- Ocean, Arctic, Dusk, Graphite, Mono, Neon; движок — lua/own/theme), tokyonight,
 -- rose-pine в цветах терминала (палитра из themes/<тема>.sh — та же,
 -- что красит Ghostty, если стоят dotfiles), kanagawa, catppuccin и др., и популярные темы VS Code (One Dark Pro,
 -- GitHub, Dark+, Dracula, Monokai Pro, Material, Ayu, Nordic, Everforest, Oxocarbon) — alt-s, предпросмотр на всём редакторе.
@@ -56,6 +57,30 @@ M.plugins = {
   { "AlexvZyl/nordic.nvim", lazy = true }, -- nordic
   { "neanias/everforest-nvim", lazy = true }, -- everforest
   { "nyoom-engineering/oxocarbon.nvim", lazy = true }, -- oxocarbon
+  -- ещё тёмные: спокойные для долгой работы и яркие — каждая грузится, только когда выбрана в alt-s
+  { "ellisonleao/gruvbox.nvim", lazy = true, opts = { contrast = "hard", transparent_mode = true } }, -- gruvbox
+  { "gbprod/nord.nvim", lazy = true, opts = { transparent = true } }, -- nord
+  { "craftzdog/solarized-osaka.nvim", lazy = true, opts = { transparent = true } }, -- solarized-osaka
+  { "sainnhe/sonokai", lazy = true, init = function() vim.g.sonokai_transparent_background = 1 end }, -- sonokai
+  { "sainnhe/edge", lazy = true, init = function() vim.g.edge_transparent_background = 1 end }, -- edge
+  { "bluz71/vim-moonfly-colors", name = "moonfly", lazy = true }, -- moonfly
+  { "bluz71/vim-nightfly-colors", name = "nightfly", lazy = true }, -- nightfly
+  { "ribru17/bamboo.nvim", lazy = true, opts = { transparent = true } }, -- bamboo, bamboo-multiplex
+  { "kepano/flexoki-neovim", name = "flexoki", lazy = true }, -- flexoki-dark
+  { "savq/melange-nvim", lazy = true }, -- melange
+  { "olivercederborg/poimandres.nvim", lazy = true, opts = { disable_background = true } }, -- poimandres
+  { "oxfist/night-owl.nvim", lazy = true, opts = { transparent_background = true } }, -- night-owl
+  { "vague2k/vague.nvim", lazy = true, opts = { transparent = true } }, -- vague
+  { "slugbyte/lackluster.nvim", lazy = true }, -- lackluster, lackluster-hack, lackluster-mint
+  { "miikanissi/modus-themes.nvim", lazy = true, opts = { transparent = true } }, -- modus_vivendi
+  { "dgox16/oldworld.nvim", lazy = true }, -- oldworld
+  { "maxmx03/fluoromachine.nvim", lazy = true, opts = { glow = false, theme = "retrowave", transparent = true } }, -- fluoromachine
+  { "tiagovla/tokyodark.nvim", lazy = true, opts = { transparent_background = true } }, -- tokyodark
+  { "thesimonho/kanagawa-paper.nvim", lazy = true, opts = { transparent = true } }, -- kanagawa-paper-ink
+  { "webhooked/kanso.nvim", lazy = true, opts = { transparent = true } }, -- kanso-zen, kanso-ink, kanso-mist
+  { "wtfox/jellybeans.nvim", lazy = true, opts = { transparent = true } }, -- jellybeans
+  { "comfysage/evergarden", lazy = true, opts = { transparent_background = true } }, -- evergarden
+  { "Everblush/nvim", name = "everblush", lazy = true }, -- everblush
 }
 
 local engine = require("own.theme")

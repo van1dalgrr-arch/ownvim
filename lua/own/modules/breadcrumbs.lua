@@ -71,7 +71,10 @@ function M.render()
       parts[#parts + 1] = "%#" .. group .. "#" .. glyph .. " %#OwnCrumb#" .. esc(s.name)
     end
   end
-  return "%#OwnCrumb# " .. table.concat(parts, sep)
+  local inner = table.concat(parts, sep)
+  local frames = package.loaded["own.frames"]
+  if frames and frames.enabled then return frames.crumbs("%#OwnCrumb#" .. inner) end -- ─[ main.go › main ]───
+  return "%#OwnCrumb# " .. inner
 end
 
 local function define()

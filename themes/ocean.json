@@ -1,0 +1,43 @@
+// Ocean — глубина: тёмно-синий, морская волна, кораллы
+{
+  "name": "Ocean",
+  "type": "dark",
+  "palette": {
+    "bg": "#0a141c",
+    "bg_alt": "#0d1922",
+    "bg_highlight": "#11202c",
+    "bg_visual": "#173550",
+    "border": "#16293a",
+    "fg": "#d4e4ef",
+    "fg_dim": "#94b2c8",
+    "fg_muted": "#4f6b82",
+    "accent": "#38bdf8",
+    "red": "#ff7a85",
+    "orange": "#ff9f7a",
+    "yellow": "#ffd580",
+    "green": "#5fe0b0",
+    "cyan": "#4dd8e6",
+    "blue": "#5cc0f5",
+    "purple": "#9d9cff",
+    "pink": "#ff8fb8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "blue",
+    "function": "cyan",
+    "string": "green",
+    "type": "yellow",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#a5d8f5",
+    "parameter": "#e0f0fa",
+    "builtin": "pink",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

@@ -16,6 +16,7 @@ JSON file, no Lua. Everything is here, from installation to the internals.
 
 | | |
 |---|---|
+| [Workspace](workspace.md) ⭐ | like an IDE: panels in fixed places, modes Code · Tests · Debug · Git · Database, ▶ run configurations, search everywhere |
 | [Appearance](appearance.md) | themes (its own, from VS Code, 30+ ready-made), icons, font, status line, tabs, panels, animations |
 | [Languages](languages.md) | language servers, formatting, linters, automatic setup for any language, inline errors |
 | [Go](go.md) | ▶ next to main and tests, background tests, debugger, code generation, Gin endpoints, `.http` requests |

@@ -1,0 +1,46 @@
+// Midnight — ночной город: синий с фиолетом, как tokyonight, но мягче и спокойнее
+{
+  "name": "Midnight",
+  "type": "dark",
+  "palette": {
+    "bg": "#11121d",
+    "bg_alt": "#151622",
+    "bg_highlight": "#1a1b2a",
+    "bg_visual": "#283050",
+    "border": "#22243a",
+    "fg": "#c8cdea",
+    "fg_dim": "#9097bd",
+    "fg_muted": "#525878",
+    "accent": "#7aa2f7",
+    "red": "#f7768e",
+    "orange": "#ff9e64",
+    "yellow": "#e0c080",
+    "green": "#9ece6a",
+    "cyan": "#7dcfff",
+    "blue": "#7aa2f7",
+    "purple": "#bb9af7",
+    "pink": "#f0a0c8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": {
+      "fg": "purple",
+      "italic": true
+    },
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#9db0e8",
+    "parameter": "#e0af68",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

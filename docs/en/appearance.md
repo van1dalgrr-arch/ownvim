@@ -7,7 +7,7 @@
 - [Font](#font)
 - [Interface](#interface): status line, tabs, breadcrumbs
 - [Start screen](#start-screen)
-- [Panels](#panels) · [side image](#side-image)
+- [Panels](#panels) ([workspace](workspace.md)) · [side image](#side-image)
 - [Animations and VS Code details](#animations)
 
 ## Themes
@@ -25,9 +25,9 @@ your own code shown on the right. `enter` applies it and writes it to `settings.
 
 | | themes |
 |---|---|
-| ownvim's own (JSON, ownvim engine) | `dev-night`, `dev-day`, `sunset` |
+| ownvim's own (JSON, ownvim engine) | `dev-night`, `dev-day`, `sunset`, `aurora`, `midnight`, `nebula`, `forest`, `matcha`, `ember`, `mocha`, `ocean`, `arctic`, `dusk`, `graphite`, `mono`, `neon` |
 | popular VS Code themes | One Dark Pro (`onedark`, `onedark_vivid`, `onedark_dark`, `onelight`), GitHub (`github_dark_default`, `github_dark_dimmed`, `github_light`…), Dark+ (`vscode`), Dracula (`dracula`, `dracula-soft`), Monokai Pro (`monokai-pro`, `-spectrum`, `-octagon`, `-machine`, `-ristretto`, `-classic`), Material (`material-darker`, `-oceanic`, `-palenight`, `-deep-ocean`, `-lighter`), Ayu (`ayu-dark`, `ayu-mirage`, `ayu-light`) |
-| from the Neovim world | tokyonight, rose-pine (in terminal colors if the dotfiles are installed), kanagawa, catppuccin, nightfox, cyberdream, vesper, gruvbox-material, nordic, everforest, oxocarbon |
+| from the Neovim world | tokyonight, rose-pine (in terminal colors if the dotfiles are installed), kanagawa, catppuccin, nightfox, cyberdream, vesper, gruvbox-material, nordic, everforest, oxocarbon, gruvbox, nord, solarized-osaka, sonokai, edge, moonfly, nightfly, bamboo, flexoki, melange, poimandres, night-owl, vague, lackluster, modus, oldworld, fluoromachine, tokyodark, kanagawa-paper, kanso, jellybeans, evergarden, everblush |
 
 Plugin themes load only when picked, so they don't affect startup time.
 
@@ -86,12 +86,30 @@ More `appearance` switches:
 "appearance": {
   "terminal_edges": true,   // Ghostty's window padding takes the editor color — no frame of terminal background
   "messages": "modern",     // long messages fold into [+3] instead of "Press ENTER" (g< — all); "classic" — the old way
+  "italic": ["comment", "keyword"],  // italics on top of any theme, plugin ones too (tokyonight): also function, type,
+                                     // string, parameter, builtin; [] — as the theme intends
+  "frames": true,           // frames like the dotfiles prompt and Kali (below); false — the old way
 },
 ```
 
 Small things that come with any JSON theme: the inactive split is a couple of percent darker, a yanked text
 flashes in the accent color and fades out, the matching bracket is accent-colored without a fill, float titles
 are accent badges.
+
+**Frames** (`"frames": true`) — the whole editor in the style of the `frame` status line and the dotfiles prompt:
+
+```
+─[ lua › own › frames.lua › M.on ]──────────────     file line above the code
+❯ 10 function M.on() …                                current line number — an accent arrow
+╭──────[ Find file ]──────╮                           picker, K, which-key, notifications, plugin windows
+─[ PROJECT ]────────────                              side panels
+╰─( NORMAL )─[  main ]─[ main.go ]──────[ 10:1 ]─╯   status line (style: frame)
+```
+
+Titles get brackets in every bordered window — ours and plugins', without configuring each one.
+The frame follows the mode (`"frames_by_mode"`): in insert every line takes the mode color at once, visual and
+terminal have their own; saving flashes it in the accent (`"save_flash"`). The indent guide of the block under the
+cursor is a half-tone of the accent.
 
 ## Icons
 
@@ -145,7 +163,7 @@ install one (brew: Google Fonts and Nerd Fonts) and activate it.
 
 ```jsonc
 "statusline": {
-  "style": "bubbles",                          // arrows, slant, flat, plain
+  "style": "frame",                            // a frame like the dotfiles prompt; also bubbles, arrows, slant, flat, plain
   "left": ["mode", "branch", "diagnostics", "file"],
   "right": ["search", "macro", "tests", "diff", "lsp", "position", "time"],
   "path": "relative",                          // name, full
@@ -158,13 +176,13 @@ install one (brew: Google Fonts and Nerd Fonts) and activate it.
 ```
 
 Blocks: `mode`, `branch`, `diagnostics`, `file`, `filetype`, `encoding`, `indent`, `lsp`, `diff`, `tests` (background
-tests, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, plus your own from `custom` — text or the
+tests, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, `ram` (memory in use), `uptime` (how long the Mac has been up), plus your own from `custom` — text or the
 output of a command (run in the background on a timer).
 
 ### Tabs and breadcrumbs
 
 ```jsonc
-"tabline": { "show": "auto", "style": "underline", "close_button": true },  // bar, slant, plain; always, never
+"tabline": { "show": "always", "style": "ide", "close_button": true },  // underline, bar, slant, plain; auto, never
 "breadcrumbs": { "separator": " › ", "max_depth": 3 },
 ```
 
@@ -177,28 +195,22 @@ Tabs work like VS Code: icon, name, `●` when unsaved, a close button; click to
 "dashboard": {
   "header": ["MY EDITOR"],
   "buttons": [{ "key": "p", "icon": "", "desc": "Projects", "do": "projects" }],
-  "sections": ["header", "buttons", "project", "recent", "startup"]
+  "sections": ["header", "info", "buttons", "project", "recent", "startup"]
 },
 ```
 
-Sections: `header`, `buttons`, **`project`** (branch, how many and which files changed, status of the compose
+Sections: `header`, `info` (a fastfetch-like frame: `dev㉿host`, nvim, startup time, theme, date), `buttons`, **`project`** (branch, how many and which files changed, status of the compose
 services — for the folder ownvim was opened in), `recent` (recent files in this folder), `projects`, `startup`, or any
 text. A button's `do` is an action (as in `keys`), a `:command` or raw keys.
 
+"Power on" and "power off" (the `dashboard` section): `"intro": true` — launched without a file, a rain of glyphs in the
+theme colors runs for a moment before the start screen; `"animate": true` — the logo shimmers while the screen is
+visible; `"watermark": true` — a faint logo in the middle of an empty window (on screen only); `"outro": true` — on exit
+a frame `see you · 2h 14m · 12 files` shows for a moment.
+
 ## Panels
 
-```jsonc
-"modules": {
-  "panels": {
-    "activity_bar": { "enabled": true, "items": ["files", "search", "git", "tests", "debug", "database", "claude", "settings"] },
-    "bottom": { "height": 15, "tabs": ["terminal", "problems", "tasks"] },
-  },
-},
-```
-
-Like VS Code: an icon bar on the left (a click opens the view; `settings` is the gear at the bottom) and the bottom
-panel "Terminal · Problems · Tasks" — `space j`, tabs — `space jt`, `jp` (every error in the project, `enter` jumps
-to the line), `jo` (output of the last task).
+The left and bottom panels, modes, run and search everywhere — [Workspace](workspace.md).
 
 ### Side image
 

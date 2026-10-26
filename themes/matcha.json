@@ -1,0 +1,43 @@
+// Matcha — зелёный чай: тёмно-оливковый фон, нежная зелень и сливки
+{
+  "name": "Matcha",
+  "type": "dark",
+  "palette": {
+    "bg": "#151713",
+    "bg_alt": "#191c17",
+    "bg_highlight": "#1f231c",
+    "bg_visual": "#323a2a",
+    "border": "#2a3024",
+    "fg": "#e4e2d4",
+    "fg_dim": "#b0b39e",
+    "fg_muted": "#6a705c",
+    "accent": "#b5cc8e",
+    "red": "#e88e7e",
+    "orange": "#e8b07e",
+    "yellow": "#e8d89a",
+    "green": "#b5cc8e",
+    "cyan": "#93c9b0",
+    "blue": "#9cb8d0",
+    "purple": "#c4a8d0",
+    "pink": "#e0a8b8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "keyword": "#c4a8d0",
+    "function": "green",
+    "string": "#e8d89a",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#cdd6a8",
+    "parameter": "#ece6cc",
+    "builtin": "red",
+    "variable": "fg",
+    "operator": "fg_dim",
+    "punctuation": "fg_muted"
+  }
+}

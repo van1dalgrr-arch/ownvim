@@ -62,10 +62,14 @@ local function refresh_git(done)
   -- корень репозитория — до вызова: в колбэке vim.fn нельзя
   local top = vim.fs.root(state.root, ".git")
   if not top then return done and done() end
-  vim.system({ "git", "-C", state.root, "status", "--porcelain=v1", "-uall", "--ignored=no" }, { text = true }, function(r)
-    local git = {}
+  vim.system({ "git", "-C", state.root, "status", "--porcelain=v1", "--branch", "-uall", "--ignored=no" }, { text = true }, function(r)
+    local git, branch = {}, nil
     if r.code == 0 then
       for line in (r.stdout or ""):gmatch("[^\n]+") do
+        if line:sub(1, 3) == "## " then
+          branch = line:match("^## No commits yet on (%S+)") or line:match("^## ([^%.%s]+)")
+          goto continue
+        end
         local x, y, path = line:sub(1, 1), line:sub(2, 2), line:sub(4)
         path = path:match("-> (.+)$") or path
         local mark = (x == "?" and "?") or ((x == "A" or y == "A") and "A") or ((x == "D" or y == "D") and "D")
@@ -79,10 +83,12 @@ local function refresh_git(done)
           if up == parent then break end
           parent = up
         end
+        ::continue::
       end
     end
     vim.schedule(function()
       state.git = git
+      state.branch = branch
       if done then done() end
     end)
   end)
@@ -106,21 +112,38 @@ end
 
 local GIT_HL = { M = "OwnTreeGitModified", A = "OwnTreeGitAdded", ["?"] = "OwnTreeGitAdded", D = "OwnTreeGitDeleted", R = "OwnTreeGitModified" }
 local GIT_SIGN = { M = "M", A = "A", ["?"] = "U", D = "D", R = "R" }
+local CHEVRON = { open = "\u{eab4} ", closed = "\u{eab6} ", none = "  " } -- codicons: тонкие стрелки
+
+-- строка дерева: [полоска текущего][направляющие][стрелка папки][значок] имя ··· ● M
+-- каждая часть копится вместе со своим цветом — позиции подсветки считаются сами
+local function row_builder()
+  local text, marks = "", {}
+  local function add(s, group)
+    if s == "" then return end
+    if group then marks[#marks + 1] = { #text, #text + #s, group } end
+    text = text .. s
+  end
+  return add, function() return text, marks end
+end
 
 function M.render()
   if not (state.buf and vim.api.nvim_buf_is_valid(state.buf)) then return end
   local opts = o()
-  local indent = opts.indent or "│ "
+  local guide = opts.indent or "│ "
   local fo = opts.folder_icons or {}
   local icons_ok, icons = pcall(require, "mini.icons")
   local diag = diagnostics()
-  local current = vim.api.nvim_buf_get_name(vim.fn.bufnr("#") ~= -1 and vim.fn.bufnr("#") or 0)
-  local lines, marks, meta = {}, {}, {}
+  -- открытый файл — последний, куда заходили (а не «#»: из кода «#» — предыдущий файл)
+  local current = state.current or ""
+  local lines, marks, meta, line_hl = {}, {}, {}, {}
 
+  -- шапка: проект и ветка, под ней — воздух
   local root_name = vim.fn.fnamemodify(state.root, ":t")
-  lines[1] = " " .. root_name:upper()
-  marks[1] = { { 0, #lines[1], "OwnTreeRoot" } }
-  meta[1] = { path = state.root, dir = true, depth = -1 }
+  lines[1] = "  " .. vim.fn.toupper(root_name)
+  marks[1] = { { 2, #lines[1], "OwnTreeRoot" } }
+  meta[1] = { path = state.root, dir = true, depth = -1,
+    right = state.branch and { { "\u{e725} " .. state.branch .. " ", "OwnTreeBranch" } } or nil }
+  lines[2], marks[2], meta[2] = "", {}, { spacer = true }
 
   local function walk(dir, depth)
     for _, e in ipairs(list_dir(dir)) do
@@ -137,10 +160,9 @@ function M.render()
           end
         end
       end
-      local prefix = string.rep(indent, depth)
       local icon, icon_hl
       if e.dir then
-        icon = state.open[path] and (fo.open or "\u{f07c}") or (fo.closed or "\u{f07b}")
+        icon = state.open[path] and (fo.open or "\u{f0770}") or (fo.closed or "\u{f024b}")
         icon_hl = "OwnTreeFolder"
         -- у темы иконок есть значок для этой папки (cmd, internal, migrations…) — он; у a/b/c — по последней
         if icons_ok then
@@ -153,21 +175,24 @@ function M.render()
         icon, icon_hl = "•", "Comment"
       end
       local g = state.git[path]
-      local line = " " .. prefix .. icon .. " " .. label
-      local row = #lines + 1
-      local m = {}
-      m[#m + 1] = { 0, #prefix + 1, "OwnTreeIndent" }
-      m[#m + 1] = { #prefix + 1, #prefix + 1 + #icon, icon_hl }
-      local name_hl = (path == current and "OwnTreeCurrent") or (g and GIT_HL[g]) or (e.dir and "OwnTreeDir") or "OwnTreeFile"
-      m[#m + 1] = { #prefix + 2 + #icon, #line, name_hl }
+      local is_current = path == current
+      local add, done = row_builder()
+      add(is_current and "▎" or " ", "OwnTreeBar")
+      add(string.rep(guide, depth), "OwnTreeIndent")
+      add(e.dir and (state.open[path] and CHEVRON.open or CHEVRON.closed) or CHEVRON.none, "OwnTreeChevron")
+      add(icon .. " ", icon_hl)
+      local name_hl = (is_current and "OwnTreeCurrent") or (g and GIT_HL[g]) or (e.dir and "OwnTreeDir") or "OwnTreeFile"
+      add(label, name_hl)
       local right = {}
       if diag[path] then
-        right[#right + 1] = { diag[path] == 1 and "●" or "●", diag[path] == 1 and "DiagnosticError" or "DiagnosticWarn" }
+        right[#right + 1] = { "●", diag[path] == 1 and "DiagnosticError" or "DiagnosticWarn" }
       end
       if g and GIT_SIGN[g] and not e.dir then right[#right + 1] = { " " .. GIT_SIGN[g], GIT_HL[g] } end
-      lines[row] = line
-      marks[row] = m
+      if #right > 0 then right[#right + 1] = { " ", "OwnTreeFile" } end
+      local row = #lines + 1
+      lines[row], marks[row] = done()
       meta[row] = { path = path, dir = e.dir, depth = depth, right = right }
+      if is_current then line_hl[row] = "OwnTreeCurrentLine" end
       if e.dir and state.open[path] then walk(path, depth + 1) end
     end
   end
@@ -177,9 +202,12 @@ function M.render()
   vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, lines)
   vim.bo[state.buf].modifiable = false
   vim.api.nvim_buf_clear_namespace(state.buf, ns, 0, -1)
-  for row, m in ipairs(marks) do
-    for _, x in ipairs(m) do
+  for row = 1, #lines do
+    for _, x in ipairs(marks[row] or {}) do
       pcall(vim.api.nvim_buf_set_extmark, state.buf, ns, row - 1, x[1], { end_col = x[2], hl_group = x[3] })
+    end
+    if line_hl[row] then
+      vim.api.nvim_buf_set_extmark(state.buf, ns, row - 1, 0, { line_hl_group = line_hl[row], priority = 50 })
     end
     local r = meta[row].right
     if r and #r > 0 then
@@ -190,13 +218,25 @@ function M.render()
 end
 
 local function define()
-  local function c(g, a) return vim.api.nvim_get_hl(0, { name = g, link = false })[a or "fg"] end
-  vim.api.nvim_set_hl(0, "OwnTreeRoot", { fg = c("Title") or c("Normal"), bold = true })
-  vim.api.nvim_set_hl(0, "OwnTreeFolder", { fg = c("Directory") or c("Function") })
-  vim.api.nvim_set_hl(0, "OwnTreeDir", { fg = c("Normal") })
-  vim.api.nvim_set_hl(0, "OwnTreeFile", { fg = c("Normal") })
-  vim.api.nvim_set_hl(0, "OwnTreeIndent", { fg = c("NonText") or c("Comment") })
-  vim.api.nvim_set_hl(0, "OwnTreeCurrent", { fg = c("Title") or c("Normal"), bold = true })
+  local color = require("own.theme.color")
+  local function c(g, a)
+    local v = vim.api.nvim_get_hl(0, { name = g, link = false })[a or "fg"]
+    return v and ("#%06x"):format(v) or nil
+  end
+  local fg = c("Normal") or "#cccccc"
+  local side = c("OwnSide", "bg") or c("Normal", "bg") or "#000000"
+  local accent = c("OwnIconAccent") or c("Title") or "#bb9af7"
+  local muted = c("Comment") or "#888888"
+  vim.api.nvim_set_hl(0, "OwnTreeRoot", { fg = accent, bold = true })
+  vim.api.nvim_set_hl(0, "OwnTreeBranch", { fg = muted, italic = true })
+  vim.api.nvim_set_hl(0, "OwnTreeFolder", { fg = c("Directory") or accent })
+  vim.api.nvim_set_hl(0, "OwnTreeDir", { fg = fg })
+  vim.api.nvim_set_hl(0, "OwnTreeFile", { fg = color.blend(fg, side, 0.82) })
+  vim.api.nvim_set_hl(0, "OwnTreeIndent", { fg = color.blend(fg, side, 0.13) })
+  vim.api.nvim_set_hl(0, "OwnTreeChevron", { fg = color.blend(fg, side, 0.4) })
+  vim.api.nvim_set_hl(0, "OwnTreeBar", { fg = accent })
+  vim.api.nvim_set_hl(0, "OwnTreeCurrent", { fg = fg, bold = true })
+  vim.api.nvim_set_hl(0, "OwnTreeCurrentLine", { bg = color.blend(accent, side, 0.14) })
   vim.api.nvim_set_hl(0, "OwnTreeGitModified", { fg = c("DiagnosticWarn") })
   vim.api.nvim_set_hl(0, "OwnTreeGitAdded", { fg = c("DiagnosticOk") or c("String") })
   vim.api.nvim_set_hl(0, "OwnTreeGitDeleted", { fg = c("DiagnosticError"), strikethrough = true })
@@ -204,7 +244,8 @@ end
 
 local function at_cursor()
   if not (state.win and vim.api.nvim_win_is_valid(state.win)) then return nil end
-  return state.lines[vim.api.nvim_win_get_cursor(state.win)[1]]
+  local e = state.lines[vim.api.nvim_win_get_cursor(state.win)[1]]
+  return e and e.path and e or nil
 end
 
 -- окно с кодом рядом с деревом: последнее, где был курсор
@@ -386,34 +427,21 @@ function M.open(root)
   state.root = root or state.root or require("own.root").get()
   if not state.buf or not vim.api.nvim_buf_is_valid(state.buf) then state.buf = make_buf() end
   if not M.is_open() then
+    -- место и шапку окна задаёт рабочее место (modules.workspace, edgy), без него — сбоку как раньше
     local side = o().side == "right" and "botright" or "topleft"
-    -- слева есть полоса значков (модуль panels) — дерево встаёт сразу за ней
-    local bar
-    for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-      if vim.bo[vim.api.nvim_win_get_buf(w)].filetype == "own_activity_bar" then bar = w end
-    end
     vim.cmd(side .. " vertical " .. (o().width or 32) .. "split")
-    local tree_win = vim.api.nvim_get_current_win()
-    if bar and o().side ~= "right" then
-      -- полосу — обратно на самый край, дерево — сразу за ней, ширина — как в настройках
-      vim.api.nvim_set_current_win(bar)
-      vim.cmd("wincmd H")
-      vim.api.nvim_win_set_width(bar, 3)
-      vim.api.nvim_set_current_win(tree_win)
-    end
-    vim.api.nvim_win_set_width(tree_win, o().width or 32)
     state.win = vim.api.nvim_get_current_win()
     vim.api.nvim_win_set_buf(state.win, state.buf)
     local wo = vim.wo[state.win]
     wo.number, wo.relativenumber, wo.signcolumn, wo.foldcolumn = false, false, "no", "0"
     wo.cursorline, wo.wrap, wo.winfixwidth, wo.list, wo.spell = true, false, true, false, false
-    wo.statuscolumn, wo.winbar = "", ""
+    wo.statuscolumn = ""
   else
     vim.api.nvim_set_current_win(state.win)
   end
   define()
   -- развернуть путь до открытого файла
-  local cur = vim.api.nvim_buf_get_name(vim.fn.bufnr("#"))
+  local cur = state.current or vim.api.nvim_buf_get_name(vim.fn.bufnr("#"))
   if cur ~= "" and vim.startswith(cur, state.root) then
     local d = vim.fs.dirname(cur)
     while #d > #state.root do state.open[d] = true; d = vim.fs.dirname(d) end
@@ -445,7 +473,12 @@ function M.setup()
   })
   vim.api.nvim_create_autocmd({ "DiagnosticChanged", "BufEnter" }, {
     group = group,
-    callback = function() if M.is_open() and o().follow ~= false then vim.schedule(M.render) end end,
+    callback = function(ev)
+      if ev.event == "BufEnter" and vim.bo[ev.buf].buftype == "" and ev.file ~= "" then
+        state.current = vim.api.nvim_buf_get_name(ev.buf)
+      end
+      if M.is_open() and o().follow ~= false then vim.schedule(M.render) end
+    end,
   })
   -- последнее окно — дерево: закрыть ownvim, а не оставлять одно дерево
   vim.api.nvim_create_autocmd("QuitPre", {

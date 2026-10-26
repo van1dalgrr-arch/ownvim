@@ -77,7 +77,13 @@ local function dash_colors()
   local color = require("own.theme.color")
   local bg = hex("Normal", "bg") or (vim.o.background == "light" and "#ffffff" or "#000000")
   local from = hex("OwnIconAccent") or hex("Statement") or hex("Title") or "#bb9af7"
-  local to = hex("Function") or hex("Special") or "#7aa2f7"
+  -- второй цвет — заметно другой: ключевые слова, функции или типы (у Sunset акцент и функции оба розовые)
+  local to
+  for _, g in ipairs({ "Statement", "Function", "Type", "Special" }) do
+    local v = hex(g)
+    if v and v:lower() ~= from:lower() then to = v break end
+  end
+  to = to or "#7aa2f7"
   for i = 1, GRADIENT do
     vim.api.nvim_set_hl(0, "OwnDashGrad" .. i, { fg = color.blend(to, from, (i - 1) / (GRADIENT - 1)), bold = true })
   end
@@ -130,6 +136,40 @@ local function startup_section()
   }
 end
 
+-- «info» — рамка, как у fastfetch и промпта dotfiles:
+-- ╭─( dev㉿van1dal )─────────────╮
+-- │  nvim     0.12.0            │
+-- │ ⚡ старт    43 мс · 6/80 …    │ …
+local function info_section()
+  dash_colors()
+  local ok, stats = pcall(function() return require("lazy.stats").stats() end)
+  local v = vim.version()
+  local rows = {
+    { "\u{e62b}", "nvim", ("%d.%d.%d"):format(v.major, v.minor, v.patch) },
+    { "\u{f0e7}", "старт", ok and stats and ("%d мс · %d/%d плагинов"):format(math.floor(stats.startuptime + 0.5), stats.loaded, stats.count) or "—" },
+    { "\u{f1fc}", "тема", vim.g.colors_name or "—" },
+    { "\u{f073}", "сегодня", os.date("%d.%m.%Y · %H:%M") },
+  }
+  local who = (vim.env.USER or "me") .. "㉿" .. (vim.fn.hostname():gsub("%..*$", ""))
+  local W = vim.api.nvim_strwidth
+  local KEY = 9
+  local inner = W(who) + 6
+  for _, r in ipairs(rows) do inner = math.max(inner, W(r[1]) + 1 + KEY + W(r[3]) + 2) end
+  local F, texts = "OwnDashKeyBracket", {}
+  local function add(s, hl) texts[#texts + 1] = { s, hl = hl } end
+  add("╭─( ", F); add(who, "OwnDashKey"); add(" )" .. ("─"):rep(inner - W(who) - 5) .. "╮\n", F)
+  for i, r in ipairs(rows) do
+    local core = W(r[1]) + 1 + KEY + W(r[3])
+    add("│ ", F)
+    add(r[1] .. " ", "OwnDashGrad" .. math.min(i + 1, GRADIENT))
+    add(r[2] .. (" "):rep(KEY - W(r[2])), "OwnDashTagline")
+    add(r[3], "Normal")
+    add((" "):rep(inner - core - 1) .. "│\n", F)
+  end
+  add("╰" .. ("─"):rep(inner) .. "╯", F)
+  return { text = texts, align = "center", padding = 2 }
+end
+
 -- стартовый экран из раздела "dashboard": header, buttons (do — действие из keys, :команда или клавиши), sections
 local function dashboard()
   local d = (settings.current or {}).dashboard or {}
@@ -152,6 +192,7 @@ local function dashboard()
     recent = { icon = "\u{f1da} ", title = "Недавние файлы", section = "recent_files", cwd = true, indent = 2, padding = 1, limit = d.recent or 5 },
     projects = { icon = "\u{f07b} ", title = "Проекты", section = "projects", indent = 2, padding = 1, limit = d.projects or 5 },
     startup = startup_section,
+    info = info_section,
     project = project_section,
   }
   local sections = {}
@@ -180,8 +221,8 @@ local function messages()
   M.ui2 = want
 end
 
-function M.setup() messages() end
-function M.reload() messages() end
+function M.setup() messages(); require("own.frames").setup(); require("own.intro").setup() end
+function M.reload() messages(); require("own.frames").reload() end
 
 function M.plugins() return {
   {
@@ -202,7 +243,9 @@ function M.plugins() return {
     },
     config = function(_, opts)
       require("snacks").setup(opts)
-      vim.o.statuscolumn = [[%!v:lua.require'snacks.statuscolumn'.get()]]
+      -- номер текущей строки со стрелкой ❯ (appearance.frames) — обёртка над колонкой snacks
+      vim.o.statuscolumn = require("own.frames").on() and [[%!v:lua.require'own.frames'.statuscolumn()]]
+        or [[%!v:lua.require'snacks.statuscolumn'.get()]]
     end,
   },
   {
@@ -210,9 +253,12 @@ function M.plugins() return {
     event = "VeryLazy",
     opts = {
       preset = "helix",
+      -- клавиша ─ описание: линией, как рамки ownvim (appearance.frames); заголовок окна — в скобках, через own.frames
       -- значки по смыслу описания — у всех пунктов, а не только у тех, что which-key узнаёт по-английски.
       -- Описания по-русски, а :lower() в Lua кириллицу не трогает — поэтому основы слов без первой буквы
       icons = {
+        -- клавиша ─ описание: линией, как рамки ownvim (appearance.frames); заголовок окна — в скобках (own.frames)
+        separator = require("own.frames").on() and "─" or "➜",
         rules = {
           { pattern = "ерев", icon = "\u{f0645} ", color = "green" },
           { pattern = "уфер", icon = "\u{f04e9} ", color = "cyan" },
