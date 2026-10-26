@@ -108,8 +108,18 @@ are accent badges.
 
 Titles get brackets in every bordered window — ours and plugins', without configuring each one.
 The frame follows the mode (`"frames_by_mode"`): in insert every line takes the mode color at once, visual and
-terminal have their own; saving flashes it in the accent (`"save_flash"`). The indent guide of the block under the
+terminal have their own; saving flashes it green when the file has no errors and red when it has (`"save_flash"`). The indent guide of the block under the
 cursor is a half-tone of the accent.
+
+More in the same style: `:` and `/` open in the middle in a frame `╭─[  command ]─╮` (`"cmdline": "bottom"` — at the
+bottom, like vim); a closed fold is `╶─[ func main() · 24 lines ]────`; errors to the right of the line are
+`──[  undefined: foo ]` (`modules.error_lens.preset`: `"frame"`, `"modern"` — a badge); the tree has `├─ └─ │` branches
+like the `tree` command (`explorer.indent`: `"tree"`, `"│ "`, `"  "`). Line numbers near the cursor are brighter and
+fade further away (`"number_fade"`); after a jump (`gd`, search, `ctrl-o`, another file) the line flashes in the accent
+(`"jump_flash"`). The completion menu and the picker point with `❯`. Opening a project shows a toast for a couple
+of seconds — `[  github-watcher ]  feature/bot · ↑2 unpushed · ● 3 files changed` (`"project_toast"`). A code
+screenshot (`space P`) gets the same frame and the editor's own colors: `─[ config.go › defaultDBPath ]──` …
+`( dev㉿host )──[ ownvim ]`.
 
 ## Icons
 
@@ -175,8 +185,8 @@ install one (brew: Google Fonts and Nerd Fonts) and activate it.
 },
 ```
 
-Blocks: `mode`, `branch`, `diagnostics`, `file`, `filetype`, `encoding`, `indent`, `lsp`, `diff`, `tests` (background
-tests, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, `ram` (memory in use), `uptime` (how long the Mac has been up), plus your own from `custom` — text or the
+Blocks: `mode`, `branch` (with `↑` unpushed, `↓` behind, `●` changed — `"git_status"`), `diagnostics`, `file`, `filetype`, `encoding`, `indent`, `lsp`, `diff`, `tests` (background
+tests, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, `ram` (memory in use), `uptime` (how long the Mac has been up), `wpm` (typing speed over the last 30 s), plus your own from `custom` — text or the
 output of a command (run in the background on a timer).
 
 ### Tabs and breadcrumbs

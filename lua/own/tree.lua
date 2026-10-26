@@ -2,7 +2,7 @@
 --   "engine": "own" | "snacks"; "side": "left" | "right"; "width": 32
 --   "hidden": false — скрытые файлы (H — на время); "ignore": [".git", "node_modules", ".DS_Store"]
 --   "git": true — цвет и значок изменённых, новых, удалённых; "diagnostics": true — ошибки у файлов и папок
---   "indent": "│ " — отступ ("  " — без линий); "folder_icons": { "open": "…", "closed": "…" }
+--   "indent": "tree" — ветки, как у команды tree (├─ └─ │); "│ " — линии отступа; "  " — без линий; "folder_icons": { "open": "…", "closed": "…" }
 --   "follow": true — подсвечивать открытый файл; "compact": true — папка с одной папкой — одной строкой (a/b/c)
 -- Клавиши в дереве: enter/l/клик — открыть или развернуть, h — свернуть, a — создать (конец на / — папка),
 -- r — переименовать, d — удалить, y — копировать путь, c/x/p — копировать/вырезать/вставить, s — открыть справа,
@@ -145,8 +145,12 @@ function M.render()
     right = state.branch and { { "\u{e725} " .. state.branch .. " ", "OwnTreeBranch" } } or nil }
   lines[2], marks[2], meta[2] = "", {}, { spacer = true }
 
-  local function walk(dir, depth)
-    for _, e in ipairs(list_dir(dir)) do
+  -- "indent": "tree" — ветки, как у команды tree: ├─ └─ │ (prefix — продолжения линий родителей)
+  local branches = guide == "tree"
+  local function walk(dir, depth, prefix)
+    local entries = list_dir(dir)
+    for i, e in ipairs(entries) do
+      local last = i == #entries
       local label, path = e.name, e.path
       -- компактные папки: a/b/c, пока в папке ровно одна папка
       if e.dir and opts.compact ~= false then
@@ -178,7 +182,11 @@ function M.render()
       local is_current = path == current
       local add, done = row_builder()
       add(is_current and "▎" or " ", "OwnTreeBar")
-      add(string.rep(guide, depth), "OwnTreeIndent")
+      if branches then
+        add(prefix .. (last and "└─" or "├─"), "OwnTreeIndent")
+      else
+        add(string.rep(guide, depth), "OwnTreeIndent")
+      end
       add(e.dir and (state.open[path] and CHEVRON.open or CHEVRON.closed) or CHEVRON.none, "OwnTreeChevron")
       add(icon .. " ", icon_hl)
       local name_hl = (is_current and "OwnTreeCurrent") or (g and GIT_HL[g]) or (e.dir and "OwnTreeDir") or "OwnTreeFile"
@@ -193,10 +201,10 @@ function M.render()
       lines[row], marks[row] = done()
       meta[row] = { path = path, dir = e.dir, depth = depth, right = right }
       if is_current then line_hl[row] = "OwnTreeCurrentLine" end
-      if e.dir and state.open[path] then walk(path, depth + 1) end
+      if e.dir and state.open[path] then walk(path, depth + 1, prefix .. (last and "  " or "│ ")) end
     end
   end
-  walk(state.root, 0)
+  walk(state.root, 0, "")
 
   vim.bo[state.buf].modifiable = true
   vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, lines)

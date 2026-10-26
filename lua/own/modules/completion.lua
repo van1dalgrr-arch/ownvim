@@ -102,6 +102,10 @@ function M.plugins()
       event = { "InsertEnter", "CmdlineEnter" },
       dependencies = { "rafamadriz/friendly-snippets" },
       opts = build,
+      config = function(_, opts)
+        require("blink.cmp").setup(opts)
+        require("own.frames").blink() -- ❯ у выбранного пункта (appearance.frames)
+      end,
     },
   }
 end

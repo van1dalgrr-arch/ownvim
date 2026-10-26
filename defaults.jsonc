@@ -28,14 +28,15 @@
   // "frame" — рамкой, как промпт dotfiles: ╰─( ОБЫЧНЫЙ )─[  main ]─[ main.go ]────[ 12:4 ]─╯
   // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro,
   // ext (надписи Go-расширений: тесты в фоне ✓ 42 / ✗ 1 и свои), rest (пора отдохнуть / ☕ перерыв), quiet (тихий режим),
-  // ram (занято памяти, > 85% — красным), uptime (сколько работает Mac) — без внешних команд
+  // ram (занято памяти, > 85% — красным), uptime (сколько работает Mac) — без внешних команд, wpm (скорость печати)
   // и свои из custom: { "имя": { "text": "…", "color": "pink" } } или { "shell": "команда", "every_ms": 10000, "icon": "…" }
   "statusline": {
     "style": "frame",
     "left": ["mode", "branch", "diagnostics", "file"],
-    "right": ["rest", "quiet", "search", "macro", "ext", "diff", "lsp", "ram", "uptime", "position", "time"],
+    "right": ["rest", "quiet", "search", "macro", "ext", "wpm", "diff", "lsp", "ram", "uptime", "position", "time"],
     "path": "relative", // "name" — только имя файла, "full" — от ~
     "time_format": "%H:%M",
+    "git_status": true, // у ветки: ↑ не запушено, ↓ не подтянуто, ● изменено файлов
     "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
     "custom": {},
   },
@@ -51,7 +52,7 @@
     "ignore": [".git", ".DS_Store", "node_modules"],
     "git": true, // цвет изменённых и новых, буква справа
     "diagnostics": true, // ● у файлов и папок с ошибками
-    "indent": "│ ", // "  " — без линий
+    "indent": "tree", // ветки, как у команды tree: ├─ └─ │; "│ " — линии отступа; "  " — без линий
     "compact": true, // папка с одной папкой — одной строкой: internal/user/repo
     "follow": true, // подсвечивать открытый файл
     "folder_icons": { "open": "\udb81\udf70", "closed": "\udb80\ude4b" }, // Material Design: Font Awesome Ghostty растягивает
@@ -143,7 +144,11 @@
     // строка файла — ─[ main.go › main ]──, номер текущей строки — ❯ 10. false — как было
     "frames": true,
     "frames_by_mode": true, // рамка живёт режимом: во вставке все линии — цветом режима, в выделении — своим
-    "save_flash": true, // сохранил — рамка на миг вспыхивает акцентом
+    "save_flash": true, // сохранил — рамка на миг вспыхивает: зелёным — ошибок нет, красным — есть
+    "project_toast": true, // открыл проект — на пару секунд: ветка, ↑ не запушено, сколько файлов изменено
+    "cmdline": "center", // : и / — по центру в рамке ╭─[  команда ]─╮; "bottom" — внизу, как в vim
+    "number_fade": true, // номера строк дальше от курсора — бледнее
+    "jump_flash": true, // прыгнул (gd, поиск, ctrl-o, другой файл) — строка на миг подсвечена акцентом
   },
 
   // Переменные vim.g
@@ -262,7 +267,7 @@
     "ai": true, // Claude Code в nvim (раздел ai ниже)
     "http": true, // Postman в файле (.http) и эндпоинты Gin
     "autotest": true, // тесты Go в фоне после сохранения
-    "error_lens": { "preset": "modern", "break_after": 60, "insert": true }, // ошибки справа от строки, как Error Lens; insert — и во вставке
+    "error_lens": { "preset": "frame", "break_after": 60, "insert": true }, // ошибки справа от строки, как Error Lens: ──[  текст ] ("modern" — плашкой); insert — и во вставке
     "multicursor": true, // мультикурсоры: ctrl-n, пробел m
     "dial": { // ctrl-a / ctrl-x: свои циклы по языкам (по слову, если в паре есть буквы)
       "go": [[":=", "="], ["==", "!="], ["var", "const"], ["Error", "Fatal"], ["Errorf", "Fatalf"],

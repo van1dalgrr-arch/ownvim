@@ -48,7 +48,7 @@ files and folders with errors, the open file highlighted, a folder containing a 
 | `?` · `q` | help · close |
 
 ```jsonc
-"explorer": { "side": "left", "width": 32, "hidden": false, "compact": true, "indent": "│ ", "git": true },
+"explorer": { "side": "left", "width": 32, "hidden": false, "compact": true, "indent": "tree", "git": true },
 ```
 
 `"engine": "snacks"` — use the snacks tree instead. The yazi file manager — `space fy` (at the file) / `space fY` (at the root).

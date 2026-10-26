@@ -5,7 +5,8 @@
 --   "left": ["mode", "branch", "diagnostics", "file"], "right": ["search", "macro", "lsp", "position", "time"]
 --     блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time,
 --     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), rest (пора отдохнуть / ☕ перерыв),
---     quiet (тихий режим включён), ram (занято памяти), uptime (сколько работает Mac), а также свои из "custom"
+--     quiet (тихий режим включён), ram (занято памяти), uptime (сколько работает Mac), wpm (скорость печати),
+--     а также свои из "custom"
 --   "custom": { "k8s": { "shell": "kubectl config current-context", "every_ms": 10000, "icon": "…" },
 --               "hi":  { "text": "привет", "color": "pink" } } — свой текст или вывод команды (не блокирует)
 --   "mode_names": { "n": "ОБЫЧНЫЙ", "i": "ВСТАВКА", … } — подписи режимов (буква — первая буква режима)
@@ -109,15 +110,41 @@ local function buf() return vim.api.nvim_win_get_buf(vim.g.statusline_winid or 0
 
 local C = {}
 
+-- сколько коммитов не запушено (↑) и не подтянуто (↓), сколько файлов изменено (●) — git status в фоне,
+-- только по событиям: открыл, сохранил, вернулся в окно, сменил папку (а не на каждую перерисовку)
+local git_cache, git_at = {}, {}
+local function refresh_git(dir)
+  if git_at[dir] then return end
+  git_at[dir] = vim.uv.now()
+  vim.system({ "git", "-C", dir, "status", "--porcelain=v1", "--branch" }, { text = true }, function(r)
+    if r.code ~= 0 then return end
+    local lines = vim.split(r.stdout or "", "\n", { trimempty = true })
+    local head = lines[1] or ""
+    git_cache[dir] = { ahead = tonumber(head:match("ahead (%d+)")), behind = tonumber(head:match("behind (%d+)")), dirty = #lines - 1 }
+    vim.schedule(function() vim.cmd("redrawstatus") end)
+  end)
+end
+function M.git_changed() git_at = {} end
+
 function C.branch()
+  local dir = vim.fs.root(buf(), ".git")
   local b = vim.b[buf()].gitsigns_head
   if not b then
-    local dir = vim.fs.root(buf(), ".git")
     if dir and branch_cache[dir] == nil then refresh_branch(dir) end
     b = dir and branch_cache[dir] or nil
   end
   if not b or b == "" then return nil end
-  return "\u{e725} " .. esc(b)
+  local out = "\u{e725} " .. esc(b)
+  if dir and o().git_status ~= false then
+    refresh_git(dir)
+    local g = git_cache[dir]
+    if g then
+      if g.ahead then out = out .. " " .. hl("OwnSLColor_yellow", "↑" .. g.ahead) .. hl("OwnSL", "") end
+      if g.behind then out = out .. " " .. hl("OwnSLColor_blue", "↓" .. g.behind) .. hl("OwnSL", "") end
+      if g.dirty > 0 then out = out .. " " .. hl("OwnSLColor_orange", "●" .. g.dirty) .. hl("OwnSL", "") end
+    end
+  end
+  return out
 end
 
 function C.diagnostics()
@@ -224,6 +251,21 @@ function C.ram()
   if not ram_pct then return nil end
   local text = ("\u{f035b} %d%%%%"):format(ram_pct)
   return ram_pct > 85 and hl("OwnSLColor_red", text) .. hl("OwnSL", "") or text
+end
+
+-- скорость печати: символы за последние 30 с → слова в минуту (слово — 5 знаков); не печатаешь — блока нет
+local typed = {}
+function M.on_char()
+  local now = vim.uv.now()
+  typed[#typed + 1] = now
+  while typed[1] and now - typed[1] > 30000 do table.remove(typed, 1) end
+end
+function C.wpm()
+  local now = vim.uv.now()
+  while typed[1] and now - typed[1] > 30000 do table.remove(typed, 1) end
+  if #typed < 10 then return nil end
+  local span = math.max(now - typed[1], 5000) / 60000 -- минуты; не меньше 5 с, чтобы первые буквы не давали 300 wpm
+  return ("\u{f030c} %d wpm"):format(math.floor(#typed / 5 / span + 0.5))
 end
 
 function C.uptime()
@@ -338,6 +380,10 @@ function M.setup()
       local dir = vim.fs.root(ev.buf, ".git")
       if dir then refresh_branch(dir) end
     end,
+  })
+  vim.api.nvim_create_autocmd("InsertCharPre", { group = group, callback = function() M.on_char() end })
+  vim.api.nvim_create_autocmd({ "BufWritePost", "FocusGained", "DirChanged", "ShellCmdPost", "TermLeave" }, {
+    group = group, callback = function() M.git_changed() end,
   })
   vim.api.nvim_create_autocmd({ "ModeChanged", "DiagnosticChanged", "LspAttach", "LspDetach", "RecordingEnter", "RecordingLeave" }, {
     group = group,

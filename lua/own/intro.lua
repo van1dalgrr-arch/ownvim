@@ -110,8 +110,8 @@ local function is_blank(buf)
 end
 
 -- логотип со стартового экрана (строки из █╗), бледно и по центру; в файл не пишется — это виртуальные строки
-function M.watermark()
-  local win = vim.api.nvim_get_current_win()
+local function watermark_win(win)
+  if not vim.api.nvim_win_is_valid(win) then return end
   local buf = vim.api.nvim_win_get_buf(win)
   vim.api.nvim_buf_clear_namespace(buf, wm_ns, 0, -1)
   if o().watermark == false or vim.api.nvim_win_get_config(win).relative ~= "" or not is_blank(buf) then return end
@@ -124,8 +124,15 @@ function M.watermark()
   if lw + 4 > W or #logo + 2 > H then return end
   local lines = {}
   for _ = 1, math.floor((H - #logo) / 2) - 1 do lines[#lines + 1] = { { "" } } end
-  for _, l in ipairs(logo) do lines[#lines + 1] = { { (" "):rep(math.floor((W - lw) / 2) - 4) .. l, "OwnWatermark" } } end
+  -- по центру текста: без колонки номеров и значков слева (textoff)
+  local text_w = W - (vim.fn.getwininfo(win)[1] or {}).textoff
+  for _, l in ipairs(logo) do lines[#lines + 1] = { { (" "):rep(math.max(math.floor((text_w - lw) / 2), 0)) .. l, "OwnWatermark" } } end
   vim.api.nvim_buf_set_extmark(buf, wm_ns, 0, 0, { virt_lines = lines })
+end
+
+-- все окна вкладки: панель открылась или закрылась — окно с логотипом сузилось, хотя в фокусе было не оно
+function M.watermark()
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do watermark_win(win) end
 end
 
 -- ── «до встречи» при выходе ─────────────────────────────────────────────────
@@ -170,8 +177,39 @@ function M.outro(ms)
   vim.wait(ms or 450)
 end
 
+-- ── тост проекта: ╭─[  github-watcher ]─╮ feature/bot · ↑2 · 3 изменено ─────────────────────
+
+local toasted = {}
+function M.project_toast()
+  if ((settings.current or {}).appearance or {}).project_toast == false then return end
+  local dir = vim.fs.root(vim.fn.getcwd(), ".git")
+  if not dir or toasted[dir] then return end
+  toasted[dir] = true
+  vim.system({ "git", "-C", dir, "status", "--porcelain=v1", "--branch" }, { text = true }, vim.schedule_wrap(function(r)
+    if r.code ~= 0 then return end
+    local lines = vim.split(r.stdout or "", "\n", { trimempty = true })
+    local head = lines[1] or ""
+    local branch = head:match("^## No commits yet on (%S+)") or head:match("^## ([^%s%.]+)") or "?"
+    local parts = { "\u{e725} " .. branch }
+    local ahead, behind = head:match("ahead (%d+)"), head:match("behind (%d+)")
+    if ahead then parts[#parts + 1] = "↑" .. ahead .. " не запушено" end
+    if behind then parts[#parts + 1] = "↓" .. behind .. " не подтянуто" end
+    local n = #lines - 1
+    parts[#parts + 1] = n > 0 and ("● " .. n .. " " .. plural(n, "файл изменён", "файла изменено", "файлов изменено")) or "✓ чисто"
+    vim.notify(table.concat(parts, " · "), vim.log.levels.INFO, { title = vim.fs.basename(dir), icon = "\u{f07c}" })
+  end))
+end
+
 function M.setup()
   local group = vim.api.nvim_create_augroup("own.intro", { clear = true })
+  -- открыл проект (сессия, папка, cd в другой) — на пару секунд тост с веткой и изменениями
+  vim.api.nvim_create_autocmd({ "VimEnter", "DirChanged" }, {
+    group = group,
+    callback = function()
+      if #vim.api.nvim_list_uis() == 0 then return end
+      vim.defer_fn(M.project_toast, 600)
+    end,
+  })
   vim.api.nvim_create_autocmd({ "BufEnter", "WinResized", "VimResized" }, {
     group = group, callback = function() vim.schedule(M.watermark) end,
   })

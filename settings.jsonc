@@ -6,7 +6,7 @@
 //   "keys": { "n <leader>z": ":Lazy", "i jk": false },
 //   "plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} } },
 {
-  "theme": {"dark":"onedark_vivid","light":"onedark_dark"}, // tokyonight night, прозрачная — как в старом nvim
+  "theme": {"dark":"onedark_dark","light":"onedark_dark"}, // tokyonight night, прозрачная — как в старом nvim
 
   "diagnostics": {
     // на полях — тонкие значки (codicons): значки Font Awesome Ghostty растягивает в квадратные плашки
