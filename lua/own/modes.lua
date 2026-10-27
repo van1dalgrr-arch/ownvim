@@ -1,6 +1,7 @@
 -- Режим видно сразу, и из вставки не нужно выходить самому.
--- Цвет курсора, строки под ним и номера строки меняется по режиму: обычный — как в теме,
--- вставка — зелёный, выделение — фиолетовый, замена — красный. Цвета берутся из текущей темы.
+-- Цвет курсора, его шлейфа (smear), строки под ним и номера строки меняется по режиму: обычный — акцент темы,
+-- вставка — зелёный, выделение — фиолетовый, замена — красный. Те же цвета у статусной строки и рамок (M.colors).
+-- "appearance": { "cursor_by_mode": false } — в обычном режиме курсор цветом текста, шлейф — цветом символа под ним.
 -- Не печатаешь 5 секунд — nvim сам выходит из вставки (а автосохранение пишет файл).
 -- Выключить автовыход: пробел u I.
 local M = {}
@@ -21,14 +22,24 @@ local function fg(group, fallback)
   return h.fg or fallback
 end
 
--- режим → цвет из темы (группы есть в любой теме)
-local kinds = {
-  insert = { "DiagnosticOk", 0x9ece6a }, -- зелёный «ок» темы, а не цвет строк
-  visual = { "Statement", 0xbb9af7 },
-  replace = { "DiagnosticError", 0xf7768e },
-}
+local function by_mode()
+  return (((require("own.settings").current or {}).appearance or {}).cursor_by_mode) ~= false
+end
+
+--- цвета режимов из темы (группы есть в любой теме) — одни на всех: курсор, статусная строка, рамки
+function M.colors()
+  return {
+    Normal = fg("OwnIconAccent") or fg("Title") or 0xbb9af7,
+    Insert = fg("DiagnosticOk") or fg("String") or 0x9ece6a, -- зелёный «ок», а не цвет строк (в Dev Night они жёлтые)
+    Visual = fg("Statement") or 0xbb9af7,
+    Replace = fg("DiagnosticError") or 0xf7768e,
+    Command = fg("DiagnosticWarn") or 0xe0af68,
+    Terminal = fg("Special") or 0x7dcfff,
+  }
+end
 
 local base = {} -- CursorLine/CursorLineNr темы — к ним возвращаемся в обычном режиме
+local cursor = {} -- вид режима → цвет курсора "#rrggbb" (для шлейфа smear)
 
 local function define()
   local bg = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg
@@ -36,33 +47,53 @@ local function define()
   bg = bg or (vim.o.background == "light" and 0xfaf4ed or 0x1a1b26)
   base.line = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })
   base.nr = vim.api.nvim_get_hl(0, { name = "CursorLineNr", link = false })
-  for kind, spec in pairs(kinds) do
-    local c = fg(spec[1], spec[2])
-    local name = kind:sub(1, 1):upper() .. kind:sub(2)
+  local colors = M.colors()
+  if not by_mode() then colors.Normal = fg("Normal", 0xc0caf5) end
+  for name, c in pairs(colors) do
     vim.api.nvim_set_hl(0, "Mode" .. name .. "Cursor", { bg = c, fg = bg })
     vim.api.nvim_set_hl(0, "Mode" .. name .. "Line", { bg = blend(c, bg, 0.14) })
     vim.api.nvim_set_hl(0, "Mode" .. name .. "Nr", { fg = c, bold = true })
+    cursor[name] = ("#%06x"):format(c)
   end
-  vim.api.nvim_set_hl(0, "ModeNormalCursor", { bg = fg("Normal", 0xc0caf5), fg = bg })
 end
 
 local function kind_of(mode)
   local m = mode:sub(1, 1)
-  if m == "i" then return "insert" end
-  if m == "v" or m == "V" or m == "\22" or m == "s" or m == "S" or m == "\19" then return "visual" end
-  if m == "R" then return "replace" end
+  if m == "i" then return "Insert" end
+  if m == "v" or m == "V" or m == "\22" or m == "s" or m == "S" or m == "\19" then return "Visual" end
+  if m == "R" then return "Replace" end
+end
+
+-- шлейф smear — цветом курсора режима; "none" — цветом символа под курсором (как без cursor_by_mode)
+local smear_color
+local function paint_smear(kind)
+  local smear = package.loaded["smear_cursor"]
+  if not smear then return end
+  local want = by_mode() and cursor[kind or "Normal"] or "none"
+  if want == smear_color then return end
+  smear_color = want
+  smear.cursor_color = want
+  smear.cursor_color_insert_mode = want
+  require("smear_cursor.color").clear_cache() -- цвет запомнен в группах SmearCursor* — перекрасить
 end
 
 local function paint()
   local kind = kind_of(vim.api.nvim_get_mode().mode)
+  paint_smear(kind)
   if not kind then
     vim.api.nvim_set_hl(0, "CursorLine", base.line or {})
     vim.api.nvim_set_hl(0, "CursorLineNr", base.nr or {})
     return
   end
-  local name = kind:sub(1, 1):upper() .. kind:sub(2)
-  vim.api.nvim_set_hl(0, "CursorLine", { link = "Mode" .. name .. "Line" })
-  vim.api.nvim_set_hl(0, "CursorLineNr", { link = "Mode" .. name .. "Nr" })
+  vim.api.nvim_set_hl(0, "CursorLine", { link = "Mode" .. kind .. "Line" })
+  vim.api.nvim_set_hl(0, "CursorLineNr", { link = "Mode" .. kind .. "Nr" })
+end
+
+--- настройки поменялись (appearance.cursor_by_mode) или smear только что загрузился — перекрасить
+function M.reload()
+  smear_color = nil
+  define()
+  paint()
 end
 
 -- автовыход из вставки после паузы
@@ -94,7 +125,8 @@ function M.setup()
   }, ",")
 
   local group = vim.api.nvim_create_augroup("own.modes", { clear = true })
-  vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = function() define(); paint() end })
+  -- после темы: акцент (OwnIconAccent) задают другие модули на том же событии — перекрасить, когда они закончат
+  vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = function() vim.schedule(M.reload) end })
   vim.api.nvim_create_autocmd("ModeChanged", { group = group, callback = paint })
   vim.api.nvim_create_autocmd({ "InsertEnter", "TextChangedI", "TextChangedP", "CursorMovedI" }, { group = group, callback = restart })
   vim.api.nvim_create_autocmd("InsertLeave", { group = group, callback = function() timer:stop() end })

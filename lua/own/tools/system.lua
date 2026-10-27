@@ -2,24 +2,11 @@
 local M = {}
 local function root() return require("own.root").get() end
 
--- База проекта для dadbod (пробел D): как команда `db` — DATABASE_URL из .env,
--- иначе postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка проекта>
+-- База проекта для dadbod (пробел D): как команда `db` — DATABASE_URL из .env, postgres из compose,
+-- иначе postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка проекта> (own.sql.db)
 function M.project_db()
-  local dir = root()
-  local env = {}
-  local f = io.open(dir .. "/.env")
-  if f then
-    for line in f:lines() do
-      local k, v = line:match("^%s*([%w_]+)%s*=%s*(.-)%s*$")
-      if k then env[k] = v:gsub('^"(.*)"$', "%1") end
-    end
-    f:close()
-  end
-  local url = env.DATABASE_URL
-  if not url and (env.DB_PASSWORD or vim.uv.fs_stat(dir .. "/go.mod")) then
-    url = ("postgres://postgres:%s@localhost:5432/%s?sslmode=disable"):format(env.DB_PASSWORD or "postgres", vim.fn.fnamemodify(dir, ":t"))
-  end
-  if url then vim.g.dbs = { [vim.fn.fnamemodify(dir, ":t")] = url } end
+  local url, name = require("own.sql.db").project_url(root())
+  if url then vim.g.dbs = { [name] = url } end
 end
 
 -- ◆ kinoza-back 1ч12м — режим dot work, как в промпте (читается файл, без процессов)

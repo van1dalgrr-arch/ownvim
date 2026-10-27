@@ -6,6 +6,7 @@
 --     блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time,
 --     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), rest (пора отдохнуть / ☕ перерыв),
 --     quiet (тихий режим включён), ram (занято памяти), uptime (сколько работает Mac), wpm (скорость печати),
+--     music (что играет: Яндекс Музыка и др., клик — пауза; раздел "music" — lua/own/music.lua),
 --     а также свои из "custom"
 --   "custom": { "k8s": { "shell": "kubectl config current-context", "every_ms": 10000, "icon": "…" },
 --               "hi":  { "text": "привет", "color": "pink" } } — свой текст или вывод команды (не блокирует)
@@ -43,14 +44,7 @@ local function define()
   local base_fg = color("StatusLine") or color("Normal") or 0xcccccc
   local dark = color("Normal", "bg") or 0x000000
   local block_bg = color("CursorLine", "bg") or base_bg
-  local kinds = {
-    Normal = color("OwnIconAccent") or color("Title") or 0xbb9af7,
-    Insert = color("DiagnosticOk") or color("String") or 0x9ece6a, -- зелёный «ок», а не цвет строк (в Dev Night они жёлтые)
-    Visual = color("Statement") or 0xbb9af7,
-    Replace = color("DiagnosticError") or 0xf7768e,
-    Command = color("DiagnosticWarn") or 0xe0af68,
-    Terminal = color("Special") or 0x7dcfff,
-  }
+  local kinds = require("own.modes").colors() -- те же цвета, что у курсора
   vim.api.nvim_set_hl(0, "OwnSL", { fg = base_fg, bg = base_bg })
   vim.api.nvim_set_hl(0, "OwnSLMuted", { fg = color("Comment") or base_fg, bg = base_bg })
   -- линии рамки (стиль frame) — приглушённым цветом темы
@@ -272,6 +266,14 @@ function C.uptime()
   local s = math.floor(vim.uv.uptime())
   local d, h, m = math.floor(s / 86400), math.floor(s % 86400 / 3600), math.floor(s % 3600 / 60)
   return "\u{f0425} " .. (d > 0 and ("%dд %dч"):format(d, h) or ("%dч %dм"):format(h, m))
+end
+
+-- музыка: что играет в Яндекс Музыке (или другом плеере) — lua/own/music.lua; клик — пауза, правый — дальше
+function C.music()
+  local text, playing = require("own.music").text()
+  if not text then return nil end
+  text = "%@v:lua.OwnMusicClick@" .. esc(text) .. "%X"
+  return playing and hl("OwnSLColor_pink", text) .. hl("OwnSL", "") or hl("OwnSLMuted", text) .. hl("OwnSL", "")
 end
 
 function C.search()

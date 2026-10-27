@@ -66,6 +66,8 @@ local function configure()
         schemas[#schemas + 1] = { fileMatch = { "settings.jsonc", "**/ownvim/settings.jsonc", ".ownvim.jsonc" }, url = vim.uri_from_fname(require("own.schema").path) }
         cfg.settings.json.schemas = schemas
       end
+      -- SQL: база проекта и папка миграций — серверу сами (модуль sql)
+      if name == "postgres_lsp" and settings.enabled(current(), "sql") then cfg = require("own.modules.sql").lsp(cfg) end
       -- присваивание (а не вызов) заменяет прошлые свои настройки целиком: удалил ключ — он ушёл
       vim.lsp.config[name] = cfg
       want[name] = true

@@ -111,6 +111,9 @@ The frame follows the mode (`"frames_by_mode"`): in insert every line takes the 
 terminal have their own; saving flashes it green when the file has no errors and red when it has (`"save_flash"`). The indent guide of the block under the
 cursor is a half-tone of the accent.
 
+The cursor follows the same colors (`"cursor_by_mode"`): the theme accent in normal mode, green in insert, purple in
+visual — and so does the smooth cursor's trail. `false` — the normal-mode cursor takes the text color.
+
 More in the same style: `:` and `/` open in the middle in a frame `╭─[  command ]─╮` (`"cmdline": "bottom"` — at the
 bottom, like vim); a closed fold is `╶─[ func main() · 24 lines ]────`; errors to the right of the line are
 `──[  undefined: foo ]` (`modules.error_lens.preset`: `"frame"`, `"modern"` — a badge); the tree has `├─ └─ │` branches
@@ -186,8 +189,13 @@ install one (brew: Google Fonts and Nerd Fonts) and activate it.
 ```
 
 Blocks: `mode`, `branch` (with `↑` unpushed, `↓` behind, `●` changed — `"git_status"`), `diagnostics`, `file`, `filetype`, `encoding`, `indent`, `lsp`, `diff`, `tests` (background
-tests, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, `ram` (memory in use), `uptime` (how long the Mac has been up), `wpm` (typing speed over the last 30 s), plus your own from `custom` — text or the
+tests, `✓ 42` / `✗ 1`), `search`, `macro`, `position`, `progress`, `time`, `ram` (memory in use), `uptime` (how long the Mac has been up), `wpm` (typing speed over the last 30 s), `music` (what's playing in Yandex Music, Apple Music, Spotify; click to pause, right-click for the next track, middle-click for the previous one), plus your own from `custom` — text or the
 output of a command (run in the background on a timer).
+
+Music is read by `media-control` (`brew install media-control`) from macOS Now Playing — the Yandex Music app and
+music.yandex.ru in a browser report there on their own. Yandex Music only:
+`"statusline": { "music": { "apps": ["ru.yandex.desktop.music"] } }`; `"max": 40` — truncate longer titles, `"paused": false` —
+hide while paused.
 
 ### Tabs and breadcrumbs
 

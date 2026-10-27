@@ -1,0 +1,133 @@
+{
+  "таблица": {
+    "prefix": "tbl",
+    "body": [
+      "CREATE TABLE IF NOT EXISTS ${1:orders} (",
+      "    id ${2|bigint GENERATED ALWAYS AS IDENTITY,uuid DEFAULT gen_random_uuid()|} PRIMARY KEY,",
+      "    $0",
+      "    created_at timestamptz NOT NULL DEFAULT now(),",
+      "    updated_at timestamptz NOT NULL DEFAULT now()",
+      ");"
+    ],
+    "description": "CREATE TABLE с id и created_at / updated_at"
+  },
+  "колонка": {
+    "prefix": "col",
+    "body": ["${1:name} ${2|text,bigint,integer,boolean,uuid,timestamptz,jsonb,numeric(12\\, 2)|}${3: NOT NULL}${4: DEFAULT ${5}},"],
+    "description": "колонка: имя, тип, NOT NULL, DEFAULT"
+  },
+  "внешний ключ": {
+    "prefix": "fk",
+    "body": ["${1:user}_id ${2|bigint,uuid|} NOT NULL REFERENCES ${3:${1}s}(id) ON DELETE ${4|CASCADE,RESTRICT,SET NULL|},"],
+    "description": "user_id bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE"
+  },
+  "время создания и изменения": {
+    "prefix": "ts",
+    "body": ["created_at timestamptz NOT NULL DEFAULT now(),", "updated_at timestamptz NOT NULL DEFAULT now()"],
+    "description": "created_at, updated_at"
+  },
+  "индекс": {
+    "prefix": "idx",
+    "body": ["CREATE INDEX IF NOT EXISTS idx_${1:orders}_${2:user_id} ON ${1} (${3:${2}});"],
+    "description": "CREATE INDEX idx_<таблица>_<колонка>"
+  },
+  "индекс без блокировки": {
+    "prefix": "idxc",
+    "body": [
+      "-- CONCURRENTLY не работает в транзакции: в golang-migrate — одна такая команда в файле",
+      "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_${1:orders}_${2:user_id} ON ${1} (${3:${2}});"
+    ],
+    "description": "CREATE INDEX CONCURRENTLY — таблица не блокируется на запись"
+  },
+  "уникальный индекс": {
+    "prefix": "uidx",
+    "body": ["CREATE UNIQUE INDEX IF NOT EXISTS uidx_${1:users}_${2:email} ON ${1} (${3:${2}});"],
+    "description": "CREATE UNIQUE INDEX"
+  },
+  "enum": {
+    "prefix": "enum",
+    "body": ["CREATE TYPE ${1:order_status} AS ENUM ('${2:new}', '${3:paid}', '${4:canceled}');"],
+    "description": "CREATE TYPE … AS ENUM"
+  },
+  "добавить колонку": {
+    "prefix": "addcol",
+    "body": ["ALTER TABLE ${1:users} ADD COLUMN IF NOT EXISTS ${2:phone} ${3:text}${4: NOT NULL DEFAULT ''};"],
+    "description": "ALTER TABLE … ADD COLUMN"
+  },
+  "удалить колонку": {
+    "prefix": "dropcol",
+    "body": ["ALTER TABLE ${1:users} DROP COLUMN IF EXISTS ${2:phone};"],
+    "description": "ALTER TABLE … DROP COLUMN"
+  },
+  "переименовать колонку": {
+    "prefix": "rencol",
+    "body": ["ALTER TABLE ${1:users} RENAME COLUMN ${2:old} TO ${3:new};"],
+    "description": "ALTER TABLE … RENAME COLUMN"
+  },
+  "сделать обязательной": {
+    "prefix": "notnull",
+    "body": [
+      "UPDATE ${1:users} SET ${2:phone} = ${3:''} WHERE ${2} IS NULL;",
+      "ALTER TABLE ${1} ALTER COLUMN ${2} SET NOT NULL;"
+    ],
+    "description": "заполнить пустые и SET NOT NULL — иначе миграция упадёт на старых строках"
+  },
+  "сменить тип": {
+    "prefix": "retype",
+    "body": ["ALTER TABLE ${1:users} ALTER COLUMN ${2:age} TYPE ${3:bigint} USING ${2}::${3};"],
+    "description": "ALTER COLUMN … TYPE … USING"
+  },
+  "внешний ключ отдельно": {
+    "prefix": "addfk",
+    "body": [
+      "ALTER TABLE ${1:orders} ADD CONSTRAINT fk_${1}_${2:user_id}",
+      "    FOREIGN KEY (${2}) REFERENCES ${3:users}(id) ON DELETE ${4|CASCADE,RESTRICT,SET NULL|};"
+    ],
+    "description": "ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY"
+  },
+  "updated_at сам": {
+    "prefix": "trgupd",
+    "body": [
+      "CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS \\$\\$",
+      "BEGIN",
+      "    NEW.updated_at = now();",
+      "    RETURN NEW;",
+      "END;",
+      "\\$\\$ LANGUAGE plpgsql;",
+      "",
+      "CREATE TRIGGER ${1:orders}_updated_at BEFORE UPDATE ON ${1}",
+      "    FOR EACH ROW EXECUTE FUNCTION set_updated_at();"
+    ],
+    "description": "триггер: updated_at = now() при каждом UPDATE"
+  },
+  "вставить или обновить": {
+    "prefix": "upsert",
+    "body": [
+      "INSERT INTO ${1:users} (${2:email}, ${3:name})",
+      "VALUES (\\$1, \\$2)",
+      "ON CONFLICT (${2}) DO UPDATE SET ${3} = EXCLUDED.${3}",
+      "RETURNING ${4:id};"
+    ],
+    "description": "INSERT … ON CONFLICT DO UPDATE"
+  },
+  "CTE": {
+    "prefix": "cte",
+    "body": ["WITH ${1:recent} AS (", "    SELECT ${2:*} FROM ${3:orders} WHERE ${4:created_at > now() - interval '7 days'}", ")", "SELECT ${0:*} FROM ${1};"],
+    "description": "WITH … AS (…) SELECT"
+  },
+  "постраничка": {
+    "prefix": "page",
+    "body": ["SELECT ${1:*} FROM ${2:orders}", "WHERE ${3:id} > \\$1", "ORDER BY ${3}", "LIMIT \\$2;"],
+    "description": "keyset-пагинация: WHERE id > $1 ORDER BY id LIMIT $2"
+  },
+  "goose": {
+    "prefix": "goose",
+    "body": ["-- +goose Up", "$0", "", "-- +goose Down", ""],
+    "description": "разметка goose: Up / Down"
+  },
+  "транзакция": {
+    "prefix": "tx",
+    "body": ["BEGIN;", "$0", "COMMIT;"],
+    "description": "BEGIN; … COMMIT;"
+  }
+}

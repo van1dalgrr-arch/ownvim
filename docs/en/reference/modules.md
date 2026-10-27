@@ -32,6 +32,7 @@ Turning on and off — after `:restart`; module settings — usually immediately
 | `error_lens` | errors to the right of the line, also while typing | on | `preset`, `break_after`, `insert`, `all_on_cursorline` |
 | `quiet` | quiet mode (`space uq`): hide type hints, error badges, animations, breadcrumbs… — again to restore | on | `hide` |
 | `rest` | remind you to take a break after 50 minutes of continuous work; `:Rest` — a break with a countdown | off | `work_min`, `break_min`, `show` |
+| `dim` | inactive windows dimmed (splits, tree, terminal), smoothly; `space uW` toggles it | on | `level`, `animate`, `style`, `by`, `except` |
 | `minimap` | minimap on the right | **off** | `width` |
 | `image_panel` | a side image, a different one per theme | **off** | `image`, `themes`, `side`, `width` |
 
@@ -67,6 +68,7 @@ Turning on and off — after `:restart`; module settings — usually immediately
 | module | what it does | default | settings |
 |---|---|---|---|
 | `docker` | live compose.yaml, Dockerfile layer sizes, `${VAR}` ↔ `.env` | on | `interval_ms`, `compose_status`, `layers`, `env_check` |
+| `sql` | SQL (Postgres): the server connects to the project database by itself; tables, columns, types and enums from migrations — even without a database; migrations: `space rm`, down is written for you, ✓ / ○ in the file | on | `migrations`, `tool`, `auto_down`, `status`, `lsp_db` |
 | `database` | databases (dadbod), project connection from `.env` | on | the `database` section |
 | `tasks` | tasks (`space rr`) | on | the `tasks` section |
 | `system` | containers (`alt-o`), GitHub (`alt-w`), code screenshot | on | `containers`, `github` |

@@ -44,6 +44,7 @@ function M.reload(opts)
     if vim.fn.strchars(s) == 2 then seqs[#seqs + 1] = { vim.fn.strcharpart(s, 0, 1), vim.fn.strcharpart(s, 1, 1) } end
   end
   window_ms = opts.escape_ms or 200
+  if package.loaded["own.modes"] then require("own.modes").reload() end -- appearance.cursor_by_mode
 end
 
 return M

@@ -27,6 +27,7 @@ local function apply()
     smear.smear_insert_mode = cur.insert ~= false
     smear.smear_between_buffers = cur.between_buffers ~= false
     smear.enabled = cur.enabled ~= false
+    if package.loaded["own.modes"] then require("own.modes").reload() end -- шлейф цветом режима
   end
   if rawget(_G, "Snacks") then
     -- snacks читает свой конфиг при включении: поправить и включить заново

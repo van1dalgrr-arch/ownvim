@@ -445,6 +445,10 @@ M.list = {
     vim.cmd("DBUIToggle")
   end, "База данных" },
   ["database.add"] = { "<cmd>DBUIAddConnection<cr>", "Добавить подключение" },
+  migrations = { function() require("own.sql.migrations").menu() end, "Миграции: новая, up, down, redo, статус" },
+  ["migrations.new"] = { function() require("own.sql.migrations").new() end, "Новая миграция" },
+  ["migrations.up"] = { function() require("own.sql.migrations").up() end, "Миграции: применить все" },
+  ["migrations.down"] = { function() require("own.sql.migrations").down() end, "Миграции: откатить последнюю" },
   ["format.info"] = { "<cmd>ConformInfo<cr>", "Чем форматируется этот файл" },
   ["toggle.format"] = {
     function()

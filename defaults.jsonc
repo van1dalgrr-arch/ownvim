@@ -29,16 +29,21 @@
   // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro,
   // ext (надписи Go-расширений: тесты в фоне ✓ 42 / ✗ 1 и свои), rest (пора отдохнуть / ☕ перерыв), quiet (тихий режим),
   // ram (занято памяти, > 85% — красным), uptime (сколько работает Mac) — без внешних команд, wpm (скорость печати)
+  // music — что играет: Яндекс Музыка (приложение или сайт), Apple Music, Spotify; клик — пауза, правый — следующий, средний — предыдущий
+  //   (нужен media-control: brew install media-control; ничего не играет — блока нет)
   // и свои из custom: { "имя": { "text": "…", "color": "pink" } } или { "shell": "команда", "every_ms": 10000, "icon": "…" }
   "statusline": {
     "style": "frame",
     "left": ["mode", "branch", "diagnostics", "file"],
-    "right": ["rest", "quiet", "search", "macro", "ext", "wpm", "diff", "lsp", "ram", "uptime", "position", "time"],
+    "right": ["music", "rest", "quiet", "search", "macro", "ext", "wpm", "diff", "lsp", "ram", "uptime", "position", "time"],
     "path": "relative", // "name" — только имя файла, "full" — от ~
     "time_format": "%H:%M",
     "git_status": true, // у ветки: ↑ не запушено, ↓ не подтянуто, ● изменено файлов
     "mode_names": {}, // свои подписи: { "n": "NORMAL", "i": "INSERT" }
     "custom": {},
+    // apps — только эти плееры (bundle id: Яндекс Музыка — "ru.yandex.desktop.music"; [] — любой),
+    // max — длиннее — обрезать с «…», paused — показывать и на паузе (бледным)
+    "music": { "apps": [], "max": 40, "paused": true },
   },
 
   // Дерево файлов (пробел e): своё — вид и поведение отсюда; "engine": "snacks" — дерево snacks
@@ -144,6 +149,7 @@
     // строка файла — ─[ main.go › main ]──, номер текущей строки — ❯ 10. false — как было
     "frames": true,
     "frames_by_mode": true, // рамка живёт режимом: во вставке все линии — цветом режима, в выделении — своим
+    "cursor_by_mode": true, // курсор и его шлейф — цветом режима, как рамки: в обычном — акцент, во вставке — зелёный; false — в обычном цветом текста
     "save_flash": true, // сохранил — рамка на миг вспыхивает: зелёным — ошибок нет, красным — есть
     "project_toast": true, // открыл проект — на пару секунд: ветка, ↑ не запушено, сколько файлов изменено
     "cmdline": "center", // : и / — по центру в рамке ╭─[  команда ]─╮; "bottom" — внизу, как в vim
@@ -254,6 +260,10 @@
     // раскладка помнится для каждого проекта. default — что открыть в новом проекте: left/bottom — имя вида или false
     "progress": true, // прогресс языковых серверов в углу: gopls индексирует — видно, а не «завис»
     "workspace": { "restore": true, "default": { "left": "tree", "bottom": false }, "left_width": 32, "bottom_height": 12 },
+    // неактивные окна тусклее (сплиты, дерево, терминал), подсветка в них остаётся; пробел u W — выкл на время.
+    // level — яркость неактивного (1 — как активное), style: "default", "minimalist", "duo", "ripple", "paradox";
+    // by: "windows" | "buffers" (сплиты с тем же файлом горят вместе); except — типы файлов, которые не гаснут
+    "dim": { "level": 0.6, "animate": true, "style": "default", "by": "windows", "except": [] },
     "image_panel": { "enabled": false, "image": "", "side": "right", "width": 32, "themes": {}, "auto": true },
     "minimap": false, // миникарта справа, как в VS Code ({ "width": 18 }); полоса прокрутки с метками — легче
     "completion": true, // автодополнение (раздел completion ниже)
@@ -262,6 +272,10 @@
     "test": true, // тесты: neotest (раздел test ниже)
     "debug": true, // отладчик: dap + delve (раздел debug ниже)
     "database": true, // база данных: dadbod (раздел database ниже)
+    // SQL (Postgres): сервер SQL сам подключается к базе проекта; дополнение таблиц, колонок, типов и enum из миграций —
+    // и без базы; миграции: пробел r m — новая / up / down / redo / статус, down пишется сам по up, ✓ / ○ в первой строке.
+    // migrations — папка ("" — найти самому), tool: "auto" | "migrate" | "goose"
+    "sql": { "migrations": "", "tool": "auto", "auto_down": true, "status": true, "lsp_db": true },
     "go": true, // Go как в GoLand: ▶, действия с превью, генерация, peek, покрытие (раздел go ниже)
     "tasks": true, // задачи, как ctrl-r в Zed (раздел tasks ниже)
     "ai": true, // Claude Code в nvim (раздел ai ниже)
@@ -326,8 +340,9 @@
       },
       // golangci-lint как сервер дублирует ошибки gopls на строке 1 — он работает линтером при сохранении (раздел lint)
       "golangci_lint_ls": false,
-      // SQL (Postgres): синтаксис и типы; с подключением к базе — ещё и таблицы (postgres-language-server.jsonc)
-      "postgres_lsp": { "root_markers": ["postgres-language-server.jsonc", ".git"], "workspace_required": false },
+      // SQL (Postgres): синтаксис, таблицы и колонки базы, опасные миграции. База проекта подключается сама
+      // (модуль sql: DATABASE_URL из .env или postgres из compose); свой postgres-language-server.jsonc — главнее
+      "postgres_lsp": { "root_markers": ["postgres-language-server.jsonc", "go.mod", ".git"], "workspace_required": false },
       // Docker: Dockerfile, compose, bake — официальный сервер Docker
       "docker_language_server": true,
       // C / C++: clangd из системы (Apple знает пути к заголовкам macOS) — дополнение, ошибки, clang-tidy, .h ↔ .cpp.
@@ -862,6 +877,7 @@
     // база данных
     "n <leader>D": "database",
     "n <M-d>": "database",
+    "n <leader>rm": "migrations", // миграции: новая, up, down, redo, статус
     "n <leader>ss": "lsp.symbols",
     "n <leader>sS": "lsp.workspace_symbols",
     "n <leader>ch": "lsp.incoming_calls",

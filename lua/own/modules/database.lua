@@ -1,8 +1,8 @@
 -- База данных (vim-dadbod): подключения слева, запрос в файле — enter/пробел S выполняет, результат —
 -- таблицей; в .sql — дополнение по таблицам и колонкам базы. Раздел "database" в settings.jsonc:
 --   "connections": { "local": "postgres://postgres:postgres@localhost:5432/app" } — свои подключения
---   "project_env": true — подключение проекта само: DATABASE_URL из .env в корне проекта,
---     иначе (есть DB_PASSWORD или go.mod) postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка>
+--   "project_env": true — подключение проекта само: DATABASE_URL из .env в корне проекта, иначе postgres из
+--     compose-файла (POSTGRES_USER/PASSWORD/DB и порт), иначе postgres://postgres:<DB_PASSWORD>@localhost:5432/<папка>
 --   "save_location": "~/.local/share/ownvim/db_ui" — где лежат сохранённые запросы
 -- Подключения применяются на лету.
 local settings = require("own.settings")
@@ -11,33 +11,10 @@ local M = {}
 
 local function db() return (settings.current or {}).database or {} end
 
--- KEY=value из .env (без кавычек и комментариев)
-local function read_env(path)
-  local env = {}
-  local f = io.open(path)
-  if not f then return env end
-  for line in f:lines() do
-    local k, v = line:match("^%s*([%w_]+)%s*=%s*(.-)%s*$")
-    if k and not line:match("^%s*#") then env[k] = (v:gsub("^['\"](.*)['\"]$", "%1")) end
-  end
-  f:close()
-  return env
-end
-
-local function project_url()
-  local dir = vim.fs.root(0, { ".env", "go.mod", ".git" }) or vim.uv.cwd()
-  local env = read_env(dir .. "/.env")
-  if env.DATABASE_URL then return env.DATABASE_URL, vim.fn.fnamemodify(dir, ":t") end
-  if env.DB_PASSWORD or vim.uv.fs_stat(dir .. "/go.mod") then
-    local name = vim.fn.fnamemodify(dir, ":t")
-    return ("postgres://postgres:%s@localhost:5432/%s?sslmode=disable"):format(env.DB_PASSWORD or "postgres", name), name
-  end
-end
-
 local function apply()
   local dbs = vim.deepcopy(db().connections or {})
   if db().project_env ~= false then
-    local url, name = project_url()
+    local url, name = require("own.sql.db").project_url()
     if url and not dbs[name] then dbs[name] = url end
   end
   vim.g.dbs = dbs
@@ -65,9 +42,9 @@ function M.plugins()
       opts = function(_, opts)
         opts.sources = opts.sources or {}
         opts.sources.per_filetype = vim.tbl_extend("force", opts.sources.per_filetype or {}, {
-          sql = { "snippets", "dadbod", "buffer" },
-          mysql = { "snippets", "dadbod", "buffer" },
-          plsql = { "snippets", "dadbod", "buffer" },
+          sql = { "lsp", "dadbod", "snippets", "buffer" },
+          mysql = { "lsp", "dadbod", "snippets", "buffer" },
+          plsql = { "lsp", "dadbod", "snippets", "buffer" },
         })
         opts.sources.providers = opts.sources.providers or {}
         opts.sources.providers.dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" }

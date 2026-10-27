@@ -5,6 +5,7 @@
 --   Rust      src/foo.rs ↔ tests/foo.rs (тесты внутри файла — прыжок к mod tests)
 --   C / C++   foo.cpp ↔ foo_test.cpp, tests/foo_test.cpp
 --   Lua       foo.lua ↔ foo_spec.lua, spec/foo_spec.lua
+--   SQL       000003_x.up.sql ↔ 000003_x.down.sql (миграции)
 -- Есть пара — открывается; нет — создаётся первый вариант (папка тоже), как «Create New Test» в GoLand.
 local M = {}
 
@@ -69,6 +70,8 @@ end
 function M.switch()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then return vim.notify("сначала сохрани файл", vim.log.levels.WARN) end
+  local migration = require("own.sql.migrations").pair(path)
+  if migration then return vim.cmd.edit(vim.fn.fnameescape(migration)) end
   local dir, name, ext = vim.fn.fnamemodify(path, ":h"), vim.fn.fnamemodify(path, ":t:r"), vim.fn.fnamemodify(path, ":e")
   if ext == "" then return vim.notify("у файла нет расширения — не понять, где его тест", vim.log.levels.WARN) end
 

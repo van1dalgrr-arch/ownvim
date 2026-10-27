@@ -89,6 +89,28 @@ hadolint текущего Dockerfile, trivy — уязвимости образ�
 },
 ```
 
+### SQL и миграции
+
+Модуль `sql`. Подключение к базе проекта находится само: `DATABASE_URL` из `.env`, иначе сервис postgres из
+compose-файла (`POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` и порт).
+
+- **Дополнение.** `FROM |` — таблицы, `u.|` — колонки таблицы или псевдонима, `SELECT | FROM users` — колонки
+  запроса, `INSERT INTO t (|`, `REFERENCES t(|` — колонки `t`, `role = '|` — значения enum. В `CREATE TABLE` и
+  `ADD COLUMN` после имени — типы Postgres, после типа — `NOT NULL`, `DEFAULT`, `REFERENCES`… Схема берётся из
+  файлов миграций — работает без запущенной базы и знает ещё не применённые миграции; с базой добавляется сервер SQL
+  (функции, системные таблицы, ошибки в запросах, опасные миграции).
+- **Миграции** — `пробел rm`: новая, up, down (с подтверждением), redo, статус. Или `:Migrate new add_phone_to_users`.
+  Имя `create_orders` даёт заготовку `CREATE TABLE`, `add_x_to_y` — `ALTER TABLE y ADD COLUMN x`.
+- **down пишется сам** при сохранении up (`DROP TABLE`, `DROP COLUMN`, `RENAME` обратно…), пока его не правили руками.
+- В первой строке миграции: `✓ применена`, `○ ждёт применения`, `✗ dirty`. `cmd-shift-t` — up ↔ down.
+- Сниппеты: `tbl`, `col`, `fk`, `ts`, `idx`, `idxc`, `uidx`, `enum`, `addcol`, `dropcol`, `rencol`, `notnull`,
+  `retype`, `addfk`, `trgupd`, `upsert`, `cte`, `page`, `tx`, `goose`.
+- golang-migrate (`000001_x.up.sql` / `.down.sql`) и goose (`-- +goose Up`) различаются сами.
+
+```jsonc
+"modules": { "sql": { "migrations": "", "tool": "auto", "auto_down": true, "status": true, "lsp_db": true } },
+```
+
 ## Задачи
 
 Как Run Configurations в GoLand или `ctrl-r` в Zed: `пробел rr` (или `alt-t`) — выбрать и запустить, `пробел rl` —

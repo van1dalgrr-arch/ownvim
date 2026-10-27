@@ -139,9 +139,9 @@ function M.build()
 
   -- статусная строка: блоки — свои и custom
   local blocks = { "mode", "branch", "diagnostics", "file", "filetype", "encoding", "indent", "lsp", "diff", "tests",
-    "position", "progress", "time", "search", "macro" }
+    "position", "progress", "time", "search", "macro", "ext", "rest", "quiet", "ram", "uptime", "wpm", "music" }
   local sl = P.statusline.properties
-  sl.style.enum = { "bubbles", "arrows", "slant", "flat", "plain" }
+  sl.style.enum = { "frame", "bubbles", "arrows", "slant", "flat", "plain" }
   sl.left.items = { type = "string", examples = blocks }
   sl.right.items = { type = "string", examples = blocks }
   sl.path.enum = { "relative", "name", "full" }
