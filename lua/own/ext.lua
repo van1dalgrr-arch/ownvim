@@ -544,12 +544,21 @@ function M.api.status(ext, text, color, filetypes)
   vim.schedule(function() pcall(vim.cmd.redrawstatus) end)
 end
 
+--- Тип файла подходит под список расширения: "*", точное имя или часть составного (yaml.docker-compose — это и yaml)
+function M.ft_match(list, ft)
+  if vim.tbl_contains(list, "*") or vim.tbl_contains(list, ft) then return true end
+  for part in ft:gmatch("[^.]+") do
+    if vim.tbl_contains(list, part) then return true end
+  end
+  return false
+end
+
 --- Надписи расширений для текущего буфера (statusline: блок ext) → { { text, color } }
 function M.status_for(buf)
   local ft = vim.bo[buf].filetype
   local out = {}
   for ext, s in vim.spairs(M.status) do
-    if not disabled(ext) and (#s.filetypes == 0 or vim.tbl_contains(s.filetypes, ft)) then out[#out + 1] = s end
+    if not disabled(ext) and (#s.filetypes == 0 or M.ft_match(s.filetypes, ft)) then out[#out + 1] = s end
   end
   return out
 end
@@ -675,6 +684,35 @@ function M.new_jsonc(name)
   vim.cmd.edit(vim.fn.fnameescape(file))
 end
 
+--- Включить / выключить JSONC-набор, не открывая его: "enabled" в файле меняется, настройки применяются сразу
+function M.toggle_jsonc(name)
+  local file = vim.fn.stdpath("config") .. "/extensions/" .. name .. ".jsonc"
+  if not vim.uv.fs_stat(file) then return vim.notify("нет набора extensions/" .. name .. ".jsonc", vim.log.levels.WARN) end
+  local lines = vim.fn.readfile(file)
+  local on
+  for i, l in ipairs(lines) do
+    if l:match('^%s*"enabled"%s*:') then
+      on = not l:match(":%s*true")
+      lines[i] = l:gsub(":%s*%a+", ": " .. tostring(on), 1)
+      break
+    end
+  end
+  if on == nil then -- поля нет — набор включён; выключить
+    on = false
+    for i, l in ipairs(lines) do
+      if l:match("^%s*{") then table.insert(lines, i + 1, '  "enabled": false,') break end
+    end
+  end
+  vim.fn.writefile(lines, file)
+  require("own.settings").reapply()
+  vim.notify(("%s: %s"):format(name, on and "включён" or "выключен"))
+end
+
+local function jsonc_names()
+  return vim.tbl_map(function(f) return vim.fn.fnamemodify(f, ":t:r") end,
+    vim.fn.glob(vim.fn.stdpath("config") .. "/extensions/*.jsonc", false, true))
+end
+
 -- ── пересборка после правки Go-кода ──────────────────────────────────────────
 
 local function rebuilt(ok)
@@ -688,6 +726,10 @@ function M.setup()
   M.reload(false)
   vim.api.nvim_create_user_command("PluginNew", function(a) M.new_jsonc(a.args) end,
     { nargs = 1, desc = "Новый JSONC-набор без кода (extensions/<имя>.jsonc)" })
+  vim.api.nvim_create_user_command("PluginToggle", function(a) M.toggle_jsonc(a.args) end,
+    { nargs = 1, complete = jsonc_names, desc = "Включить / выключить JSONC-набор" })
+  vim.api.nvim_create_user_command("Zed", function() M.toggle_jsonc("zed") end,
+    { desc = "Вид и клавиши Zed (extensions/zed.jsonc): включить / выключить" })
   vim.api.nvim_create_user_command("GoExtensionNew", function(a) M.new(a.args) end,
     { nargs = 1, desc = "Новое расширение на Go (core/extensions/<имя>)" })
   vim.api.nvim_create_user_command("View", function(a)

@@ -1,12 +1,16 @@
 -- Своя статусная строка (вместо lualine): блоки из settings.jsonc, как элементы status bar в VS Code.
 -- Раздел "statusline":
 --   "style": "bubbles" | "arrows" | "slant" | "flat" | "plain" — форма крайних блоков;
+--     "zed" — как status bar в Zed: без плашек, всё приглушённым текстом, режим — цветной надписью
 --     "frame" — рамкой, как промпт dotfiles: ╰─( ОБЫЧНЫЙ )─[ main ]─[ main.go ]────[ 12:4 ]─╯
 --   "left": ["mode", "branch", "diagnostics", "file"], "right": ["search", "macro", "lsp", "position", "time"]
 --     блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time,
 --     search (найдено 3/12), macro (пишется @q), tests (✓ 42 / ✗ 1 — фоновые тесты), rest (пора отдохнуть / ☕ перерыв),
 --     quiet (тихий режим включён), ram (занято памяти), uptime (сколько работает Mac), wpm (скорость печати),
 --     music (что играет: Яндекс Музыка и др., клик — пауза; раздел "music" — lua/own/music.lua),
+--     panels (кнопки панелей, как в Zed: проект, структура, тесты, база | терминал, проблемы | Claude; клик — вкл/выкл),
+--     problems (ошибки и предупреждения всего проекта, нули тоже — как в Zed; клик — панель «Проблемы»),
+--     language (язык файла словом: Go, Rust, Plain Text),
 --     а также свои из "custom"
 --   "custom": { "k8s": { "shell": "kubectl config current-context", "every_ms": 10000, "icon": "…" },
 --               "hi":  { "text": "привет", "color": "pink" } } — свой текст или вывод команды (не блокирует)
@@ -47,6 +51,7 @@ local function define()
   local kinds = require("own.modes").colors() -- те же цвета, что у курсора
   vim.api.nvim_set_hl(0, "OwnSL", { fg = base_fg, bg = base_bg })
   vim.api.nvim_set_hl(0, "OwnSLMuted", { fg = color("Comment") or base_fg, bg = base_bg })
+  vim.api.nvim_set_hl(0, "OwnSLActive", { fg = color("OwnIconAccent") or color("Title") or base_fg, bg = base_bg })
   -- линии рамки (стиль frame) — приглушённым цветом темы
   vim.api.nvim_set_hl(0, "OwnSLFrame", { fg = color("Comment") or base_fg, bg = base_bg })
   vim.api.nvim_set_hl(0, "OwnSLBlock", { fg = color("Normal") or base_fg, bg = block_bg })
@@ -288,6 +293,65 @@ function C.macro()
   return r ~= "" and hl("OwnSLColor_red", "\u{f111} @" .. r) .. hl("OwnSL", "") or nil
 end
 
+-- кнопки панелей, как в углах status bar Zed: открытая — акцентом, клик — открыть / спрятать
+local PANELS = { "tree", "outline", "tests", "db", "|", "terminal", "problems", "|", "ai" }
+_G.OwnSLPanel = function(i)
+  local name = PANELS[i]
+  if name == "ai" then
+    local rhs = require("own.actions").get("ai.toggle")
+    if type(rhs) == "function" then rhs() end
+  elseif name then
+    require("own.modules.workspace").toggle(name)
+  end
+  vim.cmd("redrawstatus")
+end
+function C.panels()
+  local ws = package.loaded["own.modules.workspace"]
+  if not ws then return nil end
+  local out = {}
+  for i, name in ipairs(PANELS) do
+    if name == "|" then
+      out[#out + 1] = hl("OwnSLFrame", "│")
+    else
+      local icon = name == "ai" and "\u{2726}" or (ws.views[name] or {}).icon
+      if icon then
+        local on = name ~= "ai" and ws.is_open(name)
+        out[#out + 1] = ("%%%d@v:lua.OwnSLPanel@"):format(i) .. hl(on and "OwnSLActive" or "OwnSLMuted", icon) .. "%X"
+      end
+    end
+  end
+  return table.concat(out, hl("OwnSL", " ")) .. hl("OwnSL", "")
+end
+
+-- ошибки всего проекта, нули тоже — как в Zed; клик — панель «Проблемы»
+_G.OwnSLProblems = function() require("own.modules.workspace").toggle("problems") end
+function C.problems()
+  local signs = ((vim.diagnostic.config() or {}).signs or {}).text or {}
+  local out = {}
+  for sev, name in ipairs({ "Error", "Warn" }) do
+    local n = #vim.diagnostic.get(nil, { severity = sev })
+    local icon = vim.trim(signs[sev] or name:sub(1, 1))
+    out[#out + 1] = hl(n > 0 and "OwnSLDiag" .. name or "OwnSLMuted", icon .. " " .. n)
+  end
+  return "%@v:lua.OwnSLProblems@" .. table.concat(out, hl("OwnSL", " ")) .. "%X" .. hl("OwnSL", "")
+end
+
+-- язык словом, как кнопка языка в Zed
+local LANGS = { go = "Go", gomod = "Go Mod", gosum = "Go Sum", rust = "Rust", python = "Python", lua = "Lua", sql = "SQL",
+  javascript = "JavaScript", typescript = "TypeScript", typescriptreact = "TSX", javascriptreact = "JSX", json = "JSON",
+  jsonc = "JSONC", yaml = "YAML", toml = "TOML", markdown = "Markdown", sh = "Shell Script", bash = "Shell Script",
+  zsh = "Shell Script", dockerfile = "Dockerfile", html = "HTML", css = "CSS", c = "C", cpp = "C++", make = "Makefile",
+  cmake = "CMake", http = "HTTP", proto = "Proto", gitcommit = "Git Commit", text = "Plain Text", [""] = "Plain Text" }
+function C.language()
+  if vim.bo[buf()].buftype ~= "" then return nil end
+  local ft = vim.bo[buf()].filetype
+  -- Python — с окружением проекта: «Python .venv»
+  local py = ft == "python" and package.loaded["own.modules.python"]
+  local venv = py and py.venv_name()
+  if venv then return "Python " .. venv end
+  return LANGS[ft] or (ft:sub(1, 1):upper() .. ft:sub(2))
+end
+
 local function mode_info()
   local m = vim.api.nvim_get_mode().mode:sub(1, 1)
   local names = vim.tbl_extend("force", MODES, o().mode_names or {})
@@ -302,6 +366,21 @@ local function component(name)
   if not text or text == "" then return nil end
   text = (spec.icon and spec.icon .. " " or "") .. esc(text)
   return spec.color and hl("OwnSLColor_" .. spec.color, text) .. hl("OwnSL", "") or text
+end
+
+-- стиль zed: без плашек и рамок, блоки — приглушённым текстом через пробелы, режим — цветной надписью
+local function render_zed(opts, text, kind)
+  local function side(list)
+    local out = {}
+    for _, name in ipairs(list) do
+      local v = name == "mode" and hl("OwnSLMode" .. kind .. "Text", text) .. hl("OwnSL", "") or component(name)
+      if v then out[#out + 1] = v end
+    end
+    return table.concat(out, hl("OwnSL", "   "))
+  end
+  local left = side(opts.left or { "panels", "problems", "branch" })
+  local right = side(opts.right or { "mode", "position", "language" })
+  return hl("OwnSL", "  ") .. left .. hl("OwnSL", "%=") .. right .. hl("OwnSL", "  ")
 end
 
 -- крайний блок: режим слева, последний блок справа — цветом режима, в форме стиля
@@ -350,6 +429,7 @@ function M.render()
   local style = opts.style or "bubbles"
   local text, kind = mode_info()
   if style == "frame" then return render_frame(opts, text, kind) end
+  if style == "zed" then return render_zed(opts, text, kind) end
   local function side(list, is_left)
     local parts = {}
     for i, name in ipairs(list) do

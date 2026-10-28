@@ -118,6 +118,7 @@ defaults.jsonc  →  JSONC-наборы  →  языки, включённые �
 | `statusline` · `tabline` · `breadcrumbs` | статусная строка, вкладки, хлебные крошки | [Внешний вид](appearance.md#интерфейс) | да |
 | `dashboard` | стартовый экран | [Внешний вид](appearance.md#стартовый-экран) | после `:restart` |
 | `explorer` | дерево файлов | [Работа с кодом](workflow.md#дерево-файлов) | да |
+| `project` | корень проекта: папка запуска или ближайший `.git` | [Настройки](configuration.md) | да |
 | `animations` | плавный курсор и прокрутка | [Внешний вид](appearance.md#анимации) | да |
 | `options` · `globals` | опции Neovim и `vim.g` | [выше](#опции-neovim) | да |
 | `keys` | клавиши | [выше](#клавиши) | да |

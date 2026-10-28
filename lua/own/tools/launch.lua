@@ -2,6 +2,7 @@
 --   пробел r r — запустить (уже идёт — перезапустить), пробел r d — под отладчиком, пробел r s — остановить,
 --   пробел r c — выбрать конфигурацию; клик по имени — тоже выбор, по ▶ / 󰃤 / ■ — запуск, отладка, стоп.
 -- Находятся сами: Go — каждый package main (./cmd/api, корень), Rust — cargo run, compose — docker compose up,
+-- Python — manage.py runserver, uvicorn для FastAPI в main.py / app.py, иначе python main.py,
 -- package.json — npm run dev/start; плюс свои — раздел "run": { "configs": [ { "name", "cmd", "env", "cwd" } ] }
 -- и задачи из "tasks" без ${input:…}. .env проекта подхватывается для Go сам (как в GoLand с EnvFile).
 -- Вывод — во вкладке «Запуск» нижней панели; выбранная конфигурация помнится для каждого проекта.
@@ -56,6 +57,33 @@ local function static(dir)
     out[#out + 1] = { id = "cargo:run", name = vim.fs.basename(dir), kind = "rust", cmd = { "cargo", "run" }, cwd = dir,
       detail = "cargo run", debug = "rust" }
   end
+  -- Python: Django (manage.py), FastAPI (uvicorn), main.py / app.py — Python окружения проекта, .env — сам
+  local py_on = settings.enabled(settings.current or {}, "python")
+  local py = py_on and require("own.modules.python").python(dir) or "python3"
+  if exists(dir, "manage.py") then
+    out[#out + 1] = { id = "py:django", name = "django", kind = "python", cmd = { py, "manage.py", "runserver" }, cwd = dir,
+      env = env_of(dir), detail = "manage.py runserver",
+      debug = { type = "python", request = "launch", name = "django", program = dir .. "/manage.py", args = { "runserver", "--noreload" },
+        django = true, cwd = dir, pythonPath = py, justMyCode = false } }
+  end
+  for _, f in ipairs({ "main.py", "app.py", "app/main.py", "src/main.py" }) do
+    if exists(dir, f) then
+      local file = io.open(dir .. "/" .. f)
+      local text = file and file:read("*a") or ""
+      if file then file:close() end
+      local app = ("\n" .. text):match("\n([%w_]+)%s*=%s*FastAPI%(")
+      if app then
+        local mod = f:gsub("%.py$", ""):gsub("/", ".") .. ":" .. app
+        out[#out + 1] = { id = "py:" .. f, name = "uvicorn " .. mod, kind = "python", cmd = { py, "-m", "uvicorn", mod, "--reload" }, cwd = dir,
+          env = env_of(dir), detail = "uvicorn " .. mod .. " --reload",
+          debug = { type = "python", request = "launch", name = mod, module = "uvicorn", args = { mod }, cwd = dir, pythonPath = py, justMyCode = false } }
+      else
+        out[#out + 1] = { id = "py:" .. f, name = f, kind = "python", cmd = { py, f }, cwd = dir, env = env_of(dir), detail = "python " .. f,
+          debug = { type = "python", request = "launch", name = f, program = dir .. "/" .. f, cwd = dir, pythonPath = py, justMyCode = false } }
+      end
+      break
+    end
+  end
   for _, f in ipairs({ "compose.yaml", "compose.yml", "docker-compose.yaml", "docker-compose.yml" }) do
     if exists(dir, f) then
       out[#out + 1] = { id = "compose:up", name = "compose", kind = "docker", cmd = { "docker", "compose", "up" }, cwd = dir,
@@ -86,7 +114,7 @@ local function static(dir)
     local visible = false
     for _, w in ipairs(t.when or {}) do if exists(dir, w) then visible = true end end
     if visible and t.cmd and not t.cmd:find("${input:", 1, true) and not t.cmd:find("${file", 1, true) then
-      out[#out + 1] = { id = "task:" .. t.name, name = t.name, kind = "task", cmd = t.cmd, detail = t.cmd, cwd = dir,
+      out[#out + 1] = { id = "task:" .. t.name, name = t.name, kind = "task", cmd = require("own.modules.tasks").expand(t.cmd), detail = t.cmd, cwd = dir,
         env = t.env and env_of(dir, t.env) or nil }
     end
   end
@@ -209,7 +237,7 @@ function M.debug()
   end)
 end
 
-local ICON = { go = "\u{e627}", rust = "\u{e7a8}", docker = "\u{f308}", node = "\u{e718}", user = "\u{eaf8}", task = "\u{eab3}" }
+local ICON = { go = "\u{e627}", rust = "\u{e7a8}", python = "\u{e73c}", docker = "\u{f308}", node = "\u{e718}", user = "\u{eaf8}", task = "\u{eab3}" }
 
 function M.choose()
   M.list(function(list)

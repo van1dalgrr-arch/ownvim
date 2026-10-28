@@ -253,6 +253,7 @@ music.yandex.ru в браузере туда пишут сами. Только �
   "cursor": { "enabled": true, "stiffness": 0.8, "trailing_stiffness": 0.6, "insert_stiffness": 0.9, "min_distance": 2 },
   "scroll": { "enabled": true, "duration_ms": 100 },
   "indent_scope": { "enabled": false },
+  "terminal": true,
 },
 ```
 
@@ -264,3 +265,5 @@ music.yandex.ru в браузере туда пишут сами. Только �
 Ещё детали из VS Code, каждая — отдельный модуль: цветные пары скобок (`brackets`), шапка функции сверху
 (`sticky_scroll`), ошибки справа от строки (`error_lens`), полоса прокрутки с метками ошибок и git (`scrollbar`),
 миникарта (`minimap`, выключена; `пробел um`), режим цветом курсора и строки (`modes`).
+
+`"terminal": false` — шейдеры Ghostty (плавный курсор, шлейф, искры из `fx`) не работают в окне ownvim, а в остальных вкладках терминала остаются. ownvim помечает свою вкладку 255-м цветом палитры, шейдеры dotfiles эту метку видят.

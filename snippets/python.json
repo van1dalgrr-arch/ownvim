@@ -1,0 +1,80 @@
+{
+  "if __name__ == main": {
+    "prefix": "ifmain",
+    "body": ["def main() -> None:", "\t${1:pass}", "", "", "if __name__ == \"__main__\":", "\tmain()"],
+    "description": "main() и if __name__ == \"__main__\""
+  },
+  "функция с типами": {
+    "prefix": "def",
+    "body": ["def ${1:name}(${2:arg}: ${3:str}) -> ${4:None}:", "\t${0:pass}"],
+    "description": "def name(arg: str) -> None"
+  },
+  "async-функция": {
+    "prefix": "adef",
+    "body": ["async def ${1:name}(${2:arg}: ${3:str}) -> ${4:None}:", "\t${0:pass}"],
+    "description": "async def name(arg: str) -> None"
+  },
+  "dataclass": {
+    "prefix": "dc",
+    "body": ["@dataclass", "class ${1:Name}:", "\t${2:field}: ${3:str}", "\t$0"],
+    "description": "@dataclass class"
+  },
+  "pydantic-модель": {
+    "prefix": "pm",
+    "body": ["class ${1:Name}(BaseModel):", "\t${2:field}: ${3:str}", "\t$0"],
+    "description": "class Name(BaseModel)"
+  },
+  "тест pytest": {
+    "prefix": "test",
+    "body": ["def test_${1:name}() -> None:", "\t${2:got} = ${3:fn}()", "\tassert ${2:got} == ${4:want}"],
+    "description": "def test_…: assert"
+  },
+  "табличный тест": {
+    "prefix": "tt",
+    "body": [
+      "@pytest.mark.parametrize(",
+      "\t(\"${1:arg}\", \"want\"),",
+      "\t[",
+      "\t\tpytest.param(${2:\"\"}, ${3:\"\"}, id=\"${4:обычный случай}\"),",
+      "\t],",
+      ")",
+      "def test_${5:name}(${1:arg}: ${6:str}, want: ${7:str}) -> None:",
+      "\tassert ${8:fn}(${1:arg}) == want"
+    ],
+    "description": "pytest.mark.parametrize — как табличный тест в Go"
+  },
+  "фикстура": {
+    "prefix": "fix",
+    "body": ["@pytest.fixture", "def ${1:name}() -> ${2:Iterator[None]}:", "\t${3:value} = ${4:None}", "\tyield ${3:value}"],
+    "description": "@pytest.fixture с yield"
+  },
+  "ожидать исключение": {
+    "prefix": "raises",
+    "body": ["with pytest.raises(${1:ValueError}, match=\"${2:текст}\"):", "\t${0:fn()}"],
+    "description": "with pytest.raises(…)"
+  },
+  "try / except с логом": {
+    "prefix": "tryl",
+    "body": ["try:", "\t${1:pass}", "except ${2:Exception}:", "\tlogger.exception(\"${3:что делали}\")", "\t${4:raise}"],
+    "description": "try / except → logger.exception"
+  },
+  "логгер модуля": {
+    "prefix": "log",
+    "body": ["logger = logging.getLogger(__name__)"],
+    "description": "logger = logging.getLogger(__name__)"
+  },
+  "FastAPI-обработчик": {
+    "prefix": "fa",
+    "body": [
+      "@${1:router}.${2|get,post,put,patch,delete|}(\"/${3:path}\")",
+      "async def ${4:handler}(${5}) -> ${6:dict[str, str]}:",
+      "\t${0:return {\"status\": \"ok\"\\}}"
+    ],
+    "description": "@router.get(\"/path\") async def …"
+  },
+  "главная async": {
+    "prefix": "amain",
+    "body": ["async def main() -> None:", "\t${1:pass}", "", "", "if __name__ == \"__main__\":", "\tasyncio.run(main())"],
+    "description": "async main() и asyncio.run"
+  }
+}

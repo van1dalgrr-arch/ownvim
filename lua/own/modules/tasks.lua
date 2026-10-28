@@ -3,7 +3,8 @@
 --   when — задача видна, только если в корне проекта есть хоть один из файлов (нет when — всегда)
 --   ft — только когда открыт файл этого языка: ["cpp", "c"]
 --   в cmd подставляется: ${root} — корень проекта, ${file} — текущий файл, ${file_dir} — его папка,
---   ${image} — имя образа (папка проекта):dev, ${input:Подсказка} — спросить при запуске
+--   ${image} — имя образа (папка проекта):dev, ${python} — Python окружения проекта (.venv…),
+--   ${input:Подсказка} — спросить при запуске
 --   env — файл(ы) с переменными для задачи: ".env" или [".env", ".env.local"]
 -- Правка списка видна сразу, без :restart.
 local settings = require("own.settings")
@@ -42,13 +43,14 @@ local function inputs(cmd)
   return params
 end
 
-local function expand(cmd, params)
+function M.expand(cmd, params)
   local root = require("own.root").get()
   local vars = {
     root = root,
     file = vim.fn.expand("%:p"),
     file_dir = vim.fn.expand("%:p:h"),
     image = vim.fn.fnamemodify(root, ":t"):lower():gsub(" ", "-") .. ":dev",
+    python = settings.enabled(settings.current or {}, "python") and require("own.modules.python").python(root) or "python3",
   }
   cmd = cmd:gsub("%${input:([^}]+)}", function(label) return vim.fn.shellescape((params or {})[key(label)] or "") end)
   return (cmd:gsub("%${(%w+)}", function(k) return vars[k] and vim.fn.shellescape(vars[k]) or "${" .. k .. "}" end))
@@ -80,7 +82,7 @@ local function template(t)
           env = vim.tbl_extend("force", env, M.read_env(root .. "/" .. file))
         end
       end
-      return { name = t.name, cmd = expand(t.cmd, params), cwd = cwd, env = env }
+      return { name = t.name, cmd = M.expand(t.cmd, params), cwd = cwd, env = env }
     end,
   }
 end

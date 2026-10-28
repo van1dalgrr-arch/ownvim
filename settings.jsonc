@@ -6,7 +6,7 @@
 //   "keys": { "n <leader>z": ":Lazy", "i jk": false },
 //   "plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} } },
 {
-  "theme": {"dark":"onedark_dark","light":"onedark_dark"}, // tokyonight night, прозрачная — как в старом nvim
+  "theme": {"dark":"onedark_dark","light":"onedark_vivid"}, // tokyonight night, прозрачная — как в старом nvim
 
   "diagnostics": {
     // на полях — тонкие значки (codicons): значки Font Awesome Ghostty растягивает в квадратные плашки
@@ -14,6 +14,7 @@
   },
   "animations": {
     "cursor": { "insert": false }, // при наборе курсор без шлейфа; прыжки — по-прежнему плавно
+    "terminal": false, // шейдеры Ghostty (плавный курсор, шлейф, искры) — только в терминале, в ownvim их нет
   },
   // дерево: .env, .github, .golangci.yml, .air.toml видны сразу — как в GoLand (секреты в .env и так под звёздочками)
   "explorer": { "hidden": true },

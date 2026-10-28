@@ -7,14 +7,30 @@
 --     min_distance — сдвиг короче стольких символов — без шлейфа (2: шаг на символ — набор, h/l — мгновенно)
 --   "scroll": { "enabled": true, "duration_ms": 100 }
 --   "indent_scope": { "enabled": false } — рамка текущего блока рисуется плавно
+--   "terminal": false — эффекты Ghostty (fx: плавный курсор, шлейф, искры) в окне ownvim выключены, в остальных
+--     вкладках терминала остаются. ownvim метит свою вкладку: 255-й цвет палитры — #ff00ff (nvim палитрой не пользуется),
+--     шейдеры dotfiles видят метку в iPalette[255] и не анимируют; вышел или ctrl-z — метка снята (OSC 104)
 local settings = require("own.settings")
 
 local M = {}
 
 local function a() return (settings.current or {}).animations or {} end
 
+-- метка вкладки Ghostty: эффекты здесь не нужны
+local MARK, UNMARK = "\27]4;255;rgb:ff/00/ff\27\\", "\27]104;255\27\\"
+local marked = false
+
+local function send(s) pcall(vim.api.nvim_ui_send, s) end
+
+local function terminal_fx()
+  local want = a().terminal == false
+  if want ~= marked then send(want and MARK or UNMARK) end
+  marked = want
+end
+
 local function apply()
   local o = a()
+  terminal_fx()
   local cur = o.cursor or {}
   local ok, smear = pcall(require, "smear_cursor")
   if ok then
@@ -66,6 +82,16 @@ function M.setup()
     group = vim.api.nvim_create_augroup("own.animations", { clear = true }),
     callback = apply,
   })
+  -- на время ctrl-z и после выхода вкладка снова обычный терминал — с эффектами
+  local group = vim.api.nvim_create_augroup("own.animations.fx", { clear = true })
+  vim.api.nvim_create_autocmd({ "VimLeavePre", "VimSuspend" }, { group = group, callback = function()
+    if marked then send(UNMARK) end
+  end })
+  vim.api.nvim_create_autocmd("VimResume", { group = group, callback = function()
+    if marked then send(MARK) end
+  end })
+  -- метка — сразу, а не после загрузки плагинов: курсор не должен успеть проехать со шлейфом
+  vim.api.nvim_create_autocmd("UIEnter", { group = group, once = true, callback = terminal_fx })
 end
 
 M.reload = apply

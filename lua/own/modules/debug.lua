@@ -1,4 +1,4 @@
--- Отладчик (nvim-dap + delve для Go): точки останова переживают перезапуск, панели переменных/стека
+-- Отладчик (nvim-dap + delve для Go, debugpy для Python, codelldb для C/C++/Rust): точки останова переживают перезапуск, панели переменных/стека
 -- открываются сами, значения переменных — серым прямо в коде. Клавиши как в GoLand: F8 шаг, F7 внутрь,
 -- shift-F8 наружу, F9 дальше, ctrl-F8 точка останова; пробел d … — всё остальное.
 -- Раздел "debug" в settings.jsonc:
@@ -6,6 +6,9 @@
 --   "signs": { "breakpoint": "●", … } — значки
 --   "go": { "delve": "dlv", "configurations": [ … ] } — свои конфигурации запуска (как в nvim-dap-go),
 --     по умолчанию — подключение к dlv в Docker на :2345
+--   "javascript": { "configurations": [ … ] } — к готовым (текущий файл в node, подключение к --inspect :9229)
+--   "python": { "configurations": [ … ] } — свои конфигурации к готовым (файл, файл с аргументами, pytest…),
+--     по умолчанию — подключение к debugpy в Docker на :5678; Python программы — окружения проекта (модуль python)
 -- Всё — после :restart, кроме значков.
 local settings = require("own.settings")
 local tools = require("own.tools")
@@ -50,6 +53,7 @@ function M.plugins()
         { "rcarriga/nvim-dap-ui", dependencies = { "nvim-neotest/nvim-nio" } },
         "theHamsta/nvim-dap-virtual-text",
         "leoluz/nvim-dap-go",
+        "mfussenegger/nvim-dap-python",
       },
       lazy = true,
       config = function()
@@ -114,6 +118,32 @@ function M.plugins()
             dap_configurations = go.configurations,
           })
         end
+        -- JS / TS: js-debug (vscode-js-debug) из mason; TypeScript node запускает сам
+        local js = o.javascript or {}
+        if js ~= false then
+          dap.adapters["pwa-node"] = {
+            type = "server", host = "localhost", port = "${port}",
+            executable = { command = "js-debug-adapter", args = { "${port}" } },
+          }
+          local confs = vim.list_extend({
+            { type = "pwa-node", request = "launch", name = "Node: текущий файл", program = "${file}", cwd = "${workspaceFolder}",
+              console = "integratedTerminal", sourceMaps = true },
+            { type = "pwa-node", request = "attach", name = "Подключиться к node --inspect (:9229)", port = 9229, cwd = "${workspaceFolder}" },
+          }, vim.deepcopy(js.configurations or {}))
+          for _, ft in ipairs({ "javascript", "typescript", "javascriptreact", "typescriptreact" }) do dap.configurations[ft] = confs end
+        end
+        -- Python: debugpy из mason (своё окружение — не нужно ставить его в каждый проект), программа — Python проекта
+        local py = o.python or {}
+        if py ~= false then
+          local adapter = vim.fn.stdpath("data") .. "/mason/packages/debugpy/venv/bin/python"
+          local dp = require("dap-python")
+          dp.setup(vim.uv.fs_stat(adapter) and adapter or "python3", { include_configs = true })
+          dp.test_runner = py.test_runner or "pytest"
+          if settings.enabled(settings.current or {}, "python") then
+            dp.resolve_python = function() return require("own.modules.python").python() end
+          end
+          dap.configurations.python = vim.list_extend(dap.configurations.python or {}, vim.deepcopy(py.configurations or {}))
+        end
       end,
     },
     -- сохранённые точки останова — после отрисовки (тянут dap, ~6 мс), дальше — с каждым открытым файлом
@@ -131,6 +161,17 @@ end
 
 function M.setup()
   if (d().go or {}) ~= false then tools.ensure_bin((d().go or {}).delve or "dlv", "debug") end
+  -- debugpy — когда открыт Python-файл
+  if d().python ~= false and tools.mason() then
+    vim.api.nvim_create_autocmd("FileType", {
+      group = vim.api.nvim_create_augroup("own.debug.python", { clear = true }),
+      pattern = "python",
+      once = true,
+      callback = function()
+        if not tools.installed("debugpy") then tools.install("debugpy", "debugpy", function() end) end
+      end,
+    })
+  end
   -- codelldb — когда открыт C/C++/Rust-файл (большой: ~30 МБ, не ставим всем подряд)
   if d().cpp ~= false then
     vim.api.nvim_create_autocmd("FileType", {

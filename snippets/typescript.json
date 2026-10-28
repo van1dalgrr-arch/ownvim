@@ -1,0 +1,60 @@
+{
+  "async main": {
+    "prefix": "amain",
+    "body": ["async function main() {", "\t${1}", "}", "", "main().catch((err) => {", "\tconsole.error(err);", "\tprocess.exit(1);", "});"],
+    "description": "async main() с выходом по ошибке"
+  },
+  "скрипт node": {
+    "prefix": "script",
+    "body": ["#!/usr/bin/env node", "import { parseArgs } from \"node:util\";", "", "const { values, positionals } = parseArgs({", "\toptions: {", "\t\t${1:out}: { type: \"string\", short: \"${2:o}\" },", "\t},", "\tallowPositionals: true,", "});", "", "$0"],
+    "description": "#!/usr/bin/env node + разбор аргументов (node:util parseArgs)"
+  },
+  "fetch JSON": {
+    "prefix": "fj",
+    "body": ["const res = await fetch(${1:url}, { signal: AbortSignal.timeout(${2:10_000}) });", "if (!res.ok) throw new Error(`${1:url}: ${res.status}`);", "const ${3:data} = await res.json();"],
+    "description": "fetch с таймаутом и проверкой статуса"
+  },
+  "параллельно с лимитом": {
+    "prefix": "pool",
+    "body": [
+      "async function pool(items, limit, fn) {",
+      "\tconst out = [];",
+      "\tlet i = 0;",
+      "\tconst workers = Array.from({ length: limit }, async () => {",
+      "\t\twhile (i < items.length) {",
+      "\t\t\tconst n = i++;",
+      "\t\t\tout[n] = await fn(items[n]).catch((err) => ({ error: String(err) }));",
+      "\t\t}",
+      "\t});",
+      "\tawait Promise.all(workers);",
+      "\treturn out;",
+      "}"
+    ],
+    "description": "Promise-пул: не больше limit запросов одновременно"
+  },
+  "прочитать файл": {
+    "prefix": "rf",
+    "body": ["const ${1:text} = await readFile(${2:path}, \"utf8\");"],
+    "description": "await readFile (node:fs/promises)"
+  },
+  "записать JSON": {
+    "prefix": "wj",
+    "body": ["await writeFile(${1:path}, JSON.stringify(${2:data}, null, 2));"],
+    "description": "await writeFile JSON"
+  },
+  "тест": {
+    "prefix": "test",
+    "body": ["test(\"${1:что проверяем}\", ${2:async }() => {", "\texpect(${3:got}).toBe(${4:want});", "});"],
+    "description": "test(…) — vitest / jest"
+  },
+  "describe": {
+    "prefix": "desc",
+    "body": ["describe(\"${1:что}\", () => {", "\t$0", "});"],
+    "description": "describe(…)"
+  },
+  "try / catch": {
+    "prefix": "tc",
+    "body": ["try {", "\t${1}", "} catch (err) {", "\tconsole.error(\"${2:что делали}:\", err);", "}"],
+    "description": "try / catch с логом"
+  }
+}

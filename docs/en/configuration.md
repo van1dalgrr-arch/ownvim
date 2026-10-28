@@ -116,6 +116,7 @@ An unknown option is highlighted in `settings.jsonc`.
 | `statusline` · `tabline` · `breadcrumbs` | status line, tabs, breadcrumbs | [Appearance](appearance.md#interface) | yes |
 | `dashboard` | start screen | [Appearance](appearance.md#start-screen) | after `:restart` |
 | `explorer` | file tree | [Working with code](workflow.md#file-tree) | yes |
+| `project` | project root: launch folder or nearest `.git` | [Configuration](configuration.md) | yes |
 | `animations` | smooth cursor and scrolling | [Appearance](appearance.md#animations) | yes |
 | `options` · `globals` | Neovim options and `vim.g` | [above](#neovim-options) | yes |
 | `keys` | keys | [above](#keys) | yes |

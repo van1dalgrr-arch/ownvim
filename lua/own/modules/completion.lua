@@ -77,7 +77,11 @@ local function build()
     sources = {
       -- сниппеты: свои из snippets/ (blink читает эту папку конфига сам) + friendly-snippets
       default = function() return c().sources or { "lsp", "path", "snippets", "buffer" } end,
-      providers = { snippets = { opts = { friendly_snippets = o.friendly_snippets ~= false } } },
+      providers = { snippets = { opts = {
+        friendly_snippets = o.friendly_snippets ~= false,
+        -- compose — это YAML: сниппеты yaml (в friendly-snippets там и docker-compose) работают и в нём
+        extended_filetypes = { ["yaml.docker-compose"] = { "yaml" } },
+      } } },
     },
     cmdline = { enabled = true, completion = { menu = { auto_show = true } } },
     fuzzy = { implementation = "prefer_rust_with_warning" },

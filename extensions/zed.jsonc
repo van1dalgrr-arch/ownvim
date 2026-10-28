@@ -1,0 +1,45 @@
+// Zed в терминале: тема One Dark / One Light, статусная строка и вкладки как в Zed, кнопки панелей внизу,
+// клавиши Zed для macOS. Всё остальное ownvim (дополнение, рамки, анимации, error lens, панели) — как было.
+// :Zed — включить / выключить набор на лету (или "enabled" ниже). settings.jsonc сильнее набора:
+// если там задана "theme", цвета Zed выбираются в alt-s (zed-one-dark / zed-one-light) или уберите "theme" оттуда.
+{
+  "name": "zed",
+  "description": "вид и клавиши Zed поверх ownvim",
+  "enabled": true,
+
+  "theme": { "dark": "zed-one-dark", "light": "zed-one-light" },
+
+  // status bar Zed: слева — кнопки панелей и ошибки проекта, справа — режим, позиция, язык.
+  // Вернуть время, память и т.п. — "right+": ["time", "ram", "uptime", "wpm"] в settings.jsonc
+  "statusline": {
+    "style": "zed",
+    "left": ["panels", "problems", "branch", "diff", "lsp"],
+    "right": ["music", "rest", "quiet", "search", "macro", "ext", "mode", "position", "language"],
+  },
+
+  // вкладки-ячейки через тонкий разделитель, текущая — на фоне кода
+  "tabline": { "style": "zed" },
+
+  // дерево как project panel: тонкие линии отступа вместо веток tree
+  "explorer": { "indent": "│ " },
+
+  // клавиши Zed (macOS). Те, что заняты Ghostty (cmd-t, cmd-w, cmd-,, cmd-f) или GoLand-клавишами
+  // из settings.jsonc (cmd-b, cmd-shift-o), не трогаются
+  "keys": {
+    "nit <D-j>": "panel", // нижняя панель: спрятать / вернуть (cmd-j)
+    "nt <C-`>": { "do": "<cmd>lua require('own.modules.workspace').toggle('terminal')<cr>", "desc": "Терминал (ctrl-`, как в Zed)" },
+    "n <D-S-e>": "explorer", // project panel
+    "n <D-S-m>": "panel.problems", // diagnostics
+    "nx <D-.>": "lsp.code_action", // cmd-. — исправления
+    "n <F12>": "lsp.definition",
+    "nx <D-S-i>": "format", // cmd-shift-i — отформатировать
+    "n <D-S-k>": { "do": "\"_dd", "desc": "Удалить строку (cmd-shift-k)" },
+    "n <D-S-d>": { "do": "<cmd>t.<cr>", "desc": "Дублировать строку (cmd-shift-d)" },
+    "n <C-D-Up>": { "do": "<cmd>m .-2<cr>==", "desc": "Строку вверх (ctrl-cmd-↑)" },
+    "n <C-D-Down>": { "do": "<cmd>m .+1<cr>==", "desc": "Строку вниз (ctrl-cmd-↓)" },
+    "x <C-D-Up>": "lines.up",
+    "x <C-D-Down>": "lines.down",
+    "n <D-k><D-t>": "themes", // cmd-k cmd-t — выбор темы
+    "nit <D-?>": "ai.toggle", // панель агента
+  },
+}

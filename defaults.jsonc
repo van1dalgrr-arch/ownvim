@@ -4,7 +4,7 @@
 // включить/выключить модуль или плагин — после :restart.
 {
   // Тема: имя, или { "dark": …, "light": … } — по тёмной/светлой теме системы, или "auto" — выбранная в alt-s.
-  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, sunset, aurora, midnight, nebula, forest, matcha, ember, mocha, ocean, arctic, dusk, graphite, mono, neon; новая — :ThemeNew <имя>, правка — :ThemeEdit,
+  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, sunset, aurora, midnight, nebula, forest, matcha, ember, mocha, ocean, arctic, dusk, graphite, mono, neon, zed-one-dark, zed-one-light; новая — :ThemeNew <имя>, правка — :ThemeEdit,
   // из VS Code — :ThemeInstall <издатель.расширение>. Темы-плагины тоже: "tokyonight", "rose-pine", "kanagawa",
   // "carbonfox", "cyberdream", "vesper", "gruvbox-material", "catppuccin-mocha"…
   "theme": { "dark": "dev-night", "light": "dev-day" },
@@ -25,10 +25,11 @@
   },
 
   // Статусная строка — блоки, как элементы status bar в VS Code. Стили: "bubbles", "arrows", "slant", "flat", "plain",
-  // "frame" — рамкой, как промпт dotfiles: ╰─( ОБЫЧНЫЙ )─[  main ]─[ main.go ]────[ 12:4 ]─╯
+  // "frame" — рамкой, как промпт dotfiles: ╰─( ОБЫЧНЫЙ )─[  main ]─[ main.go ]────[ 12:4 ]─╯; "zed" — как status bar в Zed
   // Блоки: mode, branch, diagnostics, file, filetype, encoding, indent, lsp, diff, position, progress, time, search, macro,
   // ext (надписи Go-расширений: тесты в фоне ✓ 42 / ✗ 1 и свои), rest (пора отдохнуть / ☕ перерыв), quiet (тихий режим),
   // ram (занято памяти, > 85% — красным), uptime (сколько работает Mac) — без внешних команд, wpm (скорость печати)
+  // panels — кнопки панелей, как в Zed (клик — вкл/выкл), problems — ошибки всего проекта (и нули), language — язык словом (Go)
   // music — что играет: Яндекс Музыка (приложение или сайт), Apple Music, Spotify; клик — пауза, правый — следующий, средний — предыдущий
   //   (нужен media-control: brew install media-control; ничего не играет — блока нет)
   // и свои из custom: { "имя": { "text": "…", "color": "pink" } } или { "shell": "команда", "every_ms": 10000, "icon": "…" }
@@ -44,6 +45,14 @@
     // apps — только эти плееры (bundle id: Яндекс Музыка — "ru.yandex.desktop.music"; [] — любой),
     // max — длиннее — обрезать с «…», paused — показывать и на паузе (бледным)
     "music": { "apps": [], "max": 40, "paused": true },
+  },
+
+  // Корень проекта — где ищут файлы и текст (пробел f f, пробел /), открываются дерево и терминал.
+  // "launch" — папка, откуда запустил ownvim: cd dev/sql && ownvim . — только dev/sql, даже если выше есть .git;
+  // проект поглубже (свой .git, корень gopls) — его корень. "git" — ближайший .git вверх, даже выше папки запуска.
+  "project": {
+    "root": "launch",
+    "markers": [".git"], // по каким файлам узнавать корень: [".git", "go.mod", "package.json"]
   },
 
   // Дерево файлов (пробел e): своё — вид и поведение отсюда; "engine": "snacks" — дерево snacks
@@ -66,7 +75,7 @@
   // Вкладки, как в VS Code: клик — перейти, клик по крестику или средней кнопкой — закрыть; shift-h/l — соседняя
   "tabline": {
     "show": "always", // "always" — всегда (там же запуск и переключатель панели), "auto" — когда файлов больше одного, "never"
-    "style": "ide", // текущая: "ide" (на фоне кода, полоска акцента), "underline" (линия акцента), "bar", "slant", "plain"
+    "style": "ide", // текущая: "ide" (на фоне кода, полоска акцента), "underline" (линия акцента), "bar", "slant", "plain", "zed"
     "close_button": true,
     "icons": true,
     "max_name": 24,
@@ -132,6 +141,8 @@
     },
     "scroll": { "enabled": true, "duration_ms": 100 }, // плавная прокрутка (ctrl-d, ctrl-u, мышь)
     "indent_scope": { "enabled": false }, // рамка текущего блока проявляется плавно
+    // эффекты Ghostty (fx: плавный курсор, шлейф, искры): false — в окне ownvim выключены, в терминале остаются
+    "terminal": true,
   },
 
   // Вид
@@ -277,6 +288,8 @@
     // migrations — папка ("" — найти самому), tool: "auto" | "migrate" | "goose"
     "sql": { "migrations": "", "tool": "auto", "auto_down": true, "status": true, "lsp_db": true },
     "go": true, // Go как в GoLand: ▶, действия с превью, генерация, peek, покрытие (раздел go ниже)
+    "javascript": { "run_marks": true }, // JS / TS: ▶ у тестов и #!node-скриптов (пробел r x / r X), отладка js-debug
+    "python": true, // Python как Go: окружение проекта само, ▶ у main и тестов, автоимпорт, ruff при сохранении (раздел python ниже)
     "tasks": true, // задачи, как ctrl-r в Zed (раздел tasks ниже)
     "ai": true, // Claude Code в nvim (раздел ai ниже)
     "http": true, // Postman в файле (.http) и эндпоинты Gin
@@ -288,6 +301,10 @@
         ["Debug", "Info", "Warn"], ["Println", "Printf", "Print"],
         ["MethodGet", "MethodPost", "MethodPut", "MethodPatch", "MethodDelete"], ["GET", "POST", "PUT", "PATCH", "DELETE"],
         ["StatusOK", "StatusCreated", "StatusNoContent", "StatusBadRequest", "StatusUnauthorized", "StatusNotFound", "StatusInternalServerError"]],
+      "javascript": [["const", "let"], ["===", "!=="], ["log", "warn", "error"], ["GET", "POST", "PUT", "PATCH", "DELETE"], ["async", "sync"]],
+      "typescript": [["const", "let"], ["===", "!=="], ["log", "warn", "error"], ["GET", "POST", "PUT", "PATCH", "DELETE"], ["public", "private", "protected"]],
+      "python": [["True", "False"], ["==", "!="], ["debug", "info", "warning", "error", "critical"],
+        ["get", "post", "put", "patch", "delete"], ["GET", "POST", "PUT", "PATCH", "DELETE"], ["list", "tuple", "set"]],
     },
     "cloak": true, // секреты в .env под звёздочками
     "yanky": true, // история копирования: пробел p
@@ -353,9 +370,42 @@
         "init_options": { "usePlaceholders": true, "completeUnimported": true, "clangdFileStatus": true },
       },
       "neocmake": true, // CMakeLists.txt: дополнение команд и переменных, ошибки
-      // Python
-      "basedpyright": true,
-      "ruff": true,
+      // Python: basedpyright — типы, переходы, дополнение с автоимпортом; ruff — замечания и быстрые исправления.
+      // Окружение проекта (.venv, poetry, pipenv) серверу передаётся само — модуль python
+      "basedpyright": {
+        "settings": {
+          "basedpyright": {
+            "disableOrganizeImports": true, // импорты сортирует ruff
+            "analysis": {
+              "typeCheckingMode": "standard", // "basic" | "standard" | "recommended" | "strict" | "all"
+              "autoImportCompletions": true, // дополнение из неимпортированных модулей — import пишется сам
+              "autoSearchPaths": true,
+              "diagnosticMode": "openFilesOnly", // "workspace" — ошибки всего проекта (медленнее)
+              // подсказки типов в строке; пробел c t — вписать подсказку в код
+              "inlayHints": { "variableTypes": true, "functionReturnTypes": true, "callArgumentNames": false, "genericTypes": false },
+            },
+          },
+        },
+      },
+      // JavaScript / TypeScript: vtsls (сервер VS Code) — дополнение с автоимпортом, подсказки типов, переименование файлов
+      // с правкой импортов; eslint — включается, только если в проекте есть его конфиг
+      "vtsls": {
+        "settings": {
+          "vtsls": { "autoUseWorkspaceTsdk": true, "experimental": { "completion": { "enableServerSideFuzzyMatch": true } } },
+          "javascript": {
+            "suggest": { "autoImports": true, "completeFunctionCalls": true },
+            "updateImportsOnFileMove": { "enabled": "always" },
+            "inlayHints": { "parameterNames": { "enabled": "literals" }, "variableTypes": { "enabled": true }, "functionLikeReturnTypes": { "enabled": true } },
+          },
+          "typescript": {
+            "suggest": { "autoImports": true, "completeFunctionCalls": true },
+            "updateImportsOnFileMove": { "enabled": "always" },
+            "inlayHints": { "parameterNames": { "enabled": "literals" }, "variableTypes": { "enabled": true }, "functionLikeReturnTypes": { "enabled": true } },
+          },
+        },
+      },
+      "eslint": true,
+      "ruff": { "init_options": { "settings": { "organizeImports": true, "fixAll": true } } },
       // Rust: clippy при сохранении; подсказки имён параметров выключены (шумят), «}» подписывается только у длинных блоков
       "rust_analyzer": {
         "settings": {
@@ -405,17 +455,29 @@
     "languages": {
       "go": ["goimports", "gofumpt"],
       "sql": ["pg_format"],
-      "python": ["ruff_organize_imports", "ruff_format"],
+      "python": ["ruff_fix", "ruff_organize_imports", "ruff_format"], // как goimports + gofumpt: исправить, импорты, формат
       "rust": ["rustfmt"],
+      // JS / TS: стиль — .prettierrc проекта
+      "javascript": ["prettierd"],
+      "typescript": ["prettierd"],
+      "javascriptreact": ["prettierd"],
+      "typescriptreact": ["prettierd"],
       "c": ["clang_format"], // стиль — .clang-format проекта, нет его — LLVM
       "cpp": ["clang_format"],
       "sh": ["shfmt"],
       "toml": ["taplo"],
+      // YAML: отступы по 2, вложенные списки с отступом, комментарии и пустые строки остаются (compose, k8s, Actions)
+      "yaml": ["yamlfmt"],
+      "yaml.docker-compose": ["yamlfmt"],
     },
     // настройки форматтеров, как в conform: command, args, prepend_args, cwd…
     "formatters": {
-      "pg_format": { "prepend_args": ["--spaces", "2", "--keyword-case", "2", "--type-case", "2"] }, // 2 — ЗАГЛАВНЫЕ
+      // ключевые слова и типы — ЗАГЛАВНЫМИ (2), функции — строчными (1): SELECT count(id), now();
+      // пустые строки в plpgsql (триггеры в миграциях) остаются
+      "pg_format": { "prepend_args": ["--spaces", "2", "--keyword-case", "2", "--type-case", "2", "--function-case", "1", "--keep-newline"] },
       "shfmt": { "prepend_args": ["-ci"] }, // отступ shfmt берёт из shiftwidth файла
+      // пустые строки между сервисами остаются (по одной), длинные строки не переносятся
+      "yamlfmt": { "prepend_args": ["-formatter", "retain_line_breaks_single=true,max_line_length=0"] },
     },
   },
 
@@ -439,6 +501,8 @@
     "adapters": {
       "neotest-golang": { "go_test_args": ["-v", "-race", "-count=1", "-timeout=60s"], "dap_go_enabled": true },
       "neotest-python": true,
+      "neotest-vitest": true, // JS / TS: vitest — если он в package.json
+      "neotest-jest": true,
     },
     "status": { "virtual_text": true, "signs": true },
     "output": { "open_on_run": false }, // вывод — пробел t o
@@ -473,6 +537,18 @@
         },
       ],
     },
+    "python": {
+      "test_runner": "pytest", // "unittest", "django"
+      // свои конфигурации — к готовым (файл, файл с аргументами, doctest). По умолчанию — подключиться к debugpy в Docker:
+      //   python -m debugpy --listen 0.0.0.0:5678 -m uvicorn app.main:app (порт 5678 наружу, код в /app)
+      "configurations": [
+        {
+          "type": "python", "name": "Подключиться к debugpy в Docker (:5678)", "request": "attach",
+          "connect": { "host": "127.0.0.1", "port": 5678 }, "pathMappings": [{ "localRoot": "${workspaceFolder}", "remoteRoot": "/app" }],
+          "justMyCode": false,
+        },
+      ],
+    },
   },
 
   // База данных (dadbod): пробел D / alt-d — подключения и таблицы; в .sql — дополнение по таблицам
@@ -488,8 +564,15 @@
     "coverage_file": "/tmp/cover.out",
   },
 
+  // Python: окружение проекта находится само — .venv, venv, env, poetry, pipenv, $VIRTUAL_ENV, conda;
+  // пробел r v — выбрать другое (помнится для проекта), в строке статуса — «Python .venv»
+  "python": {
+    "venv": "", // папка окружения от корня проекта; "" — найти самому
+    "run_marks": true, // ▶ слева от if __name__ == "__main__" и test_*: пробел r x — запустить, пробел r X — в отладчике
+  },
+
   // Задачи (пробел r r, alt-t): when — видна, если в корне есть файл/папка; ft — если открыт файл этого языка;
-  // в cmd: ${root}, ${file}, ${file_dir}, ${image}, ${input:Подсказка} — спросить при запуске;
+  // в cmd: ${root}, ${file}, ${file_dir}, ${image}, ${python} — Python окружения проекта, ${input:Подсказка} — спросить при запуске;
   // "env": ".env" (или список файлов) — переменные проекта для задачи. Свои — "list+": [ … ] в settings.jsonc
   // (дописать к этим). Правка видна сразу, без :restart
   "tasks": {
@@ -516,6 +599,25 @@
       { "name": "cmake: собрать", "cmd": "cmake --build build -j", "when": ["CMakeLists.txt"] },
       { "name": "cmake: тесты (ctest)", "cmd": "ctest --test-dir build --output-on-failure", "when": ["CMakeLists.txt"] },
       { "name": "make", "cmd": "make -j", "when": ["Makefile"] },
+      { "name": "npm install", "cmd": "npm install", "when": ["package.json"] },
+      { "name": "npm test", "cmd": "npm test", "when": ["package.json"] },
+      { "name": "Node: запустить текущий файл", "cmd": "node ${file}", "ft": ["javascript", "typescript"] },
+      { "name": "Node: текущий файл с аргументами", "cmd": "node ${file} ${input:Аргументы}", "ft": ["javascript", "typescript"] },
+      { "name": "Node: следить и перезапускать", "cmd": "node --watch ${file}", "ft": ["javascript", "typescript"] },
+      { "name": "tsc — типы всего проекта", "cmd": "npx tsc --noEmit", "when": ["tsconfig.json"] },
+      { "name": "eslint — весь проект", "cmd": "npx eslint .", "when": ["eslint.config.js", "eslint.config.mjs", ".eslintrc.json", ".eslintrc.js"] },
+      { "name": "uv sync — зависимости", "cmd": "uv sync", "when": ["uv.lock"] },
+      { "name": "создать .venv", "cmd": "uv venv || python3 -m venv .venv", "when": ["pyproject.toml", "requirements.txt"] },
+      { "name": "pip install -r requirements.txt", "cmd": "${python} -m pip install -r requirements.txt", "when": ["requirements.txt"] },
+      { "name": "pytest — весь проект", "cmd": "${python} -m pytest", "when": ["pyproject.toml", "pytest.ini", "setup.py", "requirements.txt"] },
+      { "name": "pytest — текущий файл", "cmd": "${python} -m pytest -v ${file}", "ft": ["python"] },
+      { "name": "pytest — покрытие", "cmd": "${python} -m pytest --cov --cov-report=term-missing", "when": ["pyproject.toml", "pytest.ini", "setup.py", "requirements.txt"] },
+      { "name": "ruff check — весь проект", "cmd": "ruff check .", "when": ["pyproject.toml", "ruff.toml", "requirements.txt"] },
+      { "name": "basedpyright — типы всего проекта", "cmd": "basedpyright", "when": ["pyproject.toml", "pyrightconfig.json", "requirements.txt"] },
+      { "name": "Python: запустить текущий файл", "cmd": "${python} ${file}", "ft": ["python"] },
+      { "name": "Django: runserver", "cmd": "${python} manage.py runserver", "when": ["manage.py"] },
+      { "name": "Django: migrate", "cmd": "${python} manage.py migrate", "when": ["manage.py"] },
+      { "name": "Django: makemigrations", "cmd": "${python} manage.py makemigrations", "when": ["manage.py"] },
       { "name": "cargo run", "cmd": "cargo run", "when": ["Cargo.toml"] },
       { "name": "cargo test", "cmd": "cargo test", "when": ["Cargo.toml"] },
       { "name": "cargo clippy — все замечания", "cmd": "cargo clippy --all-targets", "when": ["Cargo.toml"] },
@@ -894,10 +996,13 @@
     "n gpi": "peek.implementations",
     "n gpt": "peek.type",
 
-    // Go (генерация — пробел G)
+    // Go и Python: ▶ — оба (пробел r x / r X), генерация Go — пробел G
     "n <leader>rx": "go.run",
     "n <leader>rX": "go.debug",
     "n <leader>rg": "go.scratch",
+    "n <leader>rp": "python.scratch",
+    "n <leader>rv": "python.venv", // окружение Python проекта
+    "n <leader>ct": "lsp.hint_apply", // вписать подсказку типа в код (Python: -> int, : list[str]; Go: тип переменной)
     "n <leader>Gj": "go.tags_json",
     "n <leader>Gy": "go.tags_yaml",
     "n <leader>Gd": "go.tags_db",

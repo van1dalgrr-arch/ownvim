@@ -253,6 +253,7 @@ jpg/webp/gif need ImageMagick. `space up` — show/hide.
   "cursor": { "enabled": true, "stiffness": 0.8, "trailing_stiffness": 0.6, "insert_stiffness": 0.9, "min_distance": 2 },
   "scroll": { "enabled": true, "duration_ms": 100 },
   "indent_scope": { "enabled": false },
+  "terminal": true,
 },
 ```
 
@@ -264,3 +265,5 @@ Want it even snappier — `"stiffness": 1` (instant), `"insert": false`, a small
 More VS Code details, each a separate module: colored bracket pairs (`brackets`), the function header sticking to the
 top (`sticky_scroll`), errors to the right of the line (`error_lens`), a scrollbar with error and git marks
 (`scrollbar`), a minimap (`minimap`, off; `space um`), the mode shown in the cursor and line color (`modes`).
+
+`"terminal": false` turns Ghostty shaders (smooth cursor, trail, sparks from `fx`) off in the ownvim window only; other terminal tabs keep them. ownvim marks its tab with palette color 255, and the dotfiles shaders check for it.

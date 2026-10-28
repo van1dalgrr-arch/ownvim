@@ -15,6 +15,8 @@ local REPOS = {
   ["neotest-golang"] = "fredrikaverpil/neotest-golang",
   ["neotest-python"] = "nvim-neotest/neotest-python",
   ["neotest-rust"] = "rouge8/neotest-rust",
+  ["neotest-vitest"] = "marilari88/neotest-vitest",
+  ["neotest-jest"] = "nvim-neotest/neotest-jest",
 }
 
 local function t() return (settings.current or {}).test or {} end
@@ -26,6 +28,10 @@ local function adapters()
       local o = type(v) == "table" and vim.deepcopy(v) or {}
       local repo = o.repo or REPOS[name]
       o.repo = nil
+      -- Python тестов — окружения проекта (модуль python), если свой не задан
+      if name == "neotest-python" and o.python == nil and settings.enabled(settings.current or {}, "python") then
+        o.python = function(dir) return require("own.modules.python").python(dir) end
+      end
       if repo then
         list[#list + 1] = { name = name, repo = repo, opts = o }
       else

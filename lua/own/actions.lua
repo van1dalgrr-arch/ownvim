@@ -345,10 +345,14 @@ M.list = {
   },
 
   -- Go (модуль go)
-  ["go.run"] = { function() require("own.tools.run").run(false) end, "▶ Запустить функцию под курсором (main / тест)" },
+  ["go.run"] = { function() require("own.tools.run").run(false) end, "▶ Запустить то, где курсор (main / тест; Go, Python)" },
   ["go.debug"] = { function() require("own.tools.run").run(true) end, "▶ То же под отладчиком" },
   ["go.scratch"] = { function() require("own.modules.go").scratch() end, "Go-черновик" },
   ["go.coverage"] = { function() require("own.modules.go").coverage() end, "Покрытие: прогнать тесты и показать" },
+  -- Python (модуль python)
+  ["python.scratch"] = { function() require("own.modules.python").scratch() end, "Python-черновик" },
+  ["python.venv"] = { function() require("own.modules.python").choose() end, "Окружение Python проекта" },
+  ["lsp.hint_apply"] = { function() require("own.modules.python").apply_hints() end, "Вписать подсказку типа в код" },
   ["go.coverage_toggle"] = { "<cmd>CoverageToggle<cr>", "Покрытие: спрятать / показать" },
   ["go.coverage_summary"] = { "<cmd>CoverageSummary<cr>", "Покрытие: проценты по файлам" },
   ["go.tags_json"] = { "<cmd>GoTagAdd json<cr>", "Теги json у полей" },

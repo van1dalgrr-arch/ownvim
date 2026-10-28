@@ -6,6 +6,10 @@
 --   CREATE TABLE (name |, ADD COLUMN name |, TYPE |, ::  → типы Postgres и свои enum
 --   после типа в CREATE TABLE  → NOT NULL, DEFAULT, PRIMARY KEY, REFERENCES…
 --   status = '|  (колонка с enum-типом)  → значения enum
+--   JOIN |  → сначала таблицы, связанные внешним ключом с таблицами запроса
+--   JOIN orders o |  /  JOIN orders o ON |  → готовое условие по внешнему ключу: o.user_id = u.id
+--   FROM users u |  → WHERE, JOIN, LEFT JOIN, GROUP BY, ORDER BY, LIMIT…
+--   в выражениях (SELECT, WHERE, SET…) — ещё функции Postgres с шаблоном аргументов: count, coalesce, date_trunc…
 local schema = require("own.sql.schema")
 
 local M = {}
@@ -34,6 +38,37 @@ local FROM_END = { "where", "join", "left", "right", "inner", "full", "cross", "
   "returning", "on", "union", "window", "for" }
 local TABLE_KW = { from = true, join = true, update = true, into = true, table = true, references = true, truncate = true, exists = true, only = true }
 local CLAUSES = { "select", "from", "where", "join", "on", "set", "values", "group", "order", "having", "returning", "using", "into", "update" }
+
+-- функции Postgres: имя, описание, шаблон
+local FUNCTIONS = {
+  { "count(*)", "сколько строк" }, { "count", "сколько не-NULL значений", "count(${1})" },
+  { "sum", "сумма", "sum(${1})" }, { "avg", "среднее", "avg(${1})" }, { "min", "минимум", "min(${1})" }, { "max", "максимум", "max(${1})" },
+  { "coalesce", "первое не-NULL", "coalesce(${1}, ${2:0})" }, { "nullif", "NULL, если равны", "nullif(${1}, ${2})" },
+  { "now()", "текущее время (timestamptz)" }, { "current_date", "сегодня" },
+  { "date_trunc", "обрезать время до дня / месяца…", "date_trunc('${1|day,hour,week,month,year|}', ${2})" },
+  { "extract", "часть даты: год, месяц…", "extract(${1|year,month,day,hour,epoch|} FROM ${2})" },
+  { "to_char", "время / число → строка", "to_char(${1}, '${2:YYYY-MM-DD}')" },
+  { "lower", "строчными", "lower(${1})" }, { "upper", "ЗАГЛАВНЫМИ", "upper(${1})" }, { "length", "длина строки", "length(${1})" },
+  { "trim", "без пробелов по краям", "trim(${1})" }, { "concat", "склеить строки", "concat(${1}, ${2})" },
+  { "string_agg", "строки группы через разделитель", "string_agg(${1}, '${2:, }')" },
+  { "array_agg", "значения группы → массив", "array_agg(${1})" },
+  { "jsonb_agg", "строки группы → JSON-массив", "jsonb_agg(${1})" },
+  { "jsonb_build_object", "собрать JSON-объект", "jsonb_build_object('${1:key}', ${2})" },
+  { "row_number()", "номер строки в окне", "row_number() OVER (${1:PARTITION BY ${2} }ORDER BY ${3})" },
+  { "rank()", "место с пропусками при равенстве", "rank() OVER (ORDER BY ${1})" },
+  { "lag", "значение из прошлой строки окна", "lag(${1}) OVER (ORDER BY ${2})" },
+  { "round", "округлить", "round(${1}, ${2:2})" }, { "greatest", "наибольшее из", "greatest(${1}, ${2})" },
+  { "gen_random_uuid()", "новый uuid" },
+  { "exists", "есть ли строки в подзапросе", "EXISTS (SELECT 1 FROM ${1} WHERE ${2})" },
+  { "CASE", "условие в выражении", "CASE WHEN ${1} THEN ${2} ELSE ${3} END" },
+}
+
+-- после таблицы в FROM / JOIN — что обычно пишут дальше
+local AFTER_TABLE = {
+  { "WHERE", "условие" }, { "JOIN", "соединить", "JOIN " }, { "LEFT JOIN", "соединить, строки слева остаются", "LEFT JOIN " },
+  { "GROUP BY", "группировать", "GROUP BY " }, { "ORDER BY", "сортировать", "ORDER BY " }, { "LIMIT", "сколько строк", "LIMIT ${1:10}" },
+  { "HAVING", "условие на группы" }, { "RETURNING", "вернуть строки после изменения", "RETURNING ${1:*}" },
+}
 
 local kinds
 local function kind(name)
@@ -244,7 +279,65 @@ function M.complete(buf, row, col)
   end
   if (last and TABLE_KW[last]) or (clause == "from" and prev:match(",%s*$")) then
     tables(items, s)
+    if last == "join" then
+      -- связанные внешним ключом с таблицами запроса — первыми
+      local related = {}
+      for _, name in ipairs(tlist) do
+        for _, c in ipairs(s.tables[name].cols) do if c.ref then related[c.ref.table] = true end end
+      end
+      for tname, t in pairs(s.tables) do
+        for _, c in ipairs(t.cols) do
+          if c.ref and vim.tbl_contains(tlist, c.ref.table) then related[tname] = true end
+        end
+      end
+      for _, it in ipairs(items) do
+        if related[it.label] then it.sortText = "0" .. it.label; it.labelDetails.detail = " связана" else it.sortText = "1" .. it.label end
+      end
+    end
     return items
+  end
+
+  -- JOIN orders o |  или  JOIN orders o ON |  — условие по внешнему ключу
+  local jname, ja1, ja2, on = prev:match("join%s+([%w_\".]+)%s*([%w_]*)%s*([%w_]*)%s*(o?n?)%s*$")
+  if jname and (on == "on" or on == "") and prev:match("%s$") then
+    local joined = schema.ident(jname)
+    local jalias = (ja1 == "as" and ja2 ~= "" and ja2) or (ja1 ~= "" and ja1 ~= "as" and ja1 ~= "on" and ja1) or joined
+    if ja1 == "on" or ja2 == "on" then on = "on" end
+    local jt = s.tables[joined]
+    if jt then
+      local alias_of = {}
+      for a, t in pairs(tmap) do if a ~= t then alias_of[t] = a end end
+      local conds = {}
+      for _, other in ipairs(tlist) do
+        if other ~= joined then
+          local oa = alias_of[other] or other
+          for _, c in ipairs(jt.cols) do
+            if c.ref and c.ref.table == other then conds[#conds + 1] = ("%s.%s = %s.%s"):format(jalias, c.name, oa, c.ref.col) end
+          end
+          for _, c in ipairs(s.tables[other].cols) do
+            if c.ref and c.ref.table == joined then conds[#conds + 1] = ("%s.%s = %s.%s"):format(jalias, c.ref.col, oa, c.name) end
+          end
+        end
+      end
+      for i, cond in ipairs(conds) do
+        local text = on == "on" and cond or ("ON " .. cond)
+        items[#items + 1] = { label = text, kind = kind("Reference"), labelDetails = { description = "внешний ключ" },
+          sortText = ("0%03d"):format(i), own_sql = true }
+      end
+      if on == "" and (ja1 ~= "" or ja2 ~= "") then keyword_items(items, { { "ON", "условие соединения" }, { "USING", "по одноимённой колонке", "USING (${1:id})" } }, "Keyword") end
+      if #items > 0 then return items end
+    end
+  end
+
+  -- FROM users u |  — дальше WHERE, JOIN, GROUP BY…
+  if (clause == "from" or clause == "join") and prev:match("%s$")
+    and prev:match("[%w_\"]+%s+[%w_]*%s*$") and not prev:match("[=<>!,(]%s*$") and not prev:match("%son%s+.*$") then
+    local tail = prev:match(clause .. "%s+(.-)%s*$") or ""
+    local words = select(2, tail:gsub("[^%s,]+", ""))
+    if tail ~= "" and not tail:match("%sas$") and words <= 2 then
+      keyword_items(items, AFTER_TABLE, "Keyword")
+      return items
+    end
   end
   if last == "drop" or last == "alter" or last == "create" then return items end
 
@@ -254,6 +347,12 @@ function M.complete(buf, row, col)
   else
     for _, t in pairs(s.tables) do columns(items, t, 2) end
     tables(items, s)
+  end
+  -- в выражении — ещё функции (после колонок)
+  if clause ~= "into" and clause ~= "update" then
+    local n = #items
+    keyword_items(items, FUNCTIONS, "Function")
+    for i = n + 1, #items do items[i].sortText = "3" .. items[i].sortText end
   end
   return items
 end

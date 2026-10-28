@@ -1,0 +1,63 @@
+// Zed One Dark — тема Zed по умолчанию: серо-синий фон, голубой акцент, панели и строки чуть светлее редактора.
+// Цвета — из zed/assets/themes/one/one.json
+{
+  "name": "Zed One Dark",
+  "type": "dark",
+  "palette": {
+    "bg": "#282c33",
+    "bg_alt": "#2f343e",
+    "bg_highlight": "#2f343e",
+    "bg_visual": "#394b65",
+    "border": "#464b57",
+    "fg": "#dce0e5",
+    "fg_dim": "#a9afbc",
+    "fg_muted": "#5d636f",
+    "accent": "#74ade8",
+    "red": "#d07277",
+    "orange": "#bf956a",
+    "yellow": "#dec184",
+    "green": "#a1c181",
+    "cyan": "#6eb4bf",
+    "blue": "#74ade8",
+    "purple": "#b477cf",
+    "pink": "#d07277"
+  },
+  "syntax": {
+    "comment": { "fg": "#5d636f", "italic": false },
+    "keyword": "#b477cf",
+    "keyword_return": "#b477cf",
+    "storage": "#b477cf",
+    "function": "#73ade9",
+    "method": "#73ade9",
+    "string": "#a1c181",
+    "escape": "#878e98",
+    "regex": "#a1c181",
+    "type": "#6eb4bf",
+    "interface": "#6eb4bf",
+    "number": "#bf956a",
+    "constant": "#dfc184",
+    "boolean": "#bf956a",
+    "variable": "#acb2be",
+    "property": "#d07277",
+    "attribute": "#74ade8",
+    "tag": "#74ade8",
+    "label": "#74ade8",
+    "operator": "#6eb4bf",
+    "punctuation": "#acb2be",
+    "builtin": "#bf956a",
+    "macro": "#73ade9",
+    "parameter": "#acb2be",
+    "namespace": "#dce0e5"
+  },
+  "groups": {
+    "LineNr": { "fg": "#4e5a5f" },
+    "CursorLineNr": { "fg": "#d0d4da", "bold": false },
+    "StatusLine": { "fg": "#a9afbc", "bg": "#3b414d" },
+    "StatusLineNC": { "fg": "#878a98", "bg": "#3b414d" },
+    "TabLineFill": { "bg": "#2f343e" },
+    "WinSeparator": { "fg": "#363c46" },
+    "Visual": { "bg": "#394b65" },
+    "Search": { "fg": "#dce0e5", "bg": "#4a5466" },
+    "MatchParen": { "bg": "#4a5466", "bold": true }
+  }
+}

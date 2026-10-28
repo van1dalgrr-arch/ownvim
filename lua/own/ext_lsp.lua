@@ -11,7 +11,7 @@ local function for_buf(buf, kind)
   local ext = require("own.ext")
   local out = {}
   for _, p in ipairs(providers) do
-    if p.kind == kind and not ext.disabled(p.ext) and (vim.tbl_contains(p.filetypes, ft) or vim.tbl_contains(p.filetypes, "*")) then
+    if p.kind == kind and not ext.disabled(p.ext) and ext.ft_match(p.filetypes, ft) then
       out[#out + 1] = p
     end
   end

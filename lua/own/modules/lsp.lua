@@ -68,6 +68,8 @@ local function configure()
       end
       -- SQL: база проекта и папка миграций — серверу сами (модуль sql)
       if name == "postgres_lsp" and settings.enabled(current(), "sql") then cfg = require("own.modules.sql").lsp(cfg) end
+      -- Python: окружение проекта (.venv, poetry…) — серверу сами (модуль python)
+      if name == "basedpyright" and settings.enabled(current(), "python") then cfg = require("own.modules.python").lsp(cfg) end
       -- присваивание (а не вызов) заменяет прошлые свои настройки целиком: удалил ключ — он ушёл
       vim.lsp.config[name] = cfg
       want[name] = true
@@ -91,9 +93,13 @@ local function configure()
   -- работающим серверам — новые settings без перезапуска
   for _, client in ipairs(vim.lsp.get_clients()) do
     local cfg = want[client.name] and vim.lsp.config[client.name]
-    if cfg and cfg.settings and not vim.deep_equal(cfg.settings, client.settings) then
-      client.settings = cfg.settings
-      client:notify("workspace/didChangeConfiguration", { settings = cfg.settings })
+    local s = cfg and cfg.settings
+    if s and client.name == "basedpyright" and settings.enabled(current(), "python") then
+      s = require("own.modules.python").settings(s, client.root_dir)
+    end
+    if s and not vim.deep_equal(s, client.settings) then
+      client.settings = s
+      client:notify("workspace/didChangeConfiguration", { settings = s })
     end
   end
 end

@@ -2,7 +2,8 @@
 -- клик по крестику (или средней кнопкой) — закрыть. Одинаковые имена различаются папкой. Не влезают — прокрутка
 -- к текущей. shift-h / shift-l — соседняя вкладка, пробел b d — закрыть. Раздел "tabline":
 --   "show": "auto" (когда файлов больше одного) | "always" | "never"
---   "style": "ide" | "underline" | "bar" | "slant" | "plain" — как выделена текущая
+--   "style": "ide" | "underline" | "bar" | "slant" | "plain" — как выделена текущая;
+--     "zed" — как в Zed: вкладки-ячейки через тонкий разделитель, текущая — на фоне кода, без полосок
 --   "close_button": true, "icons": true, "max_name": 24, "modified": "●"
 -- Цвета — из темы. На лету.
 local settings = require("own.settings")
@@ -36,6 +37,7 @@ local function define()
   vim.api.nvim_set_hl(0, "OwnTabCloseSel", { fg = muted, bg = sel_bg })
   vim.api.nvim_set_hl(0, "OwnTabArrow", { fg = accent, bg = fill, bold = true })
   vim.api.nvim_set_hl(0, "OwnTabOffset", { fg = color("WinSeparator") or muted, bg = fill })
+  vim.api.nvim_set_hl(0, "OwnTabSep", { fg = color("WinSeparator") or muted, bg = fill })
 end
 
 local function icon_group(group, sel, line)
@@ -116,6 +118,8 @@ function M.render()
     if style == "ide" then
       -- ide: текущая — на фоне кода с полоской акцента, как вкладка, из которой «вырастает» редактор; остальные — тихо
       s = s .. (sel and "%#OwnTabBar#▎" or "%#OwnTab# ") .. "%#" .. base .. "# "
+    elseif style == "zed" then
+      s = s .. "%#" .. base .. "#  "
     elseif sel and style == "bar" then s = s .. "%#OwnTabBar#▎" else s = s .. "%#" .. base .. "# " end
     if sel and style == "slant" then s = "%#OwnTabSlant#\u{e0ba}" .. s end
     if opts.icons ~= false then
@@ -128,13 +132,14 @@ function M.render()
     s = s .. name .. " %X"
     if vim.bo[b].modified then
       s = s .. "%#" .. (sel and "OwnTabModifiedSel" or "OwnTabModified") .. "#" .. (opts.modified or "●") .. " "
-    elseif opts.close_button ~= false and (sel or style ~= "ide") then
+    elseif opts.close_button ~= false and (sel or (style ~= "ide" and style ~= "zed")) then
       s = s .. "%" .. b .. "@v:lua.OwnTabClose@%#" .. (sel and "OwnTabCloseSel" or "OwnTabClose") .. "#\u{ea76}%X "
-    elseif style == "ide" then
-      s = s .. "%#OwnTab#  "
+    elseif style == "ide" or style == "zed" then
+      s = s .. "%#" .. base .. "#  "
     end
-    if style == "ide" then s = s .. "%#" .. (sel and "OwnTabSel" or "OwnTab") .. "# " end
+    if style == "ide" or style == "zed" then s = s .. "%#" .. (sel and "OwnTabSel" or "OwnTab") .. "# " end
     if sel and style == "slant" then s = s .. "%#OwnTabSlant#\u{e0bc}" end
+    if style == "zed" then s = s .. "%#OwnTabSep#│" end
     tabs[#tabs + 1] = s
   end
   -- прокрутка: текущая всегда видна

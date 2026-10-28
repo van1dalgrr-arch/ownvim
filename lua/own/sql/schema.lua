@@ -128,13 +128,16 @@ function M.column(def)
   if tail:find("unique", 1, true) then notes[#notes + 1] = "unique" end
   local ref = tail:match("references%s+" .. NAME)
   if ref then notes[#notes + 1] = "→ " .. M.ident(ref) end
+  -- куда ведёт внешний ключ: для JOIN … ON | — готовое условие
+  local ref_col = ref and tail:match("references%s+[^%s(]+%s*%(%s*\"?([%w_]+)")
   local def_v = rest:match("[Dd][Ee][Ff][Aa][Uu][Ll][Tt]%s+(.-)%s*$")
   if def_v then
     def_v = def_v:gsub("%s+[Nn][Oo][Tt]%s+[Nn][Uu][Ll][Ll].*$", ""):gsub("%s+[Rr][Ee][Ff][Ee][Rr][Ee][Nn][Cc][Ee][Ss].*$", "")
     notes[#notes + 1] = "= " .. def_v
   end
   if tail:find("generated", 1, true) then notes[#notes + 1] = "generated" end
-  return { name = M.ident(name), type = table.concat(typ, " "):lower(), notes = table.concat(notes, ", ") }
+  return { name = M.ident(name), type = table.concat(typ, " "):lower(), notes = table.concat(notes, ", "),
+    ref = ref and { table = M.ident(ref), col = ref_col or "id" } or nil }
 end
 
 local TABLE_CONSTRAINT = { constraint = true, primary = true, unique = true, check = true, foreign = true, exclude = true, like = true }
@@ -157,14 +160,19 @@ function M.statement(st)
         if c then cols[#cols + 1] = c end
       elseif first then
         -- CONSTRAINT fk FOREIGN KEY (user_id) REFERENCES users(id) — пометить колонку
-        local list, ref = item:lower():gsub("%s+", " "):match("foreign key ?%(([^)]*)%) ?references " .. NAME)
+        local flat = item:lower():gsub("%s+", " ")
+        local list, ref = flat:match("foreign key ?%(([^)]*)%) ?references " .. NAME)
         if list then
-          for col in list:gmatch("[^,%s]+") do fks[M.ident(col)] = M.ident(ref) end
+          local ref_col = flat:match("references [^%s(]+ ?%(%s*\"?([%w_]+)")
+          for col in list:gmatch("[^,%s]+") do fks[M.ident(col)] = { table = M.ident(ref), col = ref_col or "id" } end
         end
       end
     end
     for _, c in ipairs(cols) do
-      if fks[c.name] then c.notes = c.notes .. (c.notes ~= "" and ", " or "") .. "→ " .. fks[c.name] end
+      if fks[c.name] then
+        c.notes = c.notes .. (c.notes ~= "" and ", " or "") .. "→ " .. fks[c.name].table
+        c.ref = fks[c.name]
+      end
     end
     return { kind = "create_table", table = M.ident(name), cols = cols }
   end
@@ -204,8 +212,15 @@ function M.statement(st)
       local to = al:match("^rename%s+to%s+" .. NAME)
       if to then
         act = { op = "rename_table", to = M.ident(to) }
-      elseif al:match("^add%s+constraint") then
-        act = { op = "add_constraint", name = M.ident(al:match("^add%s+constraint%s+" .. NAME)) }
+      elseif al:match("^add%s+constraint") or al:match("^add%s+foreign") then
+        act = { op = "add_constraint", name = M.ident(al:match("^add%s+constraint%s+" .. NAME) or "") }
+        -- ADD CONSTRAINT fk FOREIGN KEY (user_id) REFERENCES users(id) — ссылка у колонки
+        local flat = al:gsub("%s+", " ")
+        local list, ref = flat:match("foreign key ?%(([^)]*)%) ?references " .. NAME)
+        if list then
+          act.fk = { cols = {}, table = M.ident(ref), col = flat:match("references [^%s(]+ ?%(%s*\"?([%w_]+)") or "id" }
+          for col in list:gmatch("[^,%s]+") do act.fk.cols[#act.fk.cols + 1] = M.ident(col) end
+        end
       elseif al:match("^add%s") and not al:match("^add%s+primary") and not al:match("^add%s+unique")
         and not al:match("^add%s+foreign") and not al:match("^add%s+check") then
         local def = a:gsub("^%s*[Aa][Dd][Dd]%s+", ""):gsub("^[Cc][Oo][Ll][Uu][Mm][Nn]%s+", "")
@@ -295,6 +310,13 @@ local function apply(schema, p, file)
       if a.op == "add_column" and a.col then
         a.col.file = file
         tbl.cols[#tbl.cols + 1] = a.col
+      elseif a.op == "add_constraint" and a.fk then
+        for _, c in ipairs(tbl.cols) do
+          if vim.tbl_contains(a.fk.cols, c.name) then
+            c.ref = { table = a.fk.table, col = a.fk.col }
+            if not c.notes:find("→", 1, true) then c.notes = c.notes .. (c.notes ~= "" and ", " or "") .. "→ " .. a.fk.table end
+          end
+        end
       elseif a.op == "drop_column" then
         tbl.cols = vim.tbl_filter(function(c) return c.name ~= a.col end, tbl.cols)
       elseif a.op == "rename_column" then

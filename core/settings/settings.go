@@ -71,13 +71,13 @@ var top = map[string]bool{
 	"test": true, "debug": true, "database": true,
 	"colors": true, "appearance": true, "icons": true, "statusline": true,
 	"tabline": true, "breadcrumbs": true, "dashboard": true, "font": true, "animations": true, "git": true,
-	"go": true, "tasks": true, "ai": true, "sessions": true, "explorer": true, "commands": true, "auto": true,
-	"extensions": true, "checks": true, "run": true,
+	"go": true, "python": true, "tasks": true, "ai": true, "sessions": true, "explorer": true, "commands": true, "auto": true,
+	"extensions": true, "checks": true, "run": true, "project": true,
 }
 
 const topList = "theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, " +
 	"test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, " +
-	"git, go, tasks, ai, sessions, explorer, commands, auto, extensions, checks, run"
+	"git, go, python, tasks, ai, sessions, explorer, commands, auto, extensions, checks, run, project"
 
 // Load читает оба файла, проверяет и сливает слои.
 func Load(p Paths) Result {
