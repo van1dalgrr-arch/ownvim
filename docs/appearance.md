@@ -283,17 +283,26 @@ music.yandex.ru в браузере туда пишут сами. Только �
 
 ```jsonc
 "animations": {
-  "cursor": { "enabled": true, "stiffness": 0.8, "trailing_stiffness": 0.6, "insert_stiffness": 0.9, "min_distance": 2 },
-  "scroll": { "enabled": true, "duration_ms": 100 },
-  "indent_scope": { "enabled": false },
+  "cursor": { "enabled": true, "style": "glide", "insert": true, "insert_stiffness": 0.6, "min_distance": 0, "fps": 120 },
+  "scroll": { "enabled": true, "duration_ms": 240, "easing": "outCubic" },
+  "windows": { "enabled": true, "ms": 220 },
+  "indent_scope": { "enabled": true, "duration_ms": 200 },
   "terminal": true,
 },
 ```
 
-Курсор плавно перелетает при прыжках, а при наборе и сдвиге на один символ двигается сразу, без шлейфа
-(`min_distance`); во вставке он быстрее (`insert_stiffness`), чтобы набор не тянулся. Прокрутка — 100 мс.
-Хочется ещё резче — `"stiffness": 1` (мгновенно), `"insert": false`, меньше `duration_ms`; совсем без анимаций —
-`"cursor": { "enabled": false }`, `"scroll": { "enabled": false }`.
+Плавно почти всё:
+
+- **Курсор** скользит, сохраняя форму (`"style": "glide"`; `"trail"` — тянется шлейфом), и при наборе тоже — каретка
+  переезжает от буквы к букве, как smooth caret в VS Code. 120 кадров в секунду; в Ghostty края гладкие (символы
+  Legacy Computing он рисует сам).
+- **Прокрутка** (`ctrl-d`, `gg`, `n`, `zz`, мышь) — 240 мс, быстро трогается и мягко встаёт; зажатая `j` — тоже плавно.
+- **Окна** — новый сплит, дерево, терминал снизу выдвигаются за 220 мс. `:Smooth` — проверить, что всё работает, и посмотреть демо.
+- **Линия текущего блока** перерисовывается плавно.
+- **Окна поверх кода** проявляются, **режимы** перетекают цветом (раздел `soft`).
+
+Хочется резче — `"stiffness": 1`, `"min_distance": 2` (набор без анимации), меньше `duration_ms`; совсем без
+анимаций — `"enabled": false` в нужном пункте или тихий режим (`пробел uq`).
 
 Ещё детали из VS Code, каждая — отдельный модуль: цветные пары скобок (`brackets`), шапка функции сверху
 (`sticky_scroll`), ошибки справа от строки (`error_lens`), полоса прокрутки с метками ошибок и git (`scrollbar`),

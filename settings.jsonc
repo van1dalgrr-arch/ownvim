@@ -19,7 +19,6 @@
     "signs": { "text": { "error": "", "warn": "", "hint": "", "info": "" } },
   },
   "animations": {
-    "cursor": { "insert": false }, // при наборе курсор без шлейфа; прыжки — по-прежнему плавно
     "terminal": false, // шейдеры Ghostty (плавный курсор, шлейф, искры) — только в терминале, в ownvim их нет
   },
   // дерево: .env, .github, .golangci.yml, .air.toml видны сразу — как в GoLand (секреты в .env и так под звёздочками)
