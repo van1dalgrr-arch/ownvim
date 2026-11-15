@@ -126,7 +126,7 @@ end
 function M.git_changed() git_at = {} end
 
 function C.branch()
-  local dir = vim.fs.root(buf(), ".git")
+  local dir = require("own.root").git_dir(buf())
   local b = vim.b[buf()].gitsigns_head
   if not b then
     if dir and branch_cache[dir] == nil then refresh_branch(dir) end
@@ -160,7 +160,7 @@ function C.file()
   local b = buf()
   local name = vim.api.nvim_buf_get_name(b)
   -- служебные окна — понятным словом, а не «[без имени]»
-  local SPECIAL = { own_tree = "\u{f0645} Дерево файлов", snacks_dashboard = "Старт", lazy = "Плагины", mason = "Mason",
+  local SPECIAL = { own_tree = "\u{f0645} Дерево файлов", own_search = "\u{ea6d} Поиск", own_git = "\u{ea68} Изменения", own_extensions = "\u{eae6} Расширения", snacks_dashboard = "Старт", lazy = "Плагины", mason = "Mason",
     qf = "Список", help = "Справка", own_problems = "Проблемы", own_image = "Картинка" }
   local ft = vim.bo[b].filetype
   if SPECIAL[ft] then return SPECIAL[ft] end
@@ -459,7 +459,7 @@ function M.setup()
   vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "DirChanged" }, {
     group = group,
     callback = function(ev)
-      local dir = vim.fs.root(ev.buf, ".git")
+      local dir = vim.api.nvim_buf_is_valid(ev.buf) and require("own.root").git_dir(ev.buf)
       if dir then refresh_branch(dir) end
     end,
   })

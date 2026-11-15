@@ -23,7 +23,20 @@ local function name_of(node, buf)
   return vim.treesitter.get_node_text(n, buf):gsub("%s+", " ")
 end
 
+local find_symbols
+-- крошки спрашивают на каждой перерисовке окна (за одну букву — несколько раз): пока курсор и текст те же, ответ тот же
+local memo = {}
 local function symbols(win, buf)
+  local pos = vim.api.nvim_win_get_cursor(win)
+  local key = buf .. ":" .. vim.api.nvim_buf_get_changedtick(buf) .. ":" .. pos[1] .. ":" .. pos[2]
+  local m = memo[win]
+  if m and m.key == key then return m.out end
+  local out = find_symbols(win, buf)
+  memo[win] = { key = key, out = out }
+  return out
+end
+
+find_symbols = function(win, buf)
   local ok, node = pcall(vim.treesitter.get_node, { bufnr = buf, pos = { vim.api.nvim_win_get_cursor(win)[1] - 1, vim.api.nvim_win_get_cursor(win)[2] } })
   if not ok or not node then return {} end
   local out = {}

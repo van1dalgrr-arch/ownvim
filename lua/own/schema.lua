@@ -81,6 +81,9 @@ local function files(dir, ext)
   return out
 end
 
+--- Описания настроек из комментариев defaults.jsonc: путь ("statusline.style") → текст
+function M.descriptions() return comments(read(settings.files.defaults) or "{}") end
+
 function M.build()
   local text = read(settings.files.defaults) or "{}"
   local defaults = jsonc.decode(text) or {}

@@ -805,6 +805,29 @@
     "n <leader>4": "mode.git",
     "n <leader>5": "mode.db",
     "n <leader>0": "sidebar", // левая панель: спрятать / вернуть
+    "n <leader>ge": "view.git", // изменения слева, как Source Control в VS Code: индекс, diff, коммит
+    // клавиши VS Code (macOS). Свои в settings.jsonc — важнее: там, например, cmd-b можно оставить «к объявлению»
+    "n <D-b>": "sidebar", // левая панель
+    "nt <D-j>": "panel", // нижняя панель
+    "nt <C-`>": "terminal.toggle", // терминал
+    "n <D-S-e>": "view.explorer", // проводник
+    "n <C-S-g>": "view.git", // изменения
+    "n <D-S-m>": "panel.problems", // проблемы
+    "n <D-,>": "settings.ui", // настройки списком с поиском; сам файл — пробел f c
+    "n <leader>fs": "settings.ui",
+    "nx <leader>sp": "view.search", // поиск по проекту слева, с заменой; в выделении — искать выделенное
+    "n <C-Tab>": "buffer.recent", // недавние открытые файлы
+    "n <leader>bu": "buffer.reopen", // вернуть закрытый файл
+    "n <D-S-x>": "view.extensions", // расширения: модули и плагины
+    "n <leader>ux": "view.extensions",
+    "n <D-\\>": { "do": "<C-w>v", "desc": "Разделить редактор" },
+    "n <C-g>": "goto.line", // перейти к строке
+    "n <F12>": "lsp.definition",
+    "n <S-F12>": "lsp.references",
+    "ni <D-.>": "lsp.code_action", // быстрые исправления
+    "n <M-z>": "toggle.wrap", // перенос строк
+    "n <S-M-Down>": { "do": "<cmd>copy .<cr>", "desc": "Дублировать строку вниз" },
+    "n <S-M-Up>": { "do": "<cmd>copy -1<cr>", "desc": "Дублировать строку вверх" },
     "n <leader>co": "view.outline",
     "n <leader>cu": "usages", // использования символа — списком в нижней панели (как Find Usages / alt-F7 в GoLand)
     "n <leader>cU": "usages.calls", // кто вызывает функцию

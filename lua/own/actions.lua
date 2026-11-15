@@ -175,6 +175,30 @@ M.list = {
   ["panel.tasks"] = { function() require("own.modules.workspace").show("tasks") end, "Панель: задачи" },
   ["panel.run"] = { function() require("own.modules.workspace").show("run") end, "Панель: вывод запуска" },
   ["panel.test_output"] = { function() require("own.modules.workspace").show("test_output") end, "Панель: вывод тестов" },
+  ["view.explorer"] = { function() require("own.modules.workspace").show("tree") end, "Проект: дерево файлов (слева)" },
+  ["view.git"] = { function() require("own.modules.workspace").toggle("git") end, "Изменения: Source Control (слева)" },
+  ["view.search"] = { function()
+    local ws = require("own.modules.workspace")
+    -- из визуального режима — сразу искать выделенное
+    local sel
+    if vim.fn.mode():find("^[vV]") then
+      sel = table.concat(vim.fn.getregion(vim.fn.getpos("v"), vim.fn.getpos("."), { type = vim.fn.mode() }), " ")
+      vim.api.nvim_feedkeys(vim.keycode("<Esc>"), "n", false)
+    end
+    ws.show("search")
+    local sv = require("own.tools.search_view")
+    if sel and vim.trim(sel) ~= "" then sv.search(vim.trim(sel)) elseif sv.state.query == "" then sv.ask() end
+  end, "Поиск по проекту с заменой (слева, как Search в VS Code)" },
+  ["buffer.recent"] = { function() Snacks.picker.buffers({ current = false, sort_lastused = true }) end, "Недавние открытые файлы (как ctrl-tab в VS Code)" },
+  ["buffer.reopen"] = { function() require("own.tools.reopen").reopen() end, "Вернуть закрытый файл (как cmd-shift-t в VS Code)" },
+  ["view.extensions"] = { function() require("own.modules.workspace").toggle("ext") end, "Расширения: модули и плагины (слева)" },
+  ["settings.ui"] = { function() require("own.tools.settings_ui").open() end, "Настройки: список с поиском (как в VS Code)" },
+  ["goto.line"] = { function()
+    vim.ui.input({ prompt = "Строка: " }, function(v)
+      local n = tonumber(v)
+      if n then vim.cmd("normal! " .. math.max(1, math.floor(n)) .. "Gzz") end
+    end)
+  end, "Перейти к строке" },
   ["view.outline"] = { function() require("own.modules.workspace").toggle("outline") end, "Структура файла (слева)" },
   ["view.tests"] = { function() require("own.modules.workspace").toggle("tests") end, "Дерево тестов (слева)" },
   ["view.db"] = { function() require("own.modules.workspace").toggle("db") end, "База данных (слева)" },

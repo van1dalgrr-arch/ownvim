@@ -1,5 +1,5 @@
 -- Рабочее место, как в IDE: у каждого окна своё место, раскладка не разваливается и помнится для каждого проекта.
---   слева  — один вид за раз: Проект (дерево) · Структура · Тесты · База; переключатель — над ним, в строке вкладок
+--   слева  — один вид за раз: Проект (дерево) · Поиск · Изменения (git) · Структура · Тесты · База · Расширения; переключатель — над ним, в строке вкладок
 --   снизу  — один вид за раз: Терминал · Запуск · Проблемы · Задачи · Вывод тестов; вкладки — в шапке панели
 --   режимы — пробел 1…5: Код · Тесты · Отладка · Git · База — экран раскладывается под дело одной клавишей
 -- Окна держит edgy.nvim: размеры фиксированы, служебные окна не лезут в середину, закрыл последний файл — вышел.
@@ -41,6 +41,15 @@ M.views = {
     open = function() require("neotest").summary.open() end },
   db = { pos = "left", icon = "\u{f01bc}", title = "База", match = by_ft("dbui"),
     open = function() vim.cmd("DBUI") end },
+  -- Search из VS Code: запрос, совпадения по файлам, замена во всём проекте (lua/own/tools/search_view.lua)
+  search = { pos = "left", icon = "\u{ea6d}", title = "Поиск", match = by_ft("own_search"),
+    open = function() require("own.tools.search_view").open() end },
+  -- Source Control из VS Code: файлы в индексе и изменённые, коммит — не выходя из редактора (lua/own/tools/scm.lua)
+  git = { pos = "left", icon = "\u{ea68}", title = "Изменения", match = by_ft("own_git"),
+    open = function() require("own.tools.scm").open() end },
+  -- Extensions из VS Code: модули ownvim и свои плагины, вкл/выкл одной клавишей (lua/own/tools/extensions_view.lua)
+  ext = { pos = "left", icon = "\u{eae6}", title = "Расширения", match = by_ft("own_extensions"),
+    open = function() require("own.tools.extensions_view").open() end },
   -- снизу
   terminal = { pos = "bottom", icon = "\u{ea85}", title = "Терминал", match = is_shell_term,
     open = function(focus)
@@ -63,7 +72,7 @@ M.views = {
     open = function() require("neotest").output_panel.open() end },
 }
 M.order = {
-  left = { "tree", "outline", "tests", "db" },
+  left = { "tree", "search", "git", "outline", "tests", "db", "ext" },
   bottom = { "terminal", "run", "problems", "usages", "tasks", "test_output" },
 }
 
@@ -565,7 +574,7 @@ local function edgy_opts()
     },
   }
   local fts = {
-    tree = "own_tree", outline = "Outline", tests = "neotest-summary", db = "dbui",
+    tree = "own_tree", search = "own_search", git = "own_git", ext = "own_extensions", outline = "Outline", tests = "neotest-summary", db = "dbui",
     terminal = "snacks_terminal", run = "snacks_terminal", problems = "own_problems", usages = "trouble", tasks = "OverseerList",
     test_output = "neotest-output-panel",
   }
@@ -617,6 +626,7 @@ end
 function M.setup()
   define()
   require("own.tools.launch").setup()
+  require("own.tools.scm").setup()
   local group = vim.api.nvim_create_augroup("own.workspace", { clear = true })
   vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = define })
   vim.api.nvim_create_autocmd("DiagnosticChanged", {

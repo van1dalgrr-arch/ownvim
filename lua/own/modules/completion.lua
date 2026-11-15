@@ -46,8 +46,12 @@ local function build()
         auto_show = on("auto_show"),
         border = border,
         max_height = o.max_height or 10,
+        -- без прозрачности: с pumblend терминал получает свой цвет на каждую клетку меню — на каждой букве
+        winblend = 0,
         draw = {
-          treesitter = { "lsp" },
+          -- подсветка пунктов через treesitter разбирает каждую строку меню заново на каждой букве;
+          -- вернуть — "completion": { "blink": { "completion": { "menu": { "draw": { "treesitter": ["lsp"] } } } } }
+          treesitter = {},
           padding = { 1, 1 },
           columns = { { "kind_icon" }, { "label", "label_description", gap = 1 }, { "kind" } },
           -- значок вида — из темы иконок (mini.icons, раздел icons), если она включена

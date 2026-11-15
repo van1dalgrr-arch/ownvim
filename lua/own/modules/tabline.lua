@@ -181,9 +181,20 @@ function M.setup()
   update_visibility()
   local group = vim.api.nvim_create_augroup("own.tabline", { clear = true })
   vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = define })
+  -- окна поменялись — вкладки могли сдвинуться (открыли дерево). Всплывающие окна (меню дополнения открывается и
+  -- закрывается на каждой букве) раскладку не трогают: перерисовываем, только если сдвиг и правда другой
+  local pending, last_pad = false, nil
   vim.api.nvim_create_autocmd({ "WinResized", "WinNew", "WinClosed" }, {
     group = group,
-    callback = function() vim.schedule(function() vim.cmd("redrawtabline") end) end,
+    callback = function()
+      if pending then return end
+      pending = true
+      vim.schedule(function()
+        pending = false
+        local pad = offset() .. ":" .. vim.o.columns
+        if pad ~= last_pad then last_pad = pad; vim.cmd("redrawtabline") end
+      end)
+    end,
   })
   vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "BufWipeout", "BufEnter", "BufFilePost" }, {
     group = group,

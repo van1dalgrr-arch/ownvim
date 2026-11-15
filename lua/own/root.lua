@@ -12,9 +12,17 @@ local function within(dir, base)
   return dir == base or vim.startswith(dir, base:gsub("/$", "") .. "/")
 end
 
-function M.get(buf)
-  buf = buf or 0
-  local o = opts()
+-- Корень спрашивают на каждой перерисовке (статусная строка, вкладки, виджет запуска), а поиск .git вверх по
+-- папкам — это обращения к диску. Ответ запоминается на буфер и сбрасывается, когда он мог поменяться:
+-- сервер подключился / отключился, файл переименован, сменилась папка, файл записан, вернулся фокус.
+local gen = 0
+local roots, gits = {}, {}
+vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "BufFilePost", "DirChanged", "BufWritePost", "FocusGained", "BufDelete" }, {
+  group = vim.api.nvim_create_augroup("own.root", { clear = true }),
+  callback = function() gen = gen + 1 end,
+})
+
+local function find(buf, o)
   local cwd = vim.fs.normalize(vim.uv.cwd() or ".")
   local file = vim.api.nvim_buf_get_name(buf)
   file = file ~= "" and vim.fs.normalize(file) or nil
@@ -30,9 +38,29 @@ function M.get(buf)
   return cwd
 end
 
+function M.get(buf)
+  buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
+  local o = opts()
+  local c = roots[buf]
+  if c and c.gen == gen and c.root == o.root and c.markers == o.markers and c.name == vim.api.nvim_buf_get_name(buf) then return c.dir end
+  local dir = find(buf, o)
+  roots[buf] = { gen = gen, root = o.root, markers = o.markers, name = vim.api.nvim_buf_get_name(buf), dir = dir }
+  return dir
+end
+
+--- Папка с .git для буфера или nil (с памятью — можно звать на каждой перерисовке)
+function M.git_dir(buf)
+  buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
+  local c = gits[buf]
+  if c and c.gen == gen and c.name == vim.api.nvim_buf_get_name(buf) then return c.dir or nil end
+  local dir = vim.fs.root(buf, { ".git" })
+  gits[buf] = { gen = gen, name = vim.api.nvim_buf_get_name(buf), dir = dir or false }
+  return dir
+end
+
 --- Корень git-репозитория (для lazygit и истории)
 function M.git(buf)
-  return vim.fs.root(buf or 0, { ".git" }) or vim.uv.cwd()
+  return M.git_dir(buf) or vim.uv.cwd()
 end
 
 return M

@@ -347,6 +347,29 @@ function M.set(key, value)
   end
 end
 
+--- Свой слой как есть (settings.jsonc без умолчаний) и умолчания — для редактора настроек и панели расширений
+function M.user() return load_file(M.files.user) or {} end
+function M.defaults() return load_file(M.files.defaults) or {} end
+
+--- Есть ли комментарии внутри значения верхнего ключа в settings.jsonc: запись через M.set заменяет значение
+--- целиком, и комментарии внутри пропали бы — такие разделы правят руками
+function M.has_comments(key)
+  local text = read(M.files.user)
+  if not text then return false end
+  local clean = jsonc.strip(text)
+  local _, e = clean:match('()"' .. vim.pesc(key) .. '"%s*:%s*()')
+  if not e then return false end
+  local raw = text:sub(e, value_end(clean, e))
+  return raw ~= clean:sub(e, value_end(clean, e))
+end
+
+--- Открыть settings.jsonc на ключе верхнего уровня
+function M.open_at(key)
+  M.open()
+  local row = vim.fn.search('^\\s*"' .. vim.fn.escape(key, '\\/.*$^~[]') .. '"\\s*:', "cw")
+  if row > 0 then vim.cmd("normal! zz") end
+end
+
 --- :Settings — открыть свой слой; :Settings defaults — посмотреть все умолчания
 function M.open(which)
   vim.cmd.edit(vim.fn.fnameescape(which == "defaults" and M.files.defaults or M.files.user))
