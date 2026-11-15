@@ -236,7 +236,7 @@
     "picker": true, // поиск файлов и текста, дерево файлов
     "treesitter": {
       "languages": ["bash", "c", "diff", "go", "gomod", "gosum", "gowork", "html", "javascript", "json", "lua", "luadoc",
-        "markdown", "markdown_inline", "printf", "python", "query", "regex", "sql", "toml", "typescript", "vim", "vimdoc",
+        "markdown", "markdown_inline", "printf", "python", "query", "regex", "rust", "sql", "toml", "typescript", "vim", "vimdoc",
         "xml", "yaml", "dockerfile", "http", "cpp", "cmake", "make"],
       "indent": true,
       "folds": true,
@@ -303,6 +303,9 @@
         ["StatusOK", "StatusCreated", "StatusNoContent", "StatusBadRequest", "StatusUnauthorized", "StatusNotFound", "StatusInternalServerError"]],
       "javascript": [["const", "let"], ["===", "!=="], ["log", "warn", "error"], ["GET", "POST", "PUT", "PATCH", "DELETE"], ["async", "sync"]],
       "typescript": [["const", "let"], ["===", "!=="], ["log", "warn", "error"], ["GET", "POST", "PUT", "PATCH", "DELETE"], ["public", "private", "protected"]],
+      "rust": [["Ok", "Err"], ["Some", "None"], ["assert_eq", "assert_ne"], ["unwrap", "expect"], ["iter", "into_iter", "iter_mut"],
+        ["i32", "i64", "u32", "u64", "usize", "f64"], ["trace", "debug", "info", "warn", "error"], ["pub", "pub(crate)"],
+        ["Rc", "Arc"], ["RefCell", "Mutex", "RwLock"], ["get", "post", "put", "patch", "delete"]],
       "python": [["True", "False"], ["==", "!="], ["debug", "info", "warning", "error", "critical"],
         ["get", "post", "put", "patch", "delete"], ["GET", "POST", "PUT", "PATCH", "DELETE"], ["list", "tuple", "set"]],
     },
@@ -315,7 +318,7 @@
     "rest": false, // отдых: { "work_min": 50, "break_min": 5, "show": "due" } — напомнить о перерыве после 50 минут работы
     "checks": true, // свои проверки без кода (раздел checks): команда на событие, ошибки — на строках
     "quiet": true, // тихий режим (пробел uq): { "hide": ["inlay_hints", "error_lens", "codelens", "blame", "implements", "animations", "indent", "sticky_scroll", "breadcrumbs", "scrollbar"] }
-    "rust": true, // Rust: версии зависимостей в Cargo.toml (crates.nvim), отладка «собрать и отладить» — F9
+    "rust": true, // Rust как Go: ▶ у main и тестов, тесты в фоне, покрытие, бинарники в запуске, пробел R — действия (раздел rust ниже)
     "docker": true, // compose: статус сервисов справа, enter — действия, ${VAR} ↔ .env; Dockerfile: вес слоёв
     "kubernetes": true, // пробел k — kubectl.nvim (если есть kubectl)
     "git": true, // изменения на полях, blame, merge, история, lazygit (раздел git ниже)
@@ -406,12 +409,26 @@
       },
       "eslint": true,
       "ruff": { "init_options": { "settings": { "organizeImports": true, "fixAll": true } } },
-      // Rust: clippy при сохранении; подсказки имён параметров выключены (шумят), «}» подписывается только у длинных блоков
+      // Rust: clippy при сохранении; подсказки имён параметров выключены (шумят), «}» подписывается только у длинных блоков.
+      // targetDir — своя папка сборки (target/rust-analyzer): проверка не держит блокировку cargo, ▶ и cargo run не ждут.
+      // Над типом и трейтом — «N implementations» (как «реализует» у Go); «Run / Debug» над тестами нет — для них ▶ слева
       "rust_analyzer": {
         "settings": {
           "rust-analyzer": {
-            "check": { "command": "clippy" },
-            "inlayHints": { "parameterHints": { "enable": false }, "closingBraceHints": { "minLines": 30 } },
+            "check": { "command": "clippy", "extraArgs": ["--no-deps"] },
+            "cargo": { "targetDir": true, "buildScripts": { "enable": true } },
+            "procMacro": { "enable": true },
+            "imports": { "granularity": { "group": "module" }, "prefix": "crate" },
+            "completion": { "fullFunctionSignatures": { "enable": true }, "postfix": { "enable": true } },
+            "lens": { "enable": true, "run": { "enable": false }, "debug": { "enable": false }, "implementations": { "enable": true },
+              "references": { "trait": { "enable": true } } },
+            "inlayHints": {
+              "parameterHints": { "enable": false },
+              "closingBraceHints": { "minLines": 30 },
+              "closureReturnTypeHints": { "enable": "with_block" },
+              "lifetimeElisionHints": { "enable": "skip_trivial" }, // где компилятор сам подставил 'a — видно
+            },
+            "diagnostics": { "styleLints": { "enable": true } },
           },
         },
       },
@@ -501,6 +518,7 @@
     "adapters": {
       "neotest-golang": { "go_test_args": ["-v", "-race", "-count=1", "-timeout=60s"], "dap_go_enabled": true },
       "neotest-python": true,
+      "neotest-rust": true, // Rust: если стоит cargo-nextest (brew install cargo-nextest); без него ▶ и тесты в фоне — сами
       "neotest-vitest": true, // JS / TS: vitest — если он в package.json
       "neotest-jest": true,
     },
@@ -564,6 +582,13 @@
     "coverage_file": "/tmp/cover.out",
   },
 
+  // Rust: ▶ слева от fn main, #[test] и mod tests (пробел r x / r X — rust-analyzer знает точную cargo-команду);
+  // тесты в фоне — cargo test крейта при сохранении .rs (свой target/ownvim-autotest); покрытие — cargo llvm-cov
+  "rust": {
+    "run_marks": true,
+    "coverage_file": "/tmp/rust-lcov.info",
+  },
+
   // Python: окружение проекта находится само — .venv, venv, env, poetry, pipenv, $VIRTUAL_ENV, conda;
   // пробел r v — выбрать другое (помнится для проекта), в строке статуса — «Python .venv»
   "python": {
@@ -620,8 +645,20 @@
       { "name": "Django: makemigrations", "cmd": "${python} manage.py makemigrations", "when": ["manage.py"] },
       { "name": "cargo run", "cmd": "cargo run", "when": ["Cargo.toml"] },
       { "name": "cargo test", "cmd": "cargo test", "when": ["Cargo.toml"] },
+      { "name": "cargo test — весь воркспейс", "cmd": "cargo test --workspace", "when": ["Cargo.toml"] },
+      { "name": "cargo nextest", "cmd": "cargo nextest run", "when": ["Cargo.toml"] },
+      { "name": "cargo check", "cmd": "cargo check --all-targets", "when": ["Cargo.toml"] },
       { "name": "cargo clippy — все замечания", "cmd": "cargo clippy --all-targets", "when": ["Cargo.toml"] },
+      { "name": "cargo clippy --fix", "cmd": "cargo clippy --fix --allow-dirty --allow-staged", "when": ["Cargo.toml"] },
+      { "name": "cargo fmt", "cmd": "cargo fmt --all", "when": ["Cargo.toml"] },
       { "name": "cargo build --release", "cmd": "cargo build --release", "when": ["Cargo.toml"] },
+      { "name": "cargo bench", "cmd": "cargo bench", "when": ["Cargo.toml"] },
+      { "name": "cargo doc --open", "cmd": "cargo doc --no-deps --open", "when": ["Cargo.toml"] },
+      { "name": "cargo update", "cmd": "cargo update", "when": ["Cargo.toml"] },
+      { "name": "cargo add", "cmd": "cargo add ${input:Крейт (serde -F derive)}", "when": ["Cargo.toml"] },
+      { "name": "cargo llvm-cov — покрытие", "cmd": "cargo llvm-cov", "when": ["Cargo.toml"] },
+      { "name": "cargo audit — уязвимости", "cmd": "cargo audit", "when": ["Cargo.lock"] },
+      { "name": "cargo watch — тесты при сохранении", "cmd": "cargo watch -x test", "when": ["Cargo.toml"] },
       { "name": "C++: собрать и запустить текущий файл", "cmd": "clang++ -std=c++20 -g -Wall -Wextra -o /tmp/a.out ${file} && /tmp/a.out", "ft": ["cpp"] },
       { "name": "dot project doctor", "cmd": "dot project doctor ${root}" },
       { "name": "dot work — что поднято", "cmd": "dot work" },
@@ -1019,11 +1056,29 @@
     "n gpi": "peek.implementations",
     "n gpt": "peek.type",
 
-    // Go и Python: ▶ — оба (пробел r x / r X), генерация Go — пробел G
+    // Go, Rust и Python: ▶ — все (пробел r x / r X), генерация Go — пробел G, действия Rust — пробел R
     "n <leader>rx": "go.run",
     "n <leader>rX": "go.debug",
     "n <leader>rg": "go.scratch",
     "n <leader>rp": "python.scratch",
+    "n <leader>rR": "rust.scratch",
+    "n <leader>Rm": "rust.expand_macro",
+    "n <leader>Rc": "rust.cargo_toml",
+    "n <leader>Rp": "rust.parent_module",
+    "n <leader>Rd": "rust.docs",
+    "n <leader>Re": "rust.explain",
+    "n <leader>RE": "rust.rendered",
+    "n <leader>Rr": "rust.runnables",
+    "n <leader>RR": "rust.debuggables",
+    "n <leader>Ra": "rust.add",
+    "n <leader>Ru": "rust.crates_upgrade",
+    "n <leader>Rf": "rust.crate_features",
+    "n <leader>Rl": "rust.reload",
+    "n <leader>Rv": "rust.coverage",
+    "n <leader>RV": "go.coverage_toggle",
+    "n <leader>Rs": "go.coverage_summary",
+    "n <M-S-k>": "rust.move_up", // сдвинуть функцию / поле / ветку match целиком (в Rust)
+    "n <M-S-j>": "rust.move_down",
     "n <leader>rv": "python.venv", // окружение Python проекта
     "n <leader>ct": "lsp.hint_apply", // вписать подсказку типа в код (Python: -> int, : list[str]; Go: тип переменной)
     "n <leader>Gj": "go.tags_json",

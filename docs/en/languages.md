@@ -162,12 +162,28 @@ know the project flags it needs `compile_commands.json` — the "cmake: configur
 
 ## Rust
 
-Rust itself is needed: `brew install rustup && rustup default stable` (rust-analyzer and clippy — `rustup component add rust-analyzer clippy`).
-Then out of the box: rust-analyzer with clippy on save (parameter-name hints are off — they're noisy), rustfmt on save,
-**`Cargo.toml`** — each dependency shows its latest crates.io version on the right, `K` — crate description, `space ca` —
-bump the version, version and feature completion. Debugging — `F9` → **"Rust: собрать и отладить"** (build and debug):
-`cargo build` and a codelldb launch, with the binary path taken from cargo's output (workspaces too). Tasks
-(`space rr`): `cargo run`, `cargo test`, `cargo clippy`, `cargo build --release`.
+Install Rust: `brew install rustup && rustup default stable` (`rustup component add rust-analyzer clippy`).
+Rust works like Go:
+
+- **▶ in the gutter** next to `fn main`, `#[test]` / `#[tokio::test]` / `#[rstest]`, `#[bench]` and `#[cfg(test)] mod tests`.
+  `space r x` runs what the cursor is in, `space r X` runs it under the debugger (codelldb, cargo builds it first).
+  rust-analyzer picks the exact cargo command: workspace package, `--bin` / `--lib` / `--test`, the test path.
+  `space R r` / `R R` lists everything runnable in the file, doc tests included.
+- **Background tests**: saving a `.rs` file runs `cargo test` for its crate. The status line shows `✓ 12` / `✗ 1`,
+  a failed `assert_eq!` shows up as an error on its line, and `space tv` opens the tests panel. Builds go to a separate
+  `target/ownvim-autotest`, so they don't wait on rust-analyzer.
+- **Launch** (`space rr`): each workspace binary gets its own configuration (`cargo run -p api --bin api`), with the
+  project `.env` loaded; `space rd` debugs it.
+- **Coverage**: `space R v` (`cargo llvm-cov`; install with `cargo install cargo-llvm-cov`). `R V` toggles it, `R s` shows a summary.
+- **rust-analyzer**: clippy on save, its own target dir, lifetime hints, "N implementations" lenses. Under `space R`:
+  `m` expands a macro, `c` opens Cargo.toml, `p` goes to the parent module, `d` opens docs.rs, `e` explains the error
+  (`rustc --explain` or the clippy lint page), `E` shows the full cargo-rendered error, `a` runs `cargo add`, `l` reloads
+  the workspace. `alt-shift-k` / `alt-shift-j` move an item up or down.
+- **`Cargo.toml`**: latest versions shown inline (crates.nvim); `space R u` upgrades all crates, `R f` shows features.
+- **neotest** works when `cargo-nextest` is installed (`brew install cargo-nextest`).
+- Scratch project: `space r R`. There are snippets (`tmod`, `tt`, `tokt`, `errt`, `axh`…), `ctrl-a` cycles (`Ok ↔ Err`, `Some ↔ None`…) and cargo tasks.
+
+Settings: `"rust": { "run_marks": true, "coverage_file": "/tmp/rust-lcov.info" }`.
 
 ## Where programs come from
 

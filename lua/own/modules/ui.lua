@@ -313,6 +313,7 @@ function M.plugins() return {
           { "<leader>d", group = "отладка" },
           { "<leader>a", group = "Claude" },
           { "<leader>G", group = "Go: генерация" },
+          { "<leader>R", group = "Rust" },
           { "<leader>m", group = "мультикурсор" },
           { "<leader>r", group = "запуск" },
           { "gp", group = "посмотреть (peek)" },

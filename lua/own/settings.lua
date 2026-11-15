@@ -19,7 +19,7 @@ local TOP = { theme = true, options = true, globals = true, modules = true, keys
   test = true, debug = true, database = true,
   colors = true, appearance = true, icons = true, statusline = true,
   tabline = true, breadcrumbs = true, dashboard = true, font = true, animations = true, git = true,
-  go = true, python = true, tasks = true, ai = true, sessions = true, explorer = true, commands = true, auto = true, extensions = true, checks = true, run = true, project = true }
+  go = true, python = true, rust = true, soft = true, tasks = true, ai = true, sessions = true, explorer = true, commands = true, auto = true, extensions = true, checks = true, run = true, project = true }
 
 M.current = nil -- последние применённые настройки
 M.problems = {} -- путь → { диагностика }
@@ -62,7 +62,7 @@ local function check(path, text, value, problems)
     if not TOP[key] then
       local lnum, col = jsonc.find_key(text, key)
       problems[#problems + 1] = { lnum = (lnum or 1) - 1, col = col or 0, severity = vim.diagnostic.severity.WARN,
-        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, git, go, python, tasks, ai, sessions, explorer, commands, auto, extensions, checks, run, project"):format(key) }
+        message = ("неизвестный раздел %q — есть: theme, options, globals, modules, keys, plugins, lsp, diagnostics, tools, completion, format, lint, test, debug, database, colors, appearance, icons, statusline, tabline, breadcrumbs, dashboard, font, animations, soft, git, go, python, rust, tasks, ai, sessions, explorer, commands, auto, extensions, checks, run, project"):format(key) }
     end
   end
   for name in pairs(value.modules or {}) do

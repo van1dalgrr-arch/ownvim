@@ -2,7 +2,8 @@
 --   Go      func main и func TestX / BenchmarkX / FuzzX / ExampleX (в _test.go)
 --   Python  if __name__ == "__main__" и def test_* / class Test* (в test_*.py, *_test.py)
 --   JS / TS #!/usr/bin/env node и it / test / describe (в *.test.js, *.spec.ts…)
--- пробел r x — запустить то, в чём курсор; пробел r X — то же под отладчиком (delve / debugpy).
+--   Rust    fn main, #[test] / #[tokio::test] / #[rstest] / #[bench] и #[cfg(test)] mod tests
+-- пробел r x — запустить то, в чём курсор; пробел r X — то же под отладчиком (delve / debugpy / codelldb).
 -- Тесты идут через neotest (результат ✓/✗ рядом с тестом), main — в терминале снизу, остальное Go — go test.
 local M = {}
 local ns = vim.api.nvim_create_namespace("own.run")
@@ -23,8 +24,31 @@ local function js_kind(line, file)
   end
 end
 
+-- атрибуты над строкой i (до пустой строки или кода): #[test], #[tokio::test], #[cfg(test)]
+local function attrs(lines, i)
+  local out = {}
+  for j = i - 1, math.max(1, i - 8), -1 do
+    local l = lines[j]
+    if not l or not (l:match("^%s*#%[") or l:match("^%s*///") or l:match("^%s*//")) then break end
+    out[#out + 1] = l
+  end
+  return table.concat(out, "\n")
+end
+
+local function rust_kind(line, _, lines, i)
+  if line:match("^fn main%(%)") or line:match("^async fn main%(%)") then return "main", "main" end
+  local name = line:match("^%s*[%w_()]*%s*async%s+fn%s+([%w_]+)") or line:match("^%s*pub[%w_()]*%s+fn%s+([%w_]+)")
+    or line:match("^%s*fn%s+([%w_]+)") or line:match("^%s*pub[%w_()]*%s+async%s+fn%s+([%w_]+)")
+  local a = lines and attrs(lines, i) or ""
+  if name and (a:match("#%[[%w_:]*test[%w_]*") or a:match("#%[rstest") or a:match("#%[test_case")) then return "test", name end
+  if name and a:match("#%[bench%]") then return "benchmark", name end
+  local mod = line:match("^%s*mod%s+([%w_]+)%s*{")
+  if mod and a:match("#%[cfg%(test%)%]") then return "test", mod end
+end
+
 -- строка → что это и как называется
 local KIND = {
+  rust = rust_kind,
   javascript = js_kind, typescript = js_kind, javascriptreact = js_kind, typescriptreact = js_kind,
   go = function(line, file)
     if line:match("^func main%(%)") then return "main", "main" end
@@ -49,10 +73,11 @@ local function js_top(line) return line:match("^[%w]") ~= nil end
 local TOP = {
   javascript = js_top, typescript = js_top, javascriptreact = js_top, typescriptreact = js_top,
   go = function(line) return line:match("^func ") end,
+  rust = function(line) return line:match("^%S") and not line:match("^[#/}]") and not line:match("^%s*$") end,
   python = function(line) return line:match("^def ") or line:match("^async def ") or line:match("^class ") or line:match("^if ") end,
 }
 
-local PATTERN = { go = "*.go", python = "*.py", javascript = { "*.js", "*.mjs", "*.cjs", "*.jsx", "*.ts", "*.mts", "*.cts", "*.tsx" } }
+local PATTERN = { go = "*.go", python = "*.py", rust = "*.rs", javascript = { "*.js", "*.mjs", "*.cjs", "*.jsx", "*.ts", "*.mts", "*.cts", "*.tsx" } }
 
 function M.marks(buf)
   if not vim.api.nvim_buf_is_valid(buf) then return end
@@ -63,8 +88,9 @@ function M.marks(buf)
   -- на строке с ошибкой или предупреждением слева нужен их значок, а не ▶
   local problem = {}
   for _, d in ipairs(vim.diagnostic.get(buf)) do problem[d.lnum + 1] = true end
-  for i, line in ipairs(vim.api.nvim_buf_get_lines(buf, 0, -1, false)) do
-    local k = kind(line, file)
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  for i, line in ipairs(lines) do
+    local k = kind(line, file, lines, i)
     if k and not problem[i] then
       vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
         sign_text = "▶",
@@ -82,7 +108,7 @@ local function current(ft)
   local row = vim.api.nvim_win_get_cursor(0)[1]
   local lines = vim.api.nvim_buf_get_lines(buf, 0, row, false)
   for i = #lines, 1, -1 do
-    local k, name = KIND[ft](lines[i], file)
+    local k, name = KIND[ft](lines[i], file, lines, i)
     if k then return k, name, i end
     if TOP[ft](lines[i]) then return end
   end
@@ -133,8 +159,13 @@ end
 
 function M.run(debug)
   if vim.bo.filetype == "python" then return run_python(debug) end
+  if vim.bo.filetype == "rust" then
+    local k, name = current("rust")
+    if not k then return vim.notify("курсор не в fn main, не в тесте и не в mod tests", vim.log.levels.WARN) end
+    return require("own.modules.rust").run_at(k, name, debug)
+  end
   if KIND[vim.bo.filetype] == js_kind then return run_js(debug) end
-  if vim.bo.filetype ~= "go" then return vim.notify("▶ работает в Go-, Python- и JS/TS-файлах", vim.log.levels.WARN) end
+  if vim.bo.filetype ~= "go" then return vim.notify("▶ работает в Go-, Rust-, Python- и JS/TS-файлах", vim.log.levels.WARN) end
   local k, name, line = current("go")
   local dir = vim.fn.expand("%:p:h")
   if not k then
@@ -162,7 +193,7 @@ function M.run(debug)
   term(cmds[k], dir)
 end
 
---- Значки для языка: "go" (по умолчанию), "python" или "javascript" (и TypeScript)
+--- Значки для языка: "go" (по умолчанию), "rust", "python" или "javascript" (и TypeScript)
 function M.setup(lang)
   lang = lang or "go"
   local group = vim.api.nvim_create_augroup("own.run." .. lang, { clear = true })

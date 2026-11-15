@@ -369,10 +369,33 @@ M.list = {
   },
 
   -- Go (модуль go)
-  ["go.run"] = { function() require("own.tools.run").run(false) end, "▶ Запустить то, где курсор (main / тест; Go, Python)" },
+  ["go.run"] = { function() require("own.tools.run").run(false) end, "▶ Запустить то, где курсор (main / тест; Go, Rust, Python, JS)" },
   ["go.debug"] = { function() require("own.tools.run").run(true) end, "▶ То же под отладчиком" },
   ["go.scratch"] = { function() require("own.modules.go").scratch() end, "Go-черновик" },
   ["go.coverage"] = { function() require("own.modules.go").coverage() end, "Покрытие: прогнать тесты и показать" },
+  -- Rust (модуль rust)
+  ["rust.scratch"] = { function() require("own.modules.rust").scratch() end, "Rust-черновик" },
+  ["rust.expand_macro"] = { function() require("own.modules.rust").expand_macro() end, "Раскрыть макрос" },
+  ["rust.cargo_toml"] = { function() require("own.modules.rust").open_cargo() end, "Cargo.toml крейта" },
+  ["rust.parent_module"] = { function() require("own.modules.rust").parent_module() end, "Родительский модуль" },
+  ["rust.docs"] = { function() require("own.modules.rust").docs() end, "Документация (docs.rs / std)" },
+  ["rust.explain"] = { function() require("own.modules.rust").explain() end, "Объяснить ошибку (rustc --explain / clippy)" },
+  ["rust.rendered"] = { function() require("own.modules.rust").rendered() end, "Ошибка целиком, как в cargo" },
+  ["rust.runnables"] = { function() require("own.modules.rust").runnables(false) end, "Запустить: всё запускаемое в файле" },
+  ["rust.debuggables"] = { function() require("own.modules.rust").runnables(true) end, "Отладить: всё запускаемое в файле" },
+  ["rust.add"] = { function() require("own.modules.rust").add() end, "cargo add" },
+  ["rust.crates_upgrade"] = { function() require("crates").upgrade_all_crates() end, "Обновить все зависимости (Cargo.toml)" },
+  ["rust.crate_features"] = { function() require("crates").show_features_popup() end, "Фичи крейта под курсором" },
+  ["rust.reload"] = { function() require("own.modules.rust").reload_workspace() end, "rust-analyzer: перечитать проект и макросы" },
+  ["rust.coverage"] = { function() require("own.modules.rust").coverage() end, "Покрытие: cargo llvm-cov" },
+  ["rust.move_up"] = {
+    function() if vim.bo.filetype == "rust" then require("own.modules.rust").move("up") end end,
+    "Сдвинуть элемент вверх (Rust)",
+  },
+  ["rust.move_down"] = {
+    function() if vim.bo.filetype == "rust" then require("own.modules.rust").move("down") end end,
+    "Сдвинуть элемент вниз (Rust)",
+  },
   -- Python (модуль python)
   ["python.scratch"] = { function() require("own.modules.python").scratch() end, "Python-черновик" },
   ["python.venv"] = { function() require("own.modules.python").choose() end, "Окружение Python проекта" },

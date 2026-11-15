@@ -63,6 +63,9 @@ local function check_programs()
     { "freeze", "brew install charmbracelet/tap/freeze — скриншот кода (пробел P)" },
     { "cmake", "brew install cmake — задачи C/C++" },
     { "cargo", "brew install rustup && rustup default stable — Rust" },
+    { "rust-analyzer", "rustup component add rust-analyzer — Rust" },
+    { "cargo-nextest", "brew install cargo-nextest — тесты Rust в neotest (пробел t t)" },
+    { "cargo-llvm-cov", "cargo install cargo-llvm-cov — покрытие Rust (пробел R v)" },
   }
   for _, p in ipairs(need) do
     if vim.fn.executable(p[1]) == 1 then h.ok(p[1]) else h.error(p[1] .. " не найден", p[2]) end

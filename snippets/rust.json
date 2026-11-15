@@ -1,0 +1,148 @@
+{
+  "модуль тестов": {
+    "prefix": "tmod",
+    "body": ["#[cfg(test)]", "mod tests {", "    use super::*;", "", "    #[test]", "    fn ${1:works}() {", "        ${0:assert_eq!(2 + 2, 4);}", "    }", "}"],
+    "description": "#[cfg(test)] mod tests { use super::*; #[test] … }"
+  },
+  "тест": {
+    "prefix": "tst",
+    "body": ["#[test]", "fn ${1:name}() {", "    ${0}", "}"],
+    "description": "#[test] fn"
+  },
+  "табличный тест": {
+    "prefix": "tt",
+    "body": [
+      "#[test]",
+      "fn ${1:name}() {",
+      "    let cases = [",
+      "        (${2:\"вход\"}, ${3:\"ожидание\"}),",
+      "    ];",
+      "    for (input, want) in cases {",
+      "        assert_eq!(${4:func}(input), want, \"input: {input:?}\");",
+      "    }",
+      "}"
+    ],
+    "description": "тест по таблице случаев, как в Go"
+  },
+  "async-тест (tokio)": {
+    "prefix": "tokt",
+    "body": ["#[tokio::test]", "async fn ${1:name}() {", "    ${0}", "}"],
+    "description": "#[tokio::test] async fn"
+  },
+  "tokio main": {
+    "prefix": "tokm",
+    "body": ["#[tokio::main]", "async fn main() -> anyhow::Result<()> {", "    ${0}", "    Ok(())", "}"],
+    "description": "#[tokio::main] async fn main() -> anyhow::Result<()>"
+  },
+  "main с Result": {
+    "prefix": "mainr",
+    "body": ["fn main() -> Result<(), Box<dyn std::error::Error>> {", "    ${0}", "    Ok(())", "}"],
+    "description": "fn main() -> Result<…>"
+  },
+  "структура с derive": {
+    "prefix": "st",
+    "body": ["#[derive(Debug, Clone${2:, PartialEq})]", "pub struct ${1:Name} {", "    ${0}", "}"],
+    "description": "#[derive(Debug, Clone)] pub struct"
+  },
+  "структура serde": {
+    "prefix": "sts",
+    "body": ["#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]", "#[serde(rename_all = \"${2:camelCase}\")]", "pub struct ${1:Name} {", "    ${0}", "}"],
+    "description": "struct с Serialize / Deserialize"
+  },
+  "enum с derive": {
+    "prefix": "en",
+    "body": ["#[derive(Debug, Clone, Copy, PartialEq, Eq)]", "pub enum ${1:Name} {", "    ${0}", "}"],
+    "description": "#[derive(…)] pub enum"
+  },
+  "impl": {
+    "prefix": "imp",
+    "body": ["impl ${1:Type} {", "    pub fn new(${2}) -> Self {", "        Self { ${3} }", "    }", "}"],
+    "description": "impl Type { fn new }"
+  },
+  "impl трейта": {
+    "prefix": "impt",
+    "body": ["impl ${1:Trait} for ${2:Type} {", "    ${0}", "}"],
+    "description": "impl Trait for Type"
+  },
+  "Display": {
+    "prefix": "disp",
+    "body": [
+      "impl std::fmt::Display for ${1:Type} {",
+      "    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {",
+      "        write!(f, \"${2:{}}\", ${3:self.0})",
+      "    }",
+      "}"
+    ],
+    "description": "impl Display"
+  },
+  "From": {
+    "prefix": "from",
+    "body": ["impl From<${1:Source}> for ${2:Target} {", "    fn from(value: $1) -> Self {", "        ${0}", "    }", "}"],
+    "description": "impl From<A> for B"
+  },
+  "ошибка thiserror": {
+    "prefix": "errt",
+    "body": [
+      "#[derive(Debug, thiserror::Error)]",
+      "pub enum ${1:Error} {",
+      "    #[error(\"${2:не найдено}: {0}\")]",
+      "    ${3:NotFound}(String),",
+      "    #[error(transparent)]",
+      "    Io(#[from] std::io::Error),",
+      "}"
+    ],
+    "description": "enum ошибок на thiserror"
+  },
+  "контекст ошибки": {
+    "prefix": "ctx",
+    "body": [".with_context(|| format!(\"${1:что делали}: {${2:path}:?}\"))?"],
+    "description": "anyhow: .with_context(|| …)?"
+  },
+  "if let": {
+    "prefix": "iflet",
+    "body": ["if let ${1:Some(x)} = ${2:value} {", "    ${0}", "}"],
+    "description": "if let"
+  },
+  "let else": {
+    "prefix": "letelse",
+    "body": ["let ${1:Some(x)} = ${2:value} else {", "    ${0:return};", "};"],
+    "description": "let … else { return }"
+  },
+  "match Result": {
+    "prefix": "mres",
+    "body": ["match ${1:value} {", "    Ok(${2:v}) => ${3},", "    Err(e) => ${0},", "}"],
+    "description": "match Ok / Err"
+  },
+  "match Option": {
+    "prefix": "mopt",
+    "body": ["match ${1:value} {", "    Some(${2:v}) => ${3},", "    None => ${0},", "}"],
+    "description": "match Some / None"
+  },
+  "dbg": {
+    "prefix": "dbg",
+    "body": ["dbg!(&${1});"],
+    "description": "dbg!(&x)"
+  },
+  "tracing": {
+    "prefix": "trc",
+    "body": ["tracing::${1|info,debug,warn,error|}!(${2:field} = ?${3:value}, \"${4:сообщение}\");"],
+    "description": "tracing::info!(…)"
+  },
+  "axum handler": {
+    "prefix": "axh",
+    "body": [
+      "async fn ${1:handler}(",
+      "    State(${2:state}): State<${3:AppState}>,",
+      "    Json(${4:body}): Json<${5:Request}>,",
+      ") -> Result<Json<${6:Response}>, ${7:AppError}> {",
+      "    ${0}",
+      "}"
+    ],
+    "description": "обработчик axum: State + Json → Result<Json>"
+  },
+  "spawn": {
+    "prefix": "spawn",
+    "body": ["tokio::spawn(async move {", "    ${0}", "});"],
+    "description": "tokio::spawn(async move { … })"
+  }
+}

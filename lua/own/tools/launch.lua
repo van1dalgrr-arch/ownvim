@@ -1,10 +1,10 @@
 -- Конфигурации запуска, как в GoLand: справа в строке вкладок «▶ api ▾» — что запускается одной клавишей.
 --   пробел r r — запустить (уже идёт — перезапустить), пробел r d — под отладчиком, пробел r s — остановить,
 --   пробел r c — выбрать конфигурацию; клик по имени — тоже выбор, по ▶ / 󰃤 / ■ — запуск, отладка, стоп.
--- Находятся сами: Go — каждый package main (./cmd/api, корень), Rust — cargo run, compose — docker compose up,
+-- Находятся сами: Go — каждый package main (./cmd/api, корень), Rust — каждый бинарник воркспейса (cargo run -p … --bin …), compose — docker compose up,
 -- Python — manage.py runserver, uvicorn для FastAPI в main.py / app.py, иначе python main.py,
 -- package.json — npm run dev/start; плюс свои — раздел "run": { "configs": [ { "name", "cmd", "env", "cwd" } ] }
--- и задачи из "tasks" без ${input:…}. .env проекта подхватывается для Go сам (как в GoLand с EnvFile).
+-- и задачи из "tasks" без ${input:…}. .env проекта подхватывается для Go и Rust сам (как в GoLand с EnvFile).
 -- Вывод — во вкладке «Запуск» нижней панели; выбранная конфигурация помнится для каждого проекта.
 local root = require("own.root")
 local settings = require("own.settings")
@@ -51,9 +51,40 @@ local function go_mains(dir, done)
   end)
 end
 
-local function static(dir)
+-- Rust: бинарники пакетов воркспейса (cargo metadata) — у каждого свой запуск и отладка через codelldb
+local function rust_bins(dir, done)
+  if not exists(dir, "Cargo.toml") or vim.fn.executable("cargo") == 0 then return done({}) end
+  vim.system({ "cargo", "metadata", "--no-deps", "--format-version", "1" }, { cwd = dir, text = true }, function(r)
+    local ok, meta = pcall(vim.json.decode, r.stdout or "")
+    vim.schedule(function()
+      if r.code ~= 0 or not ok or type(meta) ~= "table" then return done(nil) end
+      local members = {}
+      for _, id in ipairs(meta.workspace_members or {}) do members[id] = true end
+      local out = {}
+      for _, pkg in ipairs(meta.packages or {}) do
+        if members[pkg.id] then
+          for _, t in ipairs(pkg.targets or {}) do
+            if vim.tbl_contains(t.kind or {}, "bin") then
+              local args = { "run", "-p", pkg.name, "--bin", t.name }
+              out[#out + 1] = {
+                id = "cargo:" .. pkg.name .. ":" .. t.name, name = t.name, kind = "rust", cmd = vim.list_extend({ "cargo" }, args),
+                cwd = dir, env = env_of(dir), detail = "cargo " .. table.concat(args, " "),
+                debug = { type = "codelldb", request = "launch", name = t.name, cwd = dir, args = {}, stopOnEntry = false,
+                  program = require("own.modules.rust").program(args, dir) },
+              }
+            end
+          end
+        end
+      end
+      table.sort(out, function(a, b) return a.name < b.name end)
+      done(out)
+    end)
+  end)
+end
+
+local function static(dir, rust)
   local out = {}
-  if exists(dir, "Cargo.toml") then
+  if exists(dir, "Cargo.toml") and not rust then
     out[#out + 1] = { id = "cargo:run", name = vim.fs.basename(dir), kind = "rust", cmd = { "cargo", "run" }, cwd = dir,
       detail = "cargo run", debug = "rust" }
   end
@@ -126,9 +157,11 @@ function M.list(done, fresh)
   local dir = root.get()
   if cache[dir] and not fresh then return done(cache[dir]) end
   go_mains(dir, function(mains)
-    local all = vim.list_extend(mains, static(dir))
-    cache[dir] = all
-    done(all)
+    rust_bins(dir, function(bins)
+      local all = vim.list_extend(vim.list_extend(mains, bins or {}), static(dir, bins and #bins > 0))
+      cache[dir] = all
+      done(all)
+    end)
   end)
 end
 
@@ -311,12 +344,13 @@ function M.setup()
   -- новый main или go.mod — найти заново
   vim.api.nvim_create_autocmd("BufWritePost", {
     group = group,
-    pattern = { "*.go", "go.mod", "Cargo.toml", "package.json", "compose.y*ml", "docker-compose.y*ml" },
+    pattern = { "*.go", "*.rs", "go.mod", "Cargo.toml", "package.json", "compose.y*ml", "docker-compose.y*ml" },
     callback = function(ev)
       if ev.file:match("%.go$") then
         local head = vim.api.nvim_buf_get_lines(ev.buf, 0, 30, false)
         if not vim.iter(head):any(function(l) return l:match("^package main") end) then return end
       end
+      if ev.file:match("%.rs$") and not (ev.file:match("/src/bin/") or ev.file:match("/src/main%.rs$")) then return end
       cache[root.get()] = nil
     end,
   })

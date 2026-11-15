@@ -79,7 +79,7 @@ ownvim раскладывает экран, как IDE: у каждого окн
 Справа в строке вкладок — **конфигурация запуска**, как в GoLand: `  api ▾  ▶  󰃤`. ownvim находит их сам:
 
 - **Go** — каждый `package main` (`./cmd/api`, `./cmd/worker`, корень); `.env` проекта подхватывается сам;
-- **Rust** — `cargo run`; **compose** — `docker compose up`; **package.json** — `npm run dev` / `start`;
+- **Rust** — каждый бинарник воркспейса (`cargo run -p … --bin …`, `.env` — сам); **compose** — `docker compose up`; **package.json** — `npm run dev` / `start`;
 - **задачи** из раздела `tasks`, которым не нужно ничего спрашивать при запуске;
 - **свои** — раздел `run` (ниже).
 

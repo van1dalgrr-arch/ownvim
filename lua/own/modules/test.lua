@@ -32,12 +32,15 @@ local function adapters()
       if name == "neotest-python" and o.python == nil and settings.enabled(settings.current or {}, "python") then
         o.python = function(dir) return require("own.modules.python").python(dir) end
       end
+      -- Rust: neotest-rust гоняет тесты через cargo-nextest; нет его — ▶ и тесты в фоне работают и без neotest
+      if name == "neotest-rust" and vim.fn.executable("cargo-nextest") == 0 then goto continue end
       if repo then
         list[#list + 1] = { name = name, repo = repo, opts = o }
       else
         settings.warn(name, ("не знаю, где адаптер %q — задай \"repo\": \"автор/плагин\""):format(name))
       end
     end
+    ::continue::
   end
   return list
 end

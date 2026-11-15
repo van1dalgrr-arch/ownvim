@@ -1,4 +1,5 @@
-// Package autotest — тесты Go в фоне: сохранили Go-файл — через секунду go test его пакета (из кэша — мгновенно).
+// Package autotest — тесты Go и Rust в фоне: сохранили Go-файл — через секунду go test его пакета (из кэша — мгновенно),
+// .rs — cargo test его крейта (свой target-каталог rust-analyzer не блокирует).
 // В статусной строке ✓ 42 / ✗ 1 / ✗ сборка (в Go-файлах), упавшая проверка — ошибкой на своей строке в _test.go,
 // даже если открыт другой файл. :TestsPanel (пробел tv) — панель «Тесты в фоне»: пакеты и тесты, упавшие первыми,
 // enter — к тесту, r — перезапустить пакет. :AutoTests (пробел tA) — выключить / включить.
@@ -24,6 +25,7 @@ type pkg struct {
 	Running bool
 	Result  Result
 	Ran     bool
+	Rust    bool     // крейт Rust (cargo test), иначе пакет Go
 	marked  []string // _test.go, где стоят замечания
 }
 
@@ -74,6 +76,30 @@ func init() {
 		}
 		return c.SetStatus("", "", "go")
 	})
+	sdk.On("BufWritePost,BufReadPost", "*.rs", func(c *sdk.Ctx) error {
+		mu.Lock()
+		disabled := off
+		root = c.Root
+		mu.Unlock()
+		dir, ok := crate(c.File)
+		if !ok {
+			return nil
+		}
+		mu.Lock()
+		get(dir).Rust = true
+		mu.Unlock()
+		if disabled || c.Event == "BufReadPost" {
+			return status(c, dir) // cargo test при открытии — тяжело; только при сохранении
+		}
+		schedule(c, dir)
+		return nil
+	})
+	sdk.On("BufEnter", "*.rs", func(c *sdk.Ctx) error {
+		if dir, ok := crate(c.File); ok {
+			return status(c, dir)
+		}
+		return c.SetStatus("", "", "rust")
+	})
 	sdk.Command("AutoTests", "Тесты в фоне: выключить / включить", toggle)
 	sdk.Command("TestsPanel", "Панель «Тесты в фоне»", func(c *sdk.Ctx) error { return c.ToggleView("tests") })
 	sdk.View("tests", sdk.ViewSpec{
@@ -123,18 +149,35 @@ func run(c *sdk.Ctx, dir string) {
 	_ = status(c, dir)
 	_ = c.RefreshView("tests")
 
-	// профиль покрытия — туда же, где его ждёт подсветка покрытия (пробел GV): показано — обновится само
-	cmd := exec.CommandContext(ctx, "go", "test", "-json", "-coverprofile=/tmp/cover.out", ".")
-	cmd.Dir = dir
-	out, err := cmd.Output()
-	if ctx.Err() != nil {
-		return // убили ради нового прогона
+	var r Result
+	if p.Rust {
+		// свой target: не ждать блокировки cargo от rust-analyzer и ▶; doc-тесты — нет (rustdoc медленный)
+		cmd := exec.CommandContext(ctx, "cargo", "test", "--no-fail-fast", "--all-targets", "--color=never")
+		cmd.Dir = dir
+		cmd.Env = append(os.Environ(), "CARGO_TARGET_DIR="+filepath.Join(targetDir(dir), "ownvim-autotest"), "RUST_BACKTRACE=0")
+		out, err := cmd.CombinedOutput()
+		if ctx.Err() != nil {
+			return
+		}
+		code := 0
+		if ee, ok := err.(*exec.ExitError); ok {
+			code = ee.ExitCode()
+		}
+		r = ParseCargo(string(out), code, dir)
+	} else {
+		// профиль покрытия — туда же, где его ждёт подсветка покрытия (пробел GV): показано — обновится само
+		cmd := exec.CommandContext(ctx, "go", "test", "-json", "-coverprofile=/tmp/cover.out", ".")
+		cmd.Dir = dir
+		out, err := cmd.Output()
+		if ctx.Err() != nil {
+			return // убили ради нового прогона
+		}
+		code := 0
+		if ee, ok := err.(*exec.ExitError); ok {
+			code = ee.ExitCode()
+		}
+		r = Parse(string(out), code)
 	}
-	code := 0
-	if ee, ok := err.(*exec.ExitError); ok {
-		code = ee.ExitCode()
-	}
-	r := Parse(string(out), code)
 
 	mu.Lock()
 	p.Running, p.Result, p.Ran = false, r, true
@@ -164,7 +207,10 @@ func run(c *sdk.Ctx, dir string) {
 func mark(c *sdk.Ctx, p *pkg, prev []string) {
 	by := map[string][]sdk.Problem{}
 	for _, f := range p.Result.Fails {
-		path := filepath.Join(p.Dir, f.File)
+		path := f.File
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(p.Dir, f.File)
+		}
 		by[path] = append(by[path], sdk.Problem{Line: f.Line, Severity: "error", Message: f.Test + ": " + f.Msg})
 	}
 	for _, path := range prev {
@@ -186,6 +232,10 @@ func status(c *sdk.Ctx, dir string) error {
 	mu.Lock()
 	p := pkgs[dir]
 	disabled := off
+	ft := "go"
+	if _, err := os.Stat(filepath.Join(dir, "Cargo.toml")); err == nil {
+		ft = "rust"
+	}
 	var text, color string
 	switch {
 	case disabled || p == nil:
@@ -199,7 +249,7 @@ func status(c *sdk.Ctx, dir string) error {
 		text, color = fmt.Sprintf("󰙨 ✓ %d", p.Result.Passed), "green"
 	}
 	mu.Unlock()
-	return c.SetStatus(text, color, "go")
+	return c.SetStatus(text, color, ft)
 }
 
 func toggle(c *sdk.Ctx) error {
@@ -217,7 +267,7 @@ func toggle(c *sdk.Ctx) error {
 				_ = c.ProblemsFor(path, nil)
 			}
 		}
-		_ = c.SetStatus("", "", "go")
+		_ = c.SetStatus("", "", "go,rust")
 		c.Notify("тесты в фоне выключены")
 		return nil
 	}
@@ -234,7 +284,7 @@ func rows(c *sdk.Ctx) []sdk.Row {
 	}
 	sort.Strings(dirs)
 	if len(dirs) == 0 {
-		return []sdk.Row{{Text: "сохраните Go-файл пакета с тестами — прогон появится здесь"}}
+		return []sdk.Row{{Text: "сохраните Go-файл пакета с тестами или .rs крейта — прогон появится здесь"}}
 	}
 	var out []sdk.Row
 	for _, d := range dirs {
@@ -267,7 +317,12 @@ func rows(c *sdk.Ctx) []sdk.Row {
 			}
 		}
 		out = append(out, sdk.Row{Parts: head, Key: d})
-		where := Where(d)
+		var where map[string][2]any
+		if p.Rust {
+			where = WhereRust(d)
+		} else {
+			where = Where(d)
+		}
 		for _, t := range p.Result.Tests {
 			mark, color := "✓", "green"
 			if t.Skip {
@@ -276,17 +331,46 @@ func rows(c *sdk.Ctx) []sdk.Row {
 				mark, color = "✗", "red"
 			}
 			row := sdk.Row{Depth: 1, Key: d, Parts: []sdk.Part{{Text: mark + " ", Color: color}, {Text: t.Name}}}
-			if w, ok := where[t.Name]; ok {
+			w, ok := where[t.Name]
+			if !ok && p.Rust {
+				w, ok = where[lastName(t.Name)]
+			}
+			if ok {
 				row.File, row.Line = w[0].(string), w[1].(int)
 			}
 			out = append(out, row)
 			for _, f := range p.Result.Fails {
 				if f.Test == t.Name || strings.HasPrefix(f.Test, t.Name+"/") {
-					out = append(out, sdk.Row{Depth: 2, Key: d, File: filepath.Join(d, f.File), Line: f.Line,
-						Parts: []sdk.Part{{Text: fmt.Sprintf("%s:%d ", f.File, f.Line), Color: "grey"}, {Text: f.Msg, Color: "red"}}})
+					path, short := f.File, f.File
+					if filepath.IsAbs(path) {
+						if rel, err := filepath.Rel(d, path); err == nil {
+							short = rel
+						}
+					} else {
+						path = filepath.Join(d, f.File)
+					}
+					out = append(out, sdk.Row{Depth: 2, Key: d, File: path, Line: f.Line,
+						Parts: []sdk.Part{{Text: fmt.Sprintf("%s:%d ", short, f.Line), Color: "grey"}, {Text: f.Msg, Color: "red"}}})
 				}
 			}
 		}
 	}
 	return out
+}
+
+// targetDir — каталог сборки крейта: target воркспейса (ближайший Cargo.toml с [workspace] вверх), иначе крейта
+func targetDir(dir string) string {
+	if t := os.Getenv("CARGO_TARGET_DIR"); t != "" {
+		return t
+	}
+	best := dir
+	for d := dir; ; d = filepath.Dir(d) {
+		if b, err := os.ReadFile(filepath.Join(d, "Cargo.toml")); err == nil && strings.Contains(string(b), "[workspace]") {
+			best = d
+		}
+		if d == filepath.Dir(d) {
+			break
+		}
+	}
+	return filepath.Join(best, "target")
 }

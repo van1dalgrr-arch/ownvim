@@ -163,11 +163,33 @@ clangd (дополнение, ошибки, clang-tidy, переходы; `пр�
 ## Rust
 
 Нужен сам Rust: `brew install rustup && rustup default stable` (rust-analyzer и clippy — `rustup component add rust-analyzer clippy`).
-Дальше из коробки: rust-analyzer с clippy при сохранении (подсказки имён параметров выключены — шумят), rustfmt при
-сохранении, **`Cargo.toml`** — справа от зависимости её последняя версия с crates.io, `K` — описание крейта, `пробел ca` —
-обновить версию, дополнение версий и фич. Отладка — `F9` → **«Rust: собрать и отладить»**: `cargo build` и запуск под
-codelldb, путь к бинарнику ownvim берёт из вывода cargo (работает и в workspace). Задачи (`пробел rr`): `cargo run`,
-`cargo test`, `cargo clippy`, `cargo build --release`.
+Rust сделан так же, как Go:
+
+- **▶ слева** от `fn main`, `#[test]` / `#[tokio::test]` / `#[rstest]`, `#[bench]` и `#[cfg(test)] mod tests`.
+  `пробел r x` — запустить то, в чём курсор, `пробел r X` — то же под отладчиком (codelldb, cargo собирает сам).
+  Какой командой запускать, решает rust-analyzer: пакет воркспейса, `--bin` / `--lib` / `--test`, точный путь теста.
+  `пробел R r` / `R R` — список всего, что можно запустить в файле (в том числе doc-тесты).
+- **Тесты в фоне**: после сохранения `.rs` запускается `cargo test` его крейта. В статусе показывается `✓ 12` / `✗ 1`,
+  упавший `assert_eq!` — ошибка на своей строке, а `пробел tv` открывает панель с тестами. Сборка идёт в отдельный
+  `target/ownvim-autotest`, поэтому не ждёт rust-analyzer.
+- **Запуск** (`пробел rr`, справа вверху): у каждого бинарника воркспейса своя конфигурация
+  (`cargo run -p api --bin api`), `.env` проекта подхватывается сам; `пробел rd` — отладка этого бинарника.
+- **Покрытие** — `пробел R v` (`cargo llvm-cov`, ставится `cargo install cargo-llvm-cov`): полосы слева, как у Go;
+  `R V` — спрятать / показать, `R s` — проценты по файлам.
+- **rust-analyzer** с clippy при сохранении, своей папкой сборки (`target/rust-analyzer`), подсказками времени жизни,
+  «N implementations» над типами и трейтами. `пробел R`:
+  `m` — раскрыть макрос, `c` — Cargo.toml крейта, `p` — родительский модуль, `d` — docs.rs, `e` — объяснить ошибку
+  (`rustc --explain E0308` или страница линта clippy), `E` — ошибка целиком, как её показывает cargo, `a` — `cargo add`,
+  `l` — перечитать проект и proc-макросы. `alt-shift-k` / `alt-shift-j` — сдвинуть функцию, поле или ветку `match` целиком.
+  `пробел c t` — вписать подсказку типа в код.
+- **`Cargo.toml`** — справа от зависимости её последняя версия с crates.io, `K` — описание крейта, `пробел ca` — обновить,
+  `пробел R u` — обновить все, `R f` — фичи крейта.
+- **neotest** (`пробел t t` и др.) — если стоит `cargo-nextest` (`brew install cargo-nextest`).
+- Черновик — `пробел r R` (cargo-проект с `main` и тестом), сниппеты (`tmod`, `tt`, `tokt`, `errt`, `axh`…), `ctrl-a`
+  переключает `Ok ↔ Err`, `Some ↔ None`, `assert_eq ↔ assert_ne`, `iter → into_iter → iter_mut`.
+- Задачи (`пробел r t`): run, test, nextest, check, clippy (и `--fix`), fmt, bench, doc, update, add, llvm-cov, audit, watch.
+
+Настройки — раздел `"rust": { "run_marks": true, "coverage_file": "/tmp/rust-lcov.info" }`.
 
 ## Откуда ставятся программы
 
