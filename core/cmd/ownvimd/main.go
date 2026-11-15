@@ -4,6 +4,7 @@
 //	ownvimd settings set  --config DIR KEY JSON        записать ключ верхнего уровня в settings.jsonc
 //	ownvimd serve                                      мост: msgpack-RPC с Neovim через stdin/stdout
 //	ownvimd extensions manifest                        какие команды, клавиши и события объявили расширения
+//	ownvimd routes DIR                                 маршруты Gin проекта JSON-ом (для VS Code: эндпоинты)
 //	ownvimd version
 //
 // Настройки нужны до загрузки плагинов, синхронно, — поэтому это обычный вызов программы, а не RPC.
@@ -18,6 +19,8 @@ import (
 
 	"github.com/van1dalgrr-arch/ownvim/core/bridge"
 	_ "github.com/van1dalgrr-arch/ownvim/core/extensions" // все расширения из core/extensions/*
+	"github.com/van1dalgrr-arch/ownvim/core/extensions/endpoints"
+	"github.com/van1dalgrr-arch/ownvim/core/httpx"
 	"github.com/van1dalgrr-arch/ownvim/core/sdk"
 	"github.com/van1dalgrr-arch/ownvim/core/settings"
 )
@@ -45,6 +48,16 @@ func main() {
 			fmt.Fprintln(os.Stderr, "ownvimd serve:", err)
 			os.Exit(1)
 		}
+	case "routes":
+		root := "."
+		if len(os.Args) > 2 {
+			root = os.Args[2]
+		}
+		routes := endpoints.Collect(root)
+		if routes == nil {
+			routes = []endpoints.Route{}
+		}
+		_ = json.NewEncoder(os.Stdout).Encode(map[string]any{"port": httpx.Port(root), "routes": routes})
 	case "version":
 		fmt.Println(version)
 	default:
@@ -53,7 +66,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "ownvimd settings load|set … | extensions manifest | serve | version")
+	fmt.Fprintln(os.Stderr, "ownvimd settings load|set … | extensions manifest | routes DIR | serve | version")
 	os.Exit(2)
 }
 

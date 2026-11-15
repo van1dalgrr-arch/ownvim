@@ -1,0 +1,53 @@
+// ownvim в VS Code — клавиши вне Vim-режима (буквы с пробелом — в settings.json → whichkey.bindings)
+[
+  // Esc во вставке — выйти и сохранить (форматирование + импорты), как InsertLeave в ownvim
+  { "key": "escape", "command": "ownvim.escape", "when": "editorTextFocus && vim.active && vim.mode == 'Insert' && !suggestWidgetVisible && !parameterHintsVisible && !inSnippetMode && !inlineSuggestionVisible && !inDebugRepl" },
+  { "key": "ctrl+[", "command": "ownvim.escape", "when": "editorTextFocus && vim.active && vim.mode == 'Insert' && !suggestWidgetVisible && !inDebugRepl" },
+  { "key": "ctrl+c", "command": "ownvim.escape", "when": "editorTextFocus && vim.active && vim.mode == 'Insert' && !inDebugRepl" },
+
+  // alt-s — тема с предпросмотром, alt-t — задачи, alt-p — .http запрос
+  { "key": "alt+s", "command": "workbench.action.selectTheme" },
+  // alt-o — контейнеры (логи, shell, restart…), alt-d — сервис compose проекта
+  { "key": "alt+o", "command": "ownvim.docker.containers" },
+  { "key": "alt+d", "command": "ownvim.docker.service" },
+  { "key": "alt+t", "command": "workbench.action.tasks.runTask" },
+  { "key": "alt+p", "command": "rest-client.request", "when": "editorLangId == http" },
+  { "key": "alt+p", "command": "ownvim.apiHttp", "when": "editorLangId != http" },
+  // alt-a — эндпоинты API (как Endpoints в GoLand), alt-x — мои команды из settings.jsonc
+  { "key": "alt+a", "command": "ownvim.endpoints" },
+  { "key": "alt+x", "command": "ownvim.commands" },
+
+  // cmd-shift-t — код ↔ тест в любом языке (теста нет — создаётся), up ↔ down (миграции)
+  { "key": "cmd+shift+t", "command": "ownvim.alternate", "when": "editorTextFocus" },
+
+  // cmd-enter — выполнить SQL под курсором; в Go — ▶ main или тест под курсором
+  { "key": "cmd+enter", "command": "ownvim.sql.run", "when": "editorTextFocus && resourceExtname == .sql" },
+  { "key": "cmd+enter", "command": "ownvim.run", "when": "editorTextFocus && editorLangId =~ /^(go|python|javascript|typescript|javascriptreact|typescriptreact)$/" },
+  { "key": "cmd+shift+enter", "command": "ownvim.debug", "when": "editorTextFocus && editorLangId =~ /^(go|python|javascript|typescript|javascriptreact|typescriptreact)$/" }, // gitleaks:allow — сочетание клавиш, не секрет
+
+  // alt-enter — действия (как в GoLand)
+  { "key": "alt+enter", "command": "editor.action.quickFix", "when": "editorTextFocus" },
+
+  // ctrl-hjkl — между панелями и из терминала
+  { "key": "ctrl+h", "command": "workbench.action.navigateLeft", "when": "!editorTextFocus || vim.mode == 'Normal'" },
+  { "key": "ctrl+l", "command": "workbench.action.navigateRight", "when": "!editorTextFocus && !terminalFocus" },
+  { "key": "ctrl+k", "command": "workbench.action.navigateUp", "when": "terminalFocus" },
+  { "key": "ctrl+j", "command": "workbench.action.navigateDown", "when": "!editorTextFocus && !terminalFocus" },
+
+  // пробел — меню и в дереве файлов / панели, когда не пишешь
+  { "key": "space", "command": "whichkey.show", "when": "sideBarFocus && !inputFocus && !treeFindOpen" },
+
+  // в дереве: a — новый файл, r — переименовать, d — удалить, как в ownvim
+  { "key": "a", "command": "explorer.newFile", "when": "filesExplorerFocus && !inputFocus" },
+  { "key": "shift+a", "command": "explorer.newFolder", "when": "filesExplorerFocus && !inputFocus" },
+  { "key": "r", "command": "renameFile", "when": "filesExplorerFocus && !inputFocus" },
+  { "key": "d", "command": "deleteFile", "when": "filesExplorerFocus && !inputFocus" },
+  { "key": "l", "command": "list.select", "when": "filesExplorerFocus && !inputFocus" },
+  { "key": "h", "command": "list.collapse", "when": "filesExplorerFocus && !inputFocus" },
+
+  // подсказки: ctrl-j/k по списку, как в ownvim
+  { "key": "ctrl+j", "command": "selectNextSuggestion", "when": "suggestWidgetVisible" },
+  { "key": "ctrl+k", "command": "selectPrevSuggestion", "when": "suggestWidgetVisible" },
+  { "key": "ctrl+j", "command": "workbench.action.quickOpenSelectNext", "when": "inQuickOpen" },
+  { "key": "ctrl+k", "command": "workbench.action.quickOpenSelectPrevious", "when": "inQuickOpen" }
+]

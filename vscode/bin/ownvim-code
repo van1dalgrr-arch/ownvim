@@ -1,0 +1,6 @@
+#!/bin/sh
+# ownvim в VS Code: отдельная копия — свои настройки и расширения, основной VS Code не трогается.
+#   ownvim-code [папка|файл…]    без аргументов — текущая папка
+DATA="${OWNVIM_CODE_HOME:-$HOME/.local/share/ownvim/vscode}"
+[ $# -eq 0 ] && set -- .
+exec code --user-data-dir "$DATA/data" --extensions-dir "$DATA/extensions" "$@"

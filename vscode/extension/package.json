@@ -1,0 +1,540 @@
+{
+  "name": "ownvim",
+  "displayName": "ownvim",
+  "description": "ownvim в VS Code: миграции и схема SQL, база проекта, Docker в коде, ▶ у main и тестов, эндпоинты, задачи из settings.jsonc, тесты в фоне, ревью Claude, темы",
+  "version": "0.1.0",
+  "publisher": "van1dal",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Themes",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onLanguage:sql",
+    "onLanguage:go",
+    "onLanguage:dockercompose",
+    "onLanguage:dockerfile",
+    "onDebugDynamicConfigurations",
+    "onCommand:workbench.action.tasks.runTask",
+    "onLanguage:python",
+    "onLanguage:javascript",
+    "onLanguage:typescript"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Arctic",
+        "uiTheme": "vs-dark",
+        "path": "./themes/arctic.json"
+      },
+      {
+        "label": "Aurora",
+        "uiTheme": "vs-dark",
+        "path": "./themes/aurora.json"
+      },
+      {
+        "label": "Dev Day",
+        "uiTheme": "vs",
+        "path": "./themes/dev-day.json"
+      },
+      {
+        "label": "Dev Night",
+        "uiTheme": "vs-dark",
+        "path": "./themes/dev-night.json"
+      },
+      {
+        "label": "Dusk",
+        "uiTheme": "vs-dark",
+        "path": "./themes/dusk.json"
+      },
+      {
+        "label": "Ember",
+        "uiTheme": "vs-dark",
+        "path": "./themes/ember.json"
+      },
+      {
+        "label": "Forest",
+        "uiTheme": "vs-dark",
+        "path": "./themes/forest.json"
+      },
+      {
+        "label": "Graphite",
+        "uiTheme": "vs-dark",
+        "path": "./themes/graphite.json"
+      },
+      {
+        "label": "Matcha",
+        "uiTheme": "vs-dark",
+        "path": "./themes/matcha.json"
+      },
+      {
+        "label": "Midnight",
+        "uiTheme": "vs-dark",
+        "path": "./themes/midnight.json"
+      },
+      {
+        "label": "Mocha",
+        "uiTheme": "vs-dark",
+        "path": "./themes/mocha.json"
+      },
+      {
+        "label": "Mono",
+        "uiTheme": "vs-dark",
+        "path": "./themes/mono.json"
+      },
+      {
+        "label": "Nebula",
+        "uiTheme": "vs-dark",
+        "path": "./themes/nebula.json"
+      },
+      {
+        "label": "Neon",
+        "uiTheme": "vs-dark",
+        "path": "./themes/neon.json"
+      },
+      {
+        "label": "Ocean",
+        "uiTheme": "vs-dark",
+        "path": "./themes/ocean.json"
+      },
+      {
+        "label": "Sunset",
+        "uiTheme": "vs-dark",
+        "path": "./themes/sunset.json"
+      },
+      {
+        "label": "Zed One Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/zed-one-dark.json"
+      },
+      {
+        "label": "Zed One Light",
+        "uiTheme": "vs",
+        "path": "./themes/zed-one-light.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "ownvim.sql.migrations",
+        "title": "Миграции: меню",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.new",
+        "title": "Миграции: новая",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.up",
+        "title": "Миграции: up — применить все",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.down",
+        "title": "Миграции: down — откатить последнюю",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.redo",
+        "title": "Миграции: redo",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.status",
+        "title": "Миграции: статус",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.toggle",
+        "title": "Миграции: up ↔ down",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.sql.run",
+        "title": "SQL: выполнить запрос под курсором",
+        "category": "ownvim",
+        "icon": "$(play)"
+      },
+      {
+        "command": "ownvim.sql.db",
+        "title": "SQL: база проекта",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.docker.service",
+        "title": "Docker: действия с сервисом",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.docker.layers",
+        "title": "Docker: образ для веса слоёв",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.go.run",
+        "title": "Go: ▶ запустить (main или тест под курсором)",
+        "category": "ownvim",
+        "icon": "$(play)"
+      },
+      {
+        "command": "ownvim.go.debug",
+        "title": "Go: отладка (main или тест под курсором)",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.go.scratch",
+        "title": "Go: черновик",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.escape",
+        "title": "Выйти из вставки и сохранить",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.dial.inc",
+        "title": "ctrl-a: следующее значение / +1",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.dial.dec",
+        "title": "ctrl-x: предыдущее значение / −1",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.docker.enter",
+        "title": "Docker: Enter — действия с сервисом",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.docker.containers",
+        "title": "Docker: контейнеры",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.go.json2struct",
+        "title": "Go: JSON → struct с тегами",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.run",
+        "title": "▶ запустить (main или тест под курсором: Go, Python, JS/TS)",
+        "category": "ownvim",
+        "icon": "$(play)"
+      },
+      {
+        "command": "ownvim.debug",
+        "title": "Отладка (main или тест под курсором)",
+        "category": "ownvim",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "ownvim.python.scratch",
+        "title": "Python: черновик",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.ts.scratch",
+        "title": "TypeScript: черновик",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.alternate",
+        "title": "Тест ↔ код",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.endpoints",
+        "title": "Эндпоинты API (Gin)",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.apiHttp",
+        "title": "api.http из маршрутов",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.commands",
+        "title": "Мои команды (settings.jsonc → commands)",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.settings",
+        "title": "Открыть settings.jsonc ownvim",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.go.autotestToggle",
+        "title": "Go: тесты в фоне вкл/выкл",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.go.autotestShow",
+        "title": "Go: тесты в фоне — результат пакета",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.review",
+        "title": "Ревью ветки от Claude (замечания на строках)",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.review.clear",
+        "title": "Ревью: убрать замечания",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.notes.add",
+        "title": "Записать неудобство",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.notes",
+        "title": "Неудобства: список",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.shot",
+        "title": "Скриншот кода → буфер обмена",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.music.toggle",
+        "title": "Музыка: пауза / играть",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.music.next",
+        "title": "Музыка: следующий трек",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.music.prev",
+        "title": "Музыка: предыдущий трек",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.music.menu",
+        "title": "Музыка: меню",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.rest.start",
+        "title": "Отдых: начать перерыв",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.rest.stop",
+        "title": "Отдых: закончить перерыв",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.rest.later",
+        "title": "Отдых: напомнить через 10 минут",
+        "category": "ownvim"
+      },
+      {
+        "command": "ownvim.menu",
+        "title": "Команды ownvim",
+        "category": "ownvim"
+      }
+    ],
+    "menus": {
+      "editor/title/run": [
+        {
+          "command": "ownvim.sql.run",
+          "when": "resourceExtname == .sql",
+          "group": "navigation"
+        },
+        {
+          "command": "ownvim.run",
+          "when": "editorLangId =~ /^(go|python|javascript|typescript|javascriptreact|typescriptreact)$/",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "key": "cmd+enter",
+        "command": "ownvim.sql.run",
+        "when": "editorTextFocus && resourceExtname == .sql"
+      },
+      {
+        "key": "cmd+shift+t",
+        "command": "ownvim.sql.toggle",
+        "when": "editorTextFocus && resourceFilename =~ /\\.(up|down)\\.sql$/"
+      }
+    ],
+    "configuration": {
+      "title": "ownvim",
+      "properties": {
+        "ownvim.autosave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Сохранять самому (с форматированием и импортами): выход из вставки, правка в обычном режиме, переход в другой файл"
+        },
+        "ownvim.database.url": {
+          "type": "string",
+          "default": "",
+          "description": "Своя база проекта. Пусто — сама: DATABASE_URL из .env, postgres из compose, иначе postgres://postgres:…@localhost:5432/<папка>"
+        },
+        "ownvim.sql.migrations": {
+          "type": "string",
+          "default": "",
+          "description": "Папка миграций. Пусто — ищется сама: migrations, db/migrations, internal/…/migrations"
+        },
+        "ownvim.sql.tool": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "migrate",
+            "goose"
+          ],
+          "default": "auto",
+          "description": "migrate (golang-migrate) или goose; auto — по файлам"
+        },
+        "ownvim.sql.autoDown": {
+          "type": "boolean",
+          "default": true,
+          "description": "down по up при сохранении, пока down не правили руками"
+        },
+        "ownvim.sql.status": {
+          "type": "boolean",
+          "default": true,
+          "description": "✓ применена / ○ ждёт в первой строке миграции"
+        },
+        "ownvim.sql.checks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Предупреждения об опасных миграциях: NOT NULL без DEFAULT, индекс без CONCURRENTLY…"
+        },
+        "ownvim.docker.composeStatus": {
+          "type": "boolean",
+          "default": true,
+          "description": "Статус сервисов справа в compose-файле"
+        },
+        "ownvim.docker.intervalMs": {
+          "type": "number",
+          "default": 3000,
+          "description": "Как часто спрашивать docker compose ps, пока compose-файл на экране"
+        },
+        "ownvim.docker.layers": {
+          "type": "boolean",
+          "default": true,
+          "description": "Вес слоёв в Dockerfile"
+        },
+        "ownvim.docker.envCheck": {
+          "type": "boolean",
+          "default": true,
+          "description": "${VAR} без значения в .env — предупреждение"
+        },
+        "ownvim.go.runMarks": {
+          "type": "boolean",
+          "default": true,
+          "description": "▶ запустить / отладка над func main"
+        },
+        "ownvim.go.implements": {
+          "type": "boolean",
+          "default": true,
+          "description": "«реализует: io.Reader» над типом"
+        },
+        "ownvim.docker.statusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Сервисы compose проекта в строке состояния: работает / всего"
+        },
+        "ownvim.runMarks": {
+          "type": "boolean",
+          "default": true,
+          "description": "▶ запустить / отладка над if __name__ == \"__main__\" и #!/usr/bin/env node"
+        },
+        "ownvim.go.autotest": {
+          "type": "boolean",
+          "default": true,
+          "description": "Тесты Go в фоне: при сохранении — go test пакета, ✓/✗ в строке состояния, упавшие проверки — на строках"
+        },
+        "ownvim.music": {
+          "type": "boolean",
+          "default": true,
+          "description": "Музыка в строке состояния (media-control; blocks statusline.right в settings.jsonc ownvim)"
+        },
+        "ownvim.rest": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null,
+          "description": "Напоминание об отдыхе. null — как в ownvim (modules.rest в settings.jsonc), true/false — своё"
+        },
+        "ownvim.statusIcon": {
+          "type": "boolean",
+          "default": true,
+          "description": "Значок ownvim слева в строке состояния: RAM и время работы Mac в подсказке, клик — команды"
+        }
+      }
+    },
+    "snippets": [
+      {
+        "language": "go",
+        "path": "./snippets/go.json"
+      },
+      {
+        "language": "sql",
+        "path": "./snippets/sql.json"
+      },
+      {
+        "language": "python",
+        "path": "./snippets/python.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./snippets/javascript.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/typescript.json"
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "ownvim",
+        "properties": {}
+      },
+      {
+        "type": "ownvim-task",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "задача из settings.jsonc ownvim (tasks.list)"
+          }
+        }
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "@types/pg": "^8.11.10",
+    "@types/vscode": "^1.95.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "pg": "^8.13.1",
+    "yaml": "^2.6.1"
+  },
+  "scripts": {
+    "build": "node scripts/themes.js && node scripts/snippets.js && esbuild src/extension.ts --bundle --platform=node --external:vscode --outfile=dist/extension.js --minify --sourcemap",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --external:vscode --outfile=dist/extension.js --sourcemap --watch",
+    "test": "esbuild test/run.ts --bundle --platform=node --alias:vscode=./test/vscode-stub.js --external:pg --outfile=test/out.js --log-level=warning && node test/out.js",
+    "check": "tsc -p ."
+  }
+}
