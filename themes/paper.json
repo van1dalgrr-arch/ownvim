@@ -1,0 +1,45 @@
+// Paper — светлая тёплая бумага: чернила, охра и немного красного
+{
+  "name": "Paper",
+  "type": "light",
+  "palette": {
+    "bg": "#f7f1e3",
+    "bg_alt": "#efe8d6",
+    "bg_highlight": "#e8dfca",
+    "bg_visual": "#d9cfae",
+    "border": "#d4c9ad",
+    "fg": "#3a3530",
+    "fg_dim": "#5e574e",
+    "fg_muted": "#9a9182",
+    "accent": "#b5462f",
+    "red": "#b5362a",
+    "orange": "#b8611e",
+    "yellow": "#8f6a00",
+    "green": "#4a7a2a",
+    "cyan": "#1f7a78",
+    "blue": "#2a5fa8",
+    "purple": "#7a4aa0",
+    "pink": "#a83a78"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "accent",
+    "function": "blue",
+    "string": "green",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#5a4a8a",
+    "attribute": "#5a4a8a",
+    "operator": "fg_dim",
+    "punctuation": "#8a8172",
+    "builtin": "red",
+    "parameter": "#4a443c",
+    "namespace": "fg_dim"
+  }
+}

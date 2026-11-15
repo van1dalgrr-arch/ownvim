@@ -1,0 +1,45 @@
+// Peach — светлая персиковая: мягкий тёплый фон, коралловый акцент
+{
+  "name": "Peach",
+  "type": "light",
+  "palette": {
+    "bg": "#fdf3ec",
+    "bg_alt": "#f7e8dd",
+    "bg_highlight": "#f1ddcf",
+    "bg_visual": "#f2c9b4",
+    "border": "#e6cfc0",
+    "fg": "#3d302b",
+    "fg_dim": "#65544c",
+    "fg_muted": "#a08c82",
+    "accent": "#e0563f",
+    "red": "#cf3f3a",
+    "orange": "#c4661a",
+    "yellow": "#946c00",
+    "green": "#3f7d3a",
+    "cyan": "#1c7c80",
+    "blue": "#3565b8",
+    "purple": "#8048a8",
+    "pink": "#c03a80"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "accent",
+    "function": "blue",
+    "string": "green",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#7a4a6a",
+    "attribute": "#7a4a6a",
+    "operator": "fg_dim",
+    "punctuation": "#917e74",
+    "builtin": "red",
+    "parameter": "#4a3c36",
+    "namespace": "fg_dim"
+  }
+}

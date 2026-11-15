@@ -1,0 +1,45 @@
+// Dune — ночная пустыня: тёплый коричневый, песок, терракота и бирюза
+{
+  "name": "Dune",
+  "type": "dark",
+  "palette": {
+    "bg": "#1c1712",
+    "bg_alt": "#221c16",
+    "bg_highlight": "#29221a",
+    "bg_visual": "#4a3a26",
+    "border": "#3a3024",
+    "fg": "#e8dcc6",
+    "fg_dim": "#bfb096",
+    "fg_muted": "#7d705c",
+    "accent": "#e0894a",
+    "red": "#d9614f",
+    "orange": "#e0894a",
+    "yellow": "#e3c078",
+    "green": "#a9b665",
+    "cyan": "#6fbfb0",
+    "blue": "#7da6c9",
+    "purple": "#b08fc4",
+    "pink": "#d68aa0"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "orange",
+    "function": "yellow",
+    "string": "green",
+    "type": "cyan",
+    "number": "purple",
+    "constant": "purple",
+    "boolean": "purple",
+    "property": "#c9a67a",
+    "attribute": "#c9a67a",
+    "operator": "fg_dim",
+    "punctuation": "#8c7e69",
+    "builtin": "red",
+    "parameter": "#d6c9b2",
+    "namespace": "fg_dim"
+  }
+}

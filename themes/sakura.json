@@ -1,0 +1,45 @@
+// Sakura — тёмная слива и цвет сакуры: розовый акцент, мятные строки
+{
+  "name": "Sakura",
+  "type": "dark",
+  "palette": {
+    "bg": "#1a1418",
+    "bg_alt": "#201920",
+    "bg_highlight": "#261d26",
+    "bg_visual": "#45263a",
+    "border": "#35283a",
+    "fg": "#ead9e2",
+    "fg_dim": "#c2a9b8",
+    "fg_muted": "#7b6474",
+    "accent": "#f78fb3",
+    "red": "#f0607a",
+    "orange": "#f4a37a",
+    "yellow": "#f2d08a",
+    "green": "#8fd6b0",
+    "cyan": "#86d3dc",
+    "blue": "#8fb2f5",
+    "purple": "#c79bf2",
+    "pink": "#f78fb3"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "pink",
+    "function": "blue",
+    "string": "green",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#e0a8c8",
+    "attribute": "#e0a8c8",
+    "operator": "fg_dim",
+    "punctuation": "#8f7888",
+    "builtin": "red",
+    "parameter": "#d9c2d0",
+    "namespace": "fg_dim"
+  }
+}

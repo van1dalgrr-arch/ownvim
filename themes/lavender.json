@@ -1,0 +1,45 @@
+// Lavender — мягкая пастель на серо-лиловом: глаза не устают вечером
+{
+  "name": "Lavender",
+  "type": "dark",
+  "palette": {
+    "bg": "#1e1d2b",
+    "bg_alt": "#232234",
+    "bg_highlight": "#29283c",
+    "bg_visual": "#3a3760",
+    "border": "#353349",
+    "fg": "#dcd9f0",
+    "fg_dim": "#b0accf",
+    "fg_muted": "#6e6a8f",
+    "accent": "#b4a1ff",
+    "red": "#f28ba0",
+    "orange": "#f5b38a",
+    "yellow": "#f0d9a0",
+    "green": "#a6dbb0",
+    "cyan": "#94d6e0",
+    "blue": "#9bb6fa",
+    "purple": "#b4a1ff",
+    "pink": "#f0a6d6"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "purple",
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#c3b9f5",
+    "attribute": "#c3b9f5",
+    "operator": "fg_dim",
+    "punctuation": "#7f7ba1",
+    "builtin": "pink",
+    "parameter": "#cfcbe8",
+    "namespace": "fg_dim"
+  }
+}

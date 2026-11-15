@@ -1,0 +1,45 @@
+// Cobalt — глубокий синий, как ночное небо: жёлтый акцент, бирюзовые строки
+{
+  "name": "Cobalt",
+  "type": "dark",
+  "palette": {
+    "bg": "#0d1b2e",
+    "bg_alt": "#11223a",
+    "bg_highlight": "#152a46",
+    "bg_visual": "#1f4470",
+    "border": "#223a5c",
+    "fg": "#dbe7f7",
+    "fg_dim": "#a4b9d6",
+    "fg_muted": "#5b7396",
+    "accent": "#ffc83d",
+    "red": "#ff6b7a",
+    "orange": "#ff9d4d",
+    "yellow": "#ffc83d",
+    "green": "#5fe3a1",
+    "cyan": "#45d6e6",
+    "blue": "#5aa9ff",
+    "purple": "#b292ff",
+    "pink": "#ff8ad1"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "orange",
+    "function": "yellow",
+    "string": "green",
+    "type": "cyan",
+    "number": "pink",
+    "constant": "pink",
+    "boolean": "pink",
+    "property": "#9cc4ff",
+    "attribute": "#9cc4ff",
+    "operator": "fg_dim",
+    "punctuation": "#6f89ad",
+    "builtin": "red",
+    "parameter": "#c9d8ee",
+    "namespace": "fg_dim"
+  }
+}

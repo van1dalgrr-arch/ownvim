@@ -1,0 +1,45 @@
+// Phosphor — старый монитор: зелёный люминофор на чёрном, янтарные строки
+{
+  "name": "Phosphor",
+  "type": "dark",
+  "palette": {
+    "bg": "#070b07",
+    "bg_alt": "#0b110b",
+    "bg_highlight": "#0f170f",
+    "bg_visual": "#173a1c",
+    "border": "#1c2a1c",
+    "fg": "#b6f2b0",
+    "fg_dim": "#84c487",
+    "fg_muted": "#4a7a4d",
+    "accent": "#39ff6a",
+    "red": "#ff5f56",
+    "orange": "#ffa23a",
+    "yellow": "#f5d547",
+    "green": "#39ff6a",
+    "cyan": "#4ff0c0",
+    "blue": "#6fd0a0",
+    "purple": "#a6e36a",
+    "pink": "#d8f06a"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "green",
+    "function": "cyan",
+    "string": "yellow",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#9be08f",
+    "attribute": "#9be08f",
+    "operator": "fg_dim",
+    "punctuation": "#5a8f5d",
+    "builtin": "red",
+    "parameter": "#a8e0a2",
+    "namespace": "fg_dim"
+  }
+}

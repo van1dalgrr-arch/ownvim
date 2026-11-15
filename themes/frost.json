@@ -1,0 +1,45 @@
+// Frost — светлая холодная: белый иней, синий акцент, спокойный контраст
+{
+  "name": "Frost",
+  "type": "light",
+  "palette": {
+    "bg": "#f4f7fb",
+    "bg_alt": "#e9eef5",
+    "bg_highlight": "#dfe6ef",
+    "bg_visual": "#c7d7ee",
+    "border": "#c9d3e0",
+    "fg": "#27303d",
+    "fg_dim": "#4c586a",
+    "fg_muted": "#8a96a8",
+    "accent": "#2563eb",
+    "red": "#d13a4a",
+    "orange": "#c2600f",
+    "yellow": "#946a00",
+    "green": "#2f8048",
+    "cyan": "#0f7f93",
+    "blue": "#2563eb",
+    "purple": "#7446c8",
+    "pink": "#be3a86"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "purple",
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#3f5fa8",
+    "attribute": "#3f5fa8",
+    "operator": "fg_dim",
+    "punctuation": "#7a8698",
+    "builtin": "red",
+    "parameter": "#333d4b",
+    "namespace": "fg_dim"
+  }
+}

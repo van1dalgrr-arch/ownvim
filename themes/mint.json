@@ -1,0 +1,45 @@
+// Mint — светлая мятная: свежий зеленоватый фон, изумрудный акцент
+{
+  "name": "Mint",
+  "type": "light",
+  "palette": {
+    "bg": "#f1f8f4",
+    "bg_alt": "#e5f0ea",
+    "bg_highlight": "#d9e8e0",
+    "bg_visual": "#bfe0cf",
+    "border": "#c5d9ce",
+    "fg": "#24332c",
+    "fg_dim": "#48594f",
+    "fg_muted": "#84968b",
+    "accent": "#0f8a5f",
+    "red": "#c93a48",
+    "orange": "#b8631a",
+    "yellow": "#8a6f00",
+    "green": "#0f8a5f",
+    "cyan": "#0c7f8c",
+    "blue": "#2c62b5",
+    "purple": "#6f4bb5",
+    "pink": "#b53a85"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "accent",
+    "function": "blue",
+    "string": "orange",
+    "type": "purple",
+    "number": "red",
+    "constant": "red",
+    "boolean": "red",
+    "property": "#2f6f7a",
+    "attribute": "#2f6f7a",
+    "operator": "fg_dim",
+    "punctuation": "#75877c",
+    "builtin": "pink",
+    "parameter": "#30403a",
+    "namespace": "fg_dim"
+  }
+}

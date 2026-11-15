@@ -1,0 +1,45 @@
+// Copper — тёмный сланец и медь: один тёплый акцент на холодном сером
+{
+  "name": "Copper",
+  "type": "dark",
+  "palette": {
+    "bg": "#16191c",
+    "bg_alt": "#1b1f23",
+    "bg_highlight": "#20252a",
+    "bg_visual": "#3a322a",
+    "border": "#2d3339",
+    "fg": "#d6d9dc",
+    "fg_dim": "#a4abb2",
+    "fg_muted": "#636b73",
+    "accent": "#d98a52",
+    "red": "#e06c60",
+    "orange": "#d98a52",
+    "yellow": "#dcb46a",
+    "green": "#8fbf8a",
+    "cyan": "#6fb8b8",
+    "blue": "#7aa2cf",
+    "purple": "#a894d0",
+    "pink": "#cf8aa8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "orange",
+    "function": "blue",
+    "string": "green",
+    "type": "yellow",
+    "number": "purple",
+    "constant": "purple",
+    "boolean": "purple",
+    "property": "#b9a58f",
+    "attribute": "#b9a58f",
+    "operator": "fg_dim",
+    "punctuation": "#737b83",
+    "builtin": "red",
+    "parameter": "#c6cbd0",
+    "namespace": "fg_dim"
+  }
+}

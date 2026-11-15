@@ -1,0 +1,45 @@
+// Storm — грозовое небо: серо-синие тучи и жёлтая молния
+{
+  "name": "Storm",
+  "type": "dark",
+  "palette": {
+    "bg": "#1a1f2b",
+    "bg_alt": "#1f2533",
+    "bg_highlight": "#252c3c",
+    "bg_visual": "#35425e",
+    "border": "#313a4d",
+    "fg": "#d3dae8",
+    "fg_dim": "#a0aabf",
+    "fg_muted": "#606b82",
+    "accent": "#f5c542",
+    "red": "#ee6d7a",
+    "orange": "#f0975a",
+    "yellow": "#f5c542",
+    "green": "#86cf8e",
+    "cyan": "#62c8d8",
+    "blue": "#70a5f5",
+    "purple": "#a58df0",
+    "pink": "#e58fc0"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "blue",
+    "function": "yellow",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#9db4e0",
+    "attribute": "#9db4e0",
+    "operator": "fg_dim",
+    "punctuation": "#707b92",
+    "builtin": "red",
+    "parameter": "#c2cada",
+    "namespace": "fg_dim"
+  }
+}

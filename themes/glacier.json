@@ -1,0 +1,45 @@
+// Glacier — ледник: тёмная морская вода и лёд, холодные голубые и белые тона
+{
+  "name": "Glacier",
+  "type": "dark",
+  "palette": {
+    "bg": "#0e1a20",
+    "bg_alt": "#122028",
+    "bg_highlight": "#162830",
+    "bg_visual": "#1f4150",
+    "border": "#20363f",
+    "fg": "#d8ecf2",
+    "fg_dim": "#a0c0cb",
+    "fg_muted": "#587884",
+    "accent": "#5fd0e8",
+    "red": "#f07a8a",
+    "orange": "#f0a878",
+    "yellow": "#e8d590",
+    "green": "#7fdcb8",
+    "cyan": "#5fd0e8",
+    "blue": "#78b4f0",
+    "purple": "#a8a0f0",
+    "pink": "#e89ac8"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "blue",
+    "function": "cyan",
+    "string": "green",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#9ad0e0",
+    "attribute": "#9ad0e0",
+    "operator": "fg_dim",
+    "punctuation": "#688893",
+    "builtin": "pink",
+    "parameter": "#c4dde5",
+    "namespace": "fg_dim"
+  }
+}

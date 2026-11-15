@@ -1,0 +1,45 @@
+// Wine — тёмное бордо: гранатовый акцент, золотые строки, тёплый текст
+{
+  "name": "Wine",
+  "type": "dark",
+  "palette": {
+    "bg": "#190f13",
+    "bg_alt": "#1f1318",
+    "bg_highlight": "#26171d",
+    "bg_visual": "#4a1f2c",
+    "border": "#3a222b",
+    "fg": "#ecdcd6",
+    "fg_dim": "#c4aaa6",
+    "fg_muted": "#806868",
+    "accent": "#d9435f",
+    "red": "#e5484d",
+    "orange": "#e88a52",
+    "yellow": "#e6bf6a",
+    "green": "#a3c47a",
+    "cyan": "#7cc4bd",
+    "blue": "#8aa8e0",
+    "purple": "#b98ad6",
+    "pink": "#e07a9c"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "red",
+    "function": "orange",
+    "string": "yellow",
+    "type": "pink",
+    "number": "purple",
+    "constant": "purple",
+    "boolean": "purple",
+    "property": "#dba3a8",
+    "attribute": "#dba3a8",
+    "operator": "fg_dim",
+    "punctuation": "#917676",
+    "builtin": "accent",
+    "parameter": "#dcc8c2",
+    "namespace": "fg_dim"
+  }
+}

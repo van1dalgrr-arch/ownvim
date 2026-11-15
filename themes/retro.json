@@ -1,0 +1,45 @@
+// Retro — восьмидесятые: фиолетовая ночь, горячий розовый, циан и закатный жёлтый
+{
+  "name": "Retro",
+  "type": "dark",
+  "palette": {
+    "bg": "#1b1030",
+    "bg_alt": "#211438",
+    "bg_highlight": "#281944",
+    "bg_visual": "#472a78",
+    "border": "#38245a",
+    "fg": "#efe3ff",
+    "fg_dim": "#c0aee0",
+    "fg_muted": "#7a6a9c",
+    "accent": "#ff4fa3",
+    "red": "#ff5370",
+    "orange": "#ff9e4f",
+    "yellow": "#ffd84f",
+    "green": "#5af0a8",
+    "cyan": "#4fe0ff",
+    "blue": "#6a9bff",
+    "purple": "#b77dff",
+    "pink": "#ff4fa3"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "pink",
+    "function": "cyan",
+    "string": "yellow",
+    "type": "purple",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#c9a8ff",
+    "attribute": "#c9a8ff",
+    "operator": "fg_dim",
+    "punctuation": "#8a7aae",
+    "builtin": "red",
+    "parameter": "#ddd0f5",
+    "namespace": "fg_dim"
+  }
+}

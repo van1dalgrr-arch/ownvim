@@ -1,5 +1,5 @@
 -- Темы: свои JSON (themes/*.json — Dev Night, Dev Day, Sunset, Aurora, Midnight, Nebula, Forest, Matcha, Ember, Mocha,
--- Ocean, Arctic, Dusk, Graphite, Mono, Neon; движок — lua/own/theme), tokyonight,
+-- Ocean, Arctic, Dusk, Graphite, Mono, Neon, Sakura, Cobalt, Phosphor, Obsidian, Lavender, Wine, Paper, Frost, Dune, Glacier, Retro, Copper, Ink, Storm, Peach, Mint; движок — lua/own/theme), tokyonight,
 -- rose-pine в цветах терминала (палитра из themes/<тема>.sh — та же,
 -- что красит Ghostty, если стоят dotfiles), kanagawa, catppuccin и др., и популярные темы VS Code (One Dark Pro,
 -- GitHub, Dark+, Dracula, Monokai Pro, Material, Ayu, Nordic, Everforest, Oxocarbon) — alt-s, предпросмотр на всём редакторе.

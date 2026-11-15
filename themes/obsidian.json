@@ -1,0 +1,45 @@
+// Obsidian — вулканическое стекло: уголь, бирюза и золото, без кричащих цветов
+{
+  "name": "Obsidian",
+  "type": "dark",
+  "palette": {
+    "bg": "#15171a",
+    "bg_alt": "#1a1d21",
+    "bg_highlight": "#1f2328",
+    "bg_visual": "#2b3a40",
+    "border": "#2c3138",
+    "fg": "#d5dbe1",
+    "fg_dim": "#a3adb8",
+    "fg_muted": "#626c78",
+    "accent": "#3fc1b0",
+    "red": "#e8676b",
+    "orange": "#e39a5c",
+    "yellow": "#e2c26b",
+    "green": "#8cc978",
+    "cyan": "#3fc1b0",
+    "blue": "#6ea8dc",
+    "purple": "#a591e0",
+    "pink": "#d98bb5"
+  },
+  "syntax": {
+    "comment": {
+      "fg": "fg_muted",
+      "italic": true
+    },
+    "variable": "fg",
+    "keyword": "cyan",
+    "function": "yellow",
+    "string": "green",
+    "type": "blue",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "property": "#9fb8cc",
+    "attribute": "#9fb8cc",
+    "operator": "fg_dim",
+    "punctuation": "#717b88",
+    "builtin": "red",
+    "parameter": "#c4ccd4",
+    "namespace": "fg_dim"
+  }
+}
