@@ -1,0 +1,43 @@
+// Linen — мягкая светлая: льняная бумага вместо белого экрана, чернила тёмно-серые, а не чёрные, цвета приглушены.
+// Днём у окна не слепит и не выжигает глаза, как чисто белый фон.
+{
+  "name": "Linen",
+  "type": "light",
+  "palette": {
+    "bg": "#f2eee6",
+    "bg_alt": "#ebe6dc",
+    "bg_highlight": "#e7e1d5",
+    "bg_visual": "#d9d3e6",
+    "border": "#d8d1c3",
+    "fg": "#45434d",
+    "fg_dim": "#625f6b",
+    "fg_muted": "#9a96a0",
+    "accent": "#7464a8",
+    "red": "#b45a5f",
+    "orange": "#b07148",
+    "yellow": "#94782e",
+    "green": "#5b7f4c",
+    "cyan": "#3f7d80",
+    "blue": "#4e6ea6",
+    "purple": "#7464a8",
+    "pink": "#a45a86"
+  },
+  "syntax": {
+    "comment": { "fg": "#8f8b96", "italic": true },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "variable": "fg",
+    "property": "#5e5878",
+    "attribute": "yellow",
+    "operator": "fg_dim",
+    "punctuation": "#8a8690",
+    "builtin": "pink",
+    "parameter": "#6e5a48",
+    "namespace": "fg_dim"
+  }
+}

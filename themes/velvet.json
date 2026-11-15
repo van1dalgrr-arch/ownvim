@@ -1,0 +1,43 @@
+// Velvet — мягкая тёмная: тёплый графит вместо чёрного, пастельные цвета одной яркости, ошибки — коралловые,
+// а не кроваво-красные. Глаза не цепляются за самое яркое — код читается ровно. Для долгих вечеров.
+{
+  "name": "Velvet",
+  "type": "dark",
+  "palette": {
+    "bg": "#1d1e24",
+    "bg_alt": "#202128",
+    "bg_highlight": "#25262e",
+    "bg_visual": "#343247",
+    "border": "#2f3039",
+    "fg": "#cfcdd6",
+    "fg_dim": "#a4a2b0",
+    "fg_muted": "#6c6a7a",
+    "accent": "#b4a4e0",
+    "red": "#e0959a",
+    "orange": "#e2ab8a",
+    "yellow": "#dcc596",
+    "green": "#a8c99c",
+    "cyan": "#93c4c6",
+    "blue": "#97b2e0",
+    "purple": "#b4a4e0",
+    "pink": "#dba6c6"
+  },
+  "syntax": {
+    "comment": { "fg": "#7c7a8c", "italic": true },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "variable": "fg",
+    "property": "#bcb6d4",
+    "attribute": "yellow",
+    "operator": "fg_dim",
+    "punctuation": "#8a889a",
+    "builtin": "pink",
+    "parameter": "#d6c8b4",
+    "namespace": "fg_dim"
+  }
+}

@@ -39,19 +39,41 @@ function M.colors()
 end
 
 local base = {} -- CursorLine/CursorLineNr темы — к ним возвращаемся в обычном режиме
+local raw = {} -- они же, как их задала тема (снимаются только после смены темы: потом группы перекрашиваем мы)
+
+-- цвет через мягкий фильтр (модуль soft), если он есть
+local function soft(n)
+  local s = package.loaded["own.modules.soft"]
+  return s and s.color(n) or n
+end
+
+local function lum(n)
+  local function ch(x) x = x / 255; return x <= 0.04045 and x / 12.92 or ((x + 0.055) / 1.055) ^ 2.4 end
+  return 0.2126 * ch(math.floor(n / 65536) % 256) + 0.7152 * ch(math.floor(n / 256) % 256) + 0.0722 * ch(n % 256)
+end
 local cursor = {} -- вид режима → цвет курсора "#rrggbb" (для шлейфа smear)
 
 local function define()
   local bg = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg
   -- прозрачная тема: фона нет — смешиваем с цветом фона терминала
   bg = bg or (vim.o.background == "light" and 0xfaf4ed or 0x1a1b26)
-  base.line = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })
-  base.nr = vim.api.nvim_get_hl(0, { name = "CursorLineNr", link = false })
+  if not raw.line then
+    raw.line = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })
+    raw.nr = vim.api.nvim_get_hl(0, { name = "CursorLineNr", link = false })
+  end
+  base.line, base.nr = vim.deepcopy(raw.line), vim.deepcopy(raw.nr)
+  base.line.bg, base.nr.fg, base.nr.bg = soft(base.line.bg), soft(base.nr.fg), soft(base.nr.bg)
+  -- у некоторых тем строка под курсором — яркая полоса: в обычном режиме глаз упирается в неё, а смена режима
+  -- даёт скачок яркости. Такую — заменить лёгким оттенком текста, как во вставке
+  local nfg = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).fg or 0xc0caf5
+  if base.line.bg and math.abs(lum(base.line.bg) - lum(bg)) > 0.035 then
+    base.line.bg = tonumber(blend(nfg, bg, 0.07):sub(2), 16)
+  end
   local colors = M.colors()
   if not by_mode() then colors.Normal = fg("Normal", 0xc0caf5) end
   for name, c in pairs(colors) do
     vim.api.nvim_set_hl(0, "Mode" .. name .. "Cursor", { bg = c, fg = bg })
-    vim.api.nvim_set_hl(0, "Mode" .. name .. "Line", { bg = blend(c, bg, 0.14) })
+    vim.api.nvim_set_hl(0, "Mode" .. name .. "Line", { bg = blend(c, bg, 0.09) }) -- оттенок, а не заливка: глаз не дёргается
     vim.api.nvim_set_hl(0, "Mode" .. name .. "Nr", { fg = c, bold = true })
     cursor[name] = ("#%06x"):format(c)
   end
@@ -77,16 +99,23 @@ local function paint_smear(kind)
   require("smear_cursor.color").clear_cache() -- цвет запомнен в группах SmearCursor* — перекрасить
 end
 
+local function resolved(name, key) return vim.api.nvim_get_hl(0, { name = name, link = false })[key] end
+
+-- строка под курсором и номер строки перетекают в цвет режима (~150 мс), а не переключаются рывком
 local function paint()
   local kind = kind_of(vim.api.nvim_get_mode().mode)
   paint_smear(kind)
-  if not kind then
-    vim.api.nvim_set_hl(0, "CursorLine", base.line or {})
-    vim.api.nvim_set_hl(0, "CursorLineNr", base.nr or {})
-    return
-  end
-  vim.api.nvim_set_hl(0, "CursorLine", { link = "Mode" .. kind .. "Line" })
-  vim.api.nvim_set_hl(0, "CursorLineNr", { link = "Mode" .. kind .. "Nr" })
+  local fade = require("own.fade")
+  local line_to = kind and { link = "Mode" .. kind .. "Line" } or (base.line or {})
+  local nr_to = kind and { link = "Mode" .. kind .. "Nr" } or (base.nr or {})
+  local line_target = kind and resolved("Mode" .. kind .. "Line", "bg") or (base.line or {}).bg
+  local nr_target = kind and resolved("Mode" .. kind .. "Nr", "fg") or (base.nr or {}).fg
+  fade.run("modes.line", resolved("CursorLine", "bg"), line_target, function(v)
+    vim.api.nvim_set_hl(0, "CursorLine", v == line_target and line_to or { bg = v })
+  end)
+  fade.run("modes.nr", resolved("CursorLineNr", "fg"), nr_target, function(v)
+    vim.api.nvim_set_hl(0, "CursorLineNr", v == nr_target and nr_to or vim.tbl_extend("force", nr_to.link and {} or nr_to, { fg = v, link = nil }))
+  end)
 end
 
 --- настройки поменялись (appearance.cursor_by_mode) или smear только что загрузился — перекрасить
@@ -126,7 +155,9 @@ function M.setup()
 
   local group = vim.api.nvim_create_augroup("own.modes", { clear = true })
   -- после темы: акцент (OwnIconAccent) задают другие модули на том же событии — перекрасить, когда они закончат
-  vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = function() vim.schedule(M.reload) end })
+  vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = function() raw = {}; vim.schedule(M.reload) end })
+  -- мягкий фильтр перекрасил тему — пересчитать цвета режимов от новых
+  vim.api.nvim_create_autocmd("User", { group = group, pattern = "OwnSoftApplied", callback = M.reload })
   vim.api.nvim_create_autocmd("ModeChanged", { group = group, callback = paint })
   vim.api.nvim_create_autocmd({ "InsertEnter", "TextChangedI", "TextChangedP", "CursorMovedI" }, { group = group, callback = restart })
   vim.api.nvim_create_autocmd("InsertLeave", { group = group, callback = function() timer:stop() end })

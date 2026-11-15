@@ -3,6 +3,9 @@
 --   Через work_min минут — один раз уведомление и в статусной строке «⏱ пора отдохнуть» (блок rest).
 --   :Rest — начать перерыв (в строке ☕ и обратный отсчёт, в конце — «перерыв окончен»), :RestLater — напомнить через 10 мин.
 -- Настройки модуля: { "work_min": 50, "break_min": 5, "show": "due" } — "always": показывать и время работы (⏱ 42м)
+-- Глаза (правило 20-20-20): каждые eyes_min минут за экраном — тихая подсказка посмотреть вдаль на eyes_sec секунд,
+--   в строке статуса — «👁 0:20» и обратный отсчёт; печатать можно дальше, это не перерыв. "eyes_min": 0 — выкл.
+--   Две минуты без клавиш — скорее всего, отходил: счёт заново.
 local M = {}
 
 local opts = {}
@@ -17,6 +20,11 @@ local last_key = now()     -- последняя клавиша
 local snooze_until = 0     -- :RestLater
 local reminded = false     -- уведомление уже было
 local break_until = nil    -- идёт перерыв (:Rest) — до этого момента
+local eyes_from = now()    -- с какого момента глаза смотрят в экран
+local eyes_until = nil     -- идёт отдых глаз — до этого момента
+
+local function eyes_min() return opts.eyes_min == nil and 20 or opts.eyes_min end
+local function eyes_sec() return opts.eyes_sec or 20 end
 
 -- 1 минута, 2 минуты, 5 минут, 21 минута, 11 минут
 local function minutes(n)
@@ -35,7 +43,31 @@ local function reset()
   started, reminded, snooze_until = now(), false, 0
 end
 
+local eyes_timer
+local function eyes_tick()
+  local t = now()
+  if eyes_until then
+    if t >= eyes_until then
+      eyes_until, eyes_from = nil, t
+      if eyes_timer then eyes_timer:stop() end
+    end
+    vim.cmd.redrawstatus()
+    return
+  end
+  if eyes_min() <= 0 or break_until then return end
+  if t - last_key >= 2 * MIN then eyes_from = t; return end -- две минуты без клавиш — скорее всего, отходил
+  if t - eyes_from >= eyes_min() * MIN then
+    eyes_until = t + eyes_sec() * 1000
+    vim.notify(("👁 %d секунд — посмотри вдаль, метров на шесть, и поморгай. Можно не отрываться от мысли"):format(eyes_sec()),
+      vim.log.levels.INFO, { title = "глаза", timeout = eyes_sec() * 1000 })
+    eyes_timer = eyes_timer or vim.uv.new_timer()
+    eyes_timer:start(1000, 1000, vim.schedule_wrap(eyes_tick))
+  end
+end
+M._eyes_tick = eyes_tick
+
 local function tick()
+  eyes_tick()
   local t = now()
   if break_until then
     if t >= break_until then
@@ -54,6 +86,9 @@ end
 
 --- Текст и цвет для статусной строки (nil — ничего не показывать)
 function M.status()
+  if eyes_until then
+    return ("👁 0:%02d"):format(math.max(0, math.ceil((eyes_until - now()) / 1000))), "cyan"
+  end
   if break_until then
     local left = math.max(0, math.floor((break_until - now()) / 1000))
     return ("☕ %d:%02d"):format(math.floor(left / 60), left % 60), "green"
@@ -91,7 +126,7 @@ end
 function M.reload(o) opts = o or {} end
 
 -- для проверки: сдвинуть часы (тесты не ждут 50 минут)
-function M._shift(ms) started, last_key = started - ms, last_key end
+function M._shift(ms) started, eyes_from, last_key = started - ms, eyes_from - ms, last_key end
 M._tick = tick
 
 return M

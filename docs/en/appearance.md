@@ -246,6 +246,27 @@ The left and bottom panels, modes, run and search everywhere — [Workspace](wor
 A real image in the terminal (kitty protocol: Ghostty, kitty, WezTerm; not inside tmux). PNG works right away;
 jpg/webp/gif need ImageMagick. `space up` — show/hide.
 
+## Softness: easy on the eyes
+
+The `soft` module works on top of any theme, JSON or plugin:
+
+- **Soft color filter** (OKLab): slightly lower contrast and saturation, the background is never pure black (or pure
+  white for light themes). Bright errors and strings stop being harsh, and colors stay distinct. `space u S` compares
+  with the raw theme.
+- **Warm evening**: from 21:00 the theme gradually gets warmer and dimmer over 45 minutes, and changes back by 07:00.
+  Like Night Shift, but only in the editor.
+- **Floating windows fade in** over 0.14 s instead of popping up.
+- **Cursor line** only in the active window.
+- **Soft mode switch**: on `i` / `Esc` the frames, cursor line and line number blend into the mode color over 0.15 s
+  instead of flipping across the whole screen. Frames in insert mode use a half tone (`"mode_tint": 0.55`), and the cursor
+  line keeps the same brightness in every mode. The save flash only fires on a manual `:w`, not on autosave.
+- **Quiet while typing**: diagnostics don't flash on half-typed words and show up when you leave insert mode.
+  Tabs are not drawn as `>`; only trailing spaces are visible.
+- **20-20-20 for eyes**: every 20 minutes a quiet hint to look into the distance for 20 seconds (`👁 0:20` in the status
+  line). After 50 minutes it suggests a break.
+- Scrolling starts fast and stops softly (`"easing": "outQuad"`).
+- **velvet** (dark) and **linen** (light) themes: pastel colors of equal brightness.
+
 ## Animations
 
 ```jsonc

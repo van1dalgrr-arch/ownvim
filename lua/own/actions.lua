@@ -156,6 +156,7 @@ M.list = {
     toggle(function() return Snacks.toggle.option("background", { off = "light", on = "dark", name = "Тёмный фон" }) end),
     "Тёмный / светлый фон",
   },
+  ["soft.toggle"] = { function() require("own.modules.soft").toggle() end, "Мягкий фильтр цветов вкл/выкл" },
   ["toggle.dim"] = { toggle(function() return Snacks.toggle.dim() end), "Приглушить код вне функции" },
   ["toggle.indent"] = { toggle(function() return Snacks.toggle.indent() end), "Линии отступов" },
   ["toggle.inlay_hints"] = { toggle(function() return Snacks.toggle.inlay_hints() end), "Подсказки типов" },

@@ -4,7 +4,7 @@
 // включить/выключить модуль или плагин — после :restart.
 {
   // Тема: имя, или { "dark": …, "light": … } — по тёмной/светлой теме системы, или "auto" — выбранная в alt-s.
-  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, sunset, aurora, midnight, nebula, forest, matcha, ember, mocha, ocean, arctic, dusk, graphite, mono, neon, zed-one-dark, zed-one-light; новая — :ThemeNew <имя>, правка — :ThemeEdit,
+  // Свои JSON-темы — themes/<имя>.json: dev-night, dev-day, velvet и linen (мягкие — для глаз), sunset, aurora, midnight, nebula, forest, matcha, ember, mocha, ocean, arctic, dusk, graphite, mono, neon, zed-one-dark, zed-one-light; новая — :ThemeNew <имя>, правка — :ThemeEdit,
   // из VS Code — :ThemeInstall <издатель.расширение>. Темы-плагины тоже: "tokyonight", "rose-pine", "kanagawa",
   // "carbonfox", "cyberdream", "vesper", "gruvbox-material", "catppuccin-mocha"…
   "theme": { "dark": "dev-night", "light": "dev-day" },
@@ -145,6 +145,19 @@
     "terminal": true,
   },
 
+  // Мягкость — чтобы глаза не уставали, поверх любой темы (модуль soft, пробел u S — сравнить без фильтра):
+  "soft": {
+    // фильтр цветов: чуть тише контраст и насыщенность, фон не чисто чёрный / не чисто белый. 1 — как в теме
+    "filter": { "enabled": true, "contrast": 0.92, "saturation": 0.86, "floor": 0.2, "ceiling": 0.965 },
+    // вечером тема плавно теплеет и тускнеет, утром — обратно (только редактор, как Night Shift); warmth 0–1
+    "night": { "enabled": true, "from": "21:00", "to": "07:00", "ramp_min": 45, "warmth": 0.5, "dim": 0.06 },
+    // окна поверх кода проявляются за ms, а не выскакивают; from — прозрачность в первый миг (0–100)
+    "fade": { "enabled": true, "ms": 200, "from": 85, "menu_ms": 90 }, // menu_ms — меню дополнения, быстрее
+    "cursorline_active": true, // текущая строка подсвечена только в окне, где пишешь
+    "mode_tint": 0.55, // рамки во вставке и выделении — полутоном цвета режима (1 — ярко, как раньше)
+    "mode_fade_ms": 220, // смена режима (i, Esc, v): рамки, строка и номер перетекают в цвет режима, а не мигают; 0 — сразу
+  },
+
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
@@ -161,7 +174,7 @@
     "frames": true,
     "frames_by_mode": true, // рамка живёт режимом: во вставке все линии — цветом режима, в выделении — своим
     "cursor_by_mode": true, // курсор и его шлейф — цветом режима, как рамки: в обычном — акцент, во вставке — зелёный; false — в обычном цветом текста
-    "save_flash": true, // сохранил — рамка на миг вспыхивает: зелёным — ошибок нет, красным — есть
+    "save_flash": true, // сохранил (:w, не автосохранение) — рамка мягко вспыхивает: зелёным — ошибок нет, красным — есть
     "project_toast": true, // открыл проект — на пару секунд: ветка, ↑ не запушено, сколько файлов изменено
     "cmdline": "center", // : и / — по центру в рамке ╭─[  команда ]─╮; "bottom" — внизу, как в vim
     "number_fade": true, // номера строк дальше от курсора — бледнее
@@ -197,6 +210,8 @@
     "laststatus": 3, // одна статусная строка на всё окно
     "linebreak": true,
     "list": true,
+    // табы не видны (в Go их полно — отступы и так показывают линии), видны только лишние пробелы в конце строки
+    "listchars": { "tab": "  ", "trail": "·", "nbsp": "␣" },
     "mouse": "a",
     "number": true,
     "relativenumber": false, // спокойный экран; пробел u L — включить
@@ -263,6 +278,7 @@
     },
     "scrollbar": true, // полоса прокрутки с метками ошибок, git и найденного
     "animations": true, // плавный курсор и прокрутка (раздел animations ниже)
+    "soft": true, // мягкость: фильтр цветов для глаз, тёплый вечер, окна проявляются (раздел soft ниже)
     "brackets": { "colors": ["yellow", "purple", "blue"] }, // цветные пары скобок, как в VS Code
     "sticky_scroll": { "max_lines": 3 }, // шапка функции прилипает сверху, как Sticky Scroll в VS Code
     // картинка сбоку вместо миникарты (своя у каждой темы — "themes" или "image" в файле темы); пробел u p
@@ -294,7 +310,7 @@
     "ai": true, // Claude Code в nvim (раздел ai ниже)
     "http": true, // Postman в файле (.http) и эндпоинты Gin
     "autotest": true, // тесты Go в фоне после сохранения
-    "error_lens": { "preset": "frame", "break_after": 60, "insert": true }, // ошибки справа от строки, как Error Lens: ──[  текст ] ("modern" — плашкой); insert — и во вставке
+    "error_lens": { "preset": "frame", "break_after": 60, "insert": true }, // ошибки справа от строки, как Error Lens: ──[  текст ] ("modern" — плашкой); insert — не прятать во вставке (иначе мигают на каждом i / Esc)
     "multicursor": true, // мультикурсоры: ctrl-n, пробел m
     "dial": { // ctrl-a / ctrl-x: свои циклы по языкам (по слову, если в паре есть буквы)
       "go": [[":=", "="], ["==", "!="], ["var", "const"], ["Error", "Fatal"], ["Errorf", "Fatalf"],
@@ -315,7 +331,8 @@
     "comfort": true, // enter — прыжок на строку по метке
     "learn": false, // подсказки движений и тренер привычек: { "hints_visible": false, "hardtime": true }
     "system": { "containers": "orbstack", "github": "gw" }, // alt-o — контейнеры, alt-w — GitHub, пробел P — скриншот кода
-    "rest": false, // отдых: { "work_min": 50, "break_min": 5, "show": "due" } — напомнить о перерыве после 50 минут работы
+    // отдых: через 50 минут — мягко о перерыве; каждые 20 минут — 👁 посмотреть вдаль 20 секунд (правило 20-20-20)
+    "rest": { "work_min": 50, "break_min": 5, "show": "due", "eyes_min": 20, "eyes_sec": 20 },
     "checks": true, // свои проверки без кода (раздел checks): команда на событие, ошибки — на строках
     "quiet": true, // тихий режим (пробел uq): { "hide": ["inlay_hints", "error_lens", "codelens", "blame", "implements", "animations", "indent", "sticky_scroll", "breadcrumbs", "scrollbar"] }
     "rust": true, // Rust как Go: ▶ у main и тестов, тесты в фоне, покрытие, бинарники в запуске, пробел R — действия (раздел rust ниже)
@@ -441,7 +458,8 @@
   // Ошибки и предупреждения — как vim.diagnostic.config. Уровни можно словами: "error", "warn", "info", "hint"
   "diagnostics": {
     "underline": true,
-    "update_in_insert": true, // ошибки обновляются прямо во вставке, пока печатаешь
+    // false — пока печатаешь, ошибки не мигают на недописанном слове; вышел из вставки — показались. true — сразу
+    "update_in_insert": false,
     "severity_sort": true,
     "virtual_text": { "spacing": 4, "source": "if_many", "prefix": "●" },
     "signs": { "text": { "error": "\uf057 ", "warn": "\uf071 ", "hint": "\uf0eb ", "info": "\uf05a " } },
@@ -938,6 +956,7 @@
     "n <leader>uT": "toggle.treesitter",
     "n <leader>ub": "toggle.background",
     "n <leader>uD": "toggle.dim",
+    "n <leader>uS": "soft.toggle", // мягкий фильтр цветов вкл/выкл — сравнить с темой как есть
     "n <leader>ug": "toggle.indent",
     "n <leader>uh": "toggle.inlay_hints",
     "n <leader>ui": "inspect",

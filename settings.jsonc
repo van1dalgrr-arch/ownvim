@@ -6,7 +6,13 @@
 //   "keys": { "n <leader>z": ":Lazy", "i jk": false },
 //   "plugins": { "folke/zen-mode.nvim": { "cmd": "ZenMode", "opts": {} } },
 {
-  "theme": {"dark":"onedark_dark","light":"onedark_vivid"}, // tokyonight night, прозрачная — как в старом nvim
+  // Комфорт на долгие сессии (5+ часов): мягкие темы, тише цвета, тёплый вечер, больше воздуха между строками.
+  // Вернуть как было — "theme": {"dark":"github_dark_default","light":"dev-day"} и удалить раздел "soft" ниже.
+  "theme": { "dark": "velvet", "light": "linen" },
+  "soft": {
+    "filter": { "contrast": 0.88, "saturation": 0.8, "floor": 0.21 }, // ещё тише, чем по умолчанию (0.92 / 0.86)
+    "night": { "from": "20:00", "to": "07:00", "ramp_min": 60, "warmth": 0.6, "dim": 0.08 }, // вечер раньше и теплее
+  },
 
   "diagnostics": {
     // на полях — тонкие значки (codicons): значки Font Awesome Ghostty растягивает в квадратные плашки
@@ -32,7 +38,7 @@
     ],
     "sections": ["header", "info", "buttons", "project", "recent", "projects"],
   },
-  "font": { "line_height": "10%" }, // чуть больше воздуха между строками, как в GoLand (пишется в Ghostty)
+  "font": { "line_height": "20%" }, // больше воздуха между строками — глаз не прыгает по строкам (пишется в Ghostty)
   "options": {
     "spelllang": "en,ru", // в заметках и коммитах русские слова не подчёркиваются
     "title": true, // во вкладке Ghostty — открытый файл, а не «zsh»

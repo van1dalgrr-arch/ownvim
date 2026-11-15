@@ -73,7 +73,7 @@ local function build()
           },
         },
       },
-      documentation = { auto_show = on("documentation"), auto_show_delay_ms = 200, window = { border = border } },
+      documentation = { auto_show = on("documentation"), auto_show_delay_ms = 400, window = { border = border } },
       ghost_text = { enabled = on("ghost_text") },
       list = { selection = { preselect = true, auto_insert = false } },
     },

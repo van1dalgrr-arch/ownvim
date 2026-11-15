@@ -69,11 +69,13 @@ local ITEMS = {
       local smear = loaded("smear_cursor")
       if smear and smear.enabled then smear.enabled = false; was.smear = true end
       if rawget(_G, "Snacks") and Snacks.scroll.enabled then Snacks.scroll.disable(); was.scroll = true end
+      if not vim.g.own_no_fade then vim.g.own_no_fade = true; was.fade = true end -- окна не проявляются (модуль soft)
       return next(was) and was
     end,
     on = function(was)
       if was.smear then require("smear_cursor").enabled = true end
       if was.scroll then Snacks.scroll.enable() end
+      if was.fade then vim.g.own_no_fade = nil end
     end,
   },
   indent = {

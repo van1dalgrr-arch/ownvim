@@ -51,19 +51,28 @@ end
 
 -- вспышка при сохранении: зелёная — ошибок в файле нет, красная — есть; потом обратно цветом режима.
 -- Серверу нужно мгновение пересчитать ошибки после записи — вспышка чуть позже сохранения
+-- все линии рамок — одним цветом
+local function set_lines(fg)
+  for _, g in ipairs(LINES) do
+    local h = vim.api.nvim_get_hl(0, { name = g, link = false })
+    if next(h) then h.fg = fg; vim.api.nvim_set_hl(0, g, h) end
+  end
+  vim.cmd("redrawstatus!")
+end
+
+local fade = require("own.fade")
+
 function M.flash(buf)
   if not M.enabled or ((settings.current or {}).appearance or {}).save_flash == false then return end
   buf = buf or vim.api.nvim_get_current_buf()
   if not vim.api.nvim_buf_is_valid(buf) then return end
   local errors = #vim.diagnostic.get(buf, { severity = vim.diagnostic.severity.ERROR })
   local accent = errors > 0 and (c("DiagnosticError") or c("Error")) or (c("DiagnosticOk") or c("String"))
-  for _, g in ipairs(LINES) do
-    local h = vim.api.nvim_get_hl(0, { name = g, link = false })
-    if next(h) then h.fg = accent; vim.api.nvim_set_hl(0, g, h) end
-  end
+  local was = M.painted
   M.painted = nil
-  vim.cmd("redrawstatus!")
-  vim.defer_fn(function() M.paint(); vim.cmd("redrawstatus!") end, 200)
+  -- мягко загорается и мягко гаснет, а не мигает
+  fade.run("frames", was, accent, set_lines, 120)
+  vim.defer_fn(function() M.painted = accent; M.paint() end, 320)
 end
 
 -- ── рамка цветом режима ─────────────────────────────────────────────────────
@@ -78,17 +87,24 @@ function M.paint()
   if m == "c" or m == "r" then return end
   local by_mode = ((settings.current or {}).appearance or {}).frames_by_mode ~= false
   local kind = M.enabled and by_mode and KIND[m]
-  local fg = kind and c("OwnSLMode" .. kind, "bg") or c("Comment") or c("NonText")
+  local quiet = c("Comment") or c("NonText")
+  local fg = kind and c("OwnSLMode" .. kind, "bg") or quiet
+  -- во вставке рамки весь набор на краю зрения: полутон режима (mode_tint 0–1, 1 — ярко), а не сплошное свечение
+  local tint = ((settings.current or {}).soft or {}).mode_tint or 0.55
+  if kind and fg and quiet and tint < 1 then fg = require("own.fade").mix(quiet, fg, tint) end
   if fg == M.painted then return end
+  local was = M.painted
   M.painted = fg
-  for _, g in ipairs(LINES) do
-    local h = vim.api.nvim_get_hl(0, { name = g, link = false })
-    if next(h) then h.fg = fg; vim.api.nvim_set_hl(0, g, h) end
-  end
+  -- смена режима — цвет перетекает (~150 мс), а не переключается рывком по всему экрану
+  fade.run("frames", was, fg, set_lines)
   -- стрелка ❯ у номера строки — тоже цветом режима, в обычном — акцентом
   local arrow = vim.api.nvim_get_hl(0, { name = "OwnFrameCursor", link = false })
-  arrow.fg = kind and fg or c("OwnIconAccent") or c("Title") or c("Statement")
-  vim.api.nvim_set_hl(0, "OwnFrameCursor", arrow)
+  local to = kind and fg or c("OwnIconAccent") or c("Title") or c("Statement")
+  fade.run("frames.arrow", arrow.fg, to, function(v)
+    local h = vim.api.nvim_get_hl(0, { name = "OwnFrameCursor", link = false })
+    h.fg = v
+    vim.api.nvim_set_hl(0, "OwnFrameCursor", h)
+  end)
 end
 
 -- ── заголовки окон поверх кода: [ заголовок ] ─────────────────────────────────
@@ -303,8 +319,14 @@ function M.setup()
   -- после темы группы линий пересоздаются тихими — запомненный цвет сбросить и покрасить заново
   vim.api.nvim_create_autocmd("ColorScheme", { group = group, callback = function() M.painted = nil; vim.schedule(M.define) end })
   vim.api.nvim_create_autocmd("ModeChanged", { group = group, callback = M.paint })
+  -- мягкий фильтр перекрасил тему — линии, номера, вспышки — от новых цветов
+  vim.api.nvim_create_autocmd("User", { group = group, pattern = "OwnSoftApplied", callback = function() M.painted = nil; M.define() end })
+  -- вспышка — только на своё сохранение (:w, cmd-s); автосохранение на Esc пишет часто — каждый раз мигать незачем
   vim.api.nvim_create_autocmd("BufWritePost", {
-    group = group, callback = function(ev) vim.defer_fn(function() M.flash(ev.buf) end, 350) end,
+    group = group, callback = function(ev)
+      if vim.b[ev.buf].own_autosave then return end
+      vim.defer_fn(function() M.flash(ev.buf) end, 350)
+    end,
   })
   vim.api.nvim_create_autocmd({ "CursorMoved", "BufEnter" }, {
     group = group,
