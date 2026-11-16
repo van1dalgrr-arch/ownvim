@@ -1,0 +1,65 @@
+// Oxide — для Rust. Тёплый тёмный уголь, мягкая ржавая медь акцентом. fn, let, impl, match — медью;
+// структуры и enum — янтарём, трейты — им же курсивом; макросы (println!, vec!) — бирюзой, их не спутать с функциями.
+// Lifetime 'a — лиловым курсивом, изменяемые переменные (mut) — тихим подчёркиванием, как в RustRover,
+// знак ? — акцентом: где функция может выйти раньше, видно сразу. #[derive] и атрибуты приглушены.
+{
+  "name": "Oxide",
+  "type": "dark",
+  "palette": {
+    "bg": "#171513",
+    "bg_alt": "#171513",
+    "bg_highlight": "#1e1b18",
+    "bg_visual": "#352a23",
+    "border": "#2a2521",
+    "fg": "#d6cfc4",
+    "fg_dim": "#a89f93",
+    "fg_muted": "#6b635a",
+    "accent": "#d98e64",
+    "red": "#e08e86",
+    "orange": "#d98e64",
+    "yellow": "#dcc08c",
+    "green": "#a9c58f",
+    "cyan": "#8cc2b6",
+    "blue": "#93b3d6",
+    "purple": "#c0a3d6",
+    "pink": "#dca0a8"
+  },
+  "syntax": {
+    "comment": { "fg": "#786f66", "italic": true },
+    "keyword": "accent",
+    "function": "blue",
+    "string": "green",
+    "type": "yellow",
+    "interface": { "fg": "yellow", "italic": true },
+    "number": "purple",
+    "constant": "purple",
+    "boolean": "purple",
+    "builtin": "pink",
+    "macro": "cyan",
+    "variable": "fg",
+    "parameter": "#e0cdb4",
+    "property": "#c4b6a6",
+    "namespace": "fg_dim",
+    "operator": "#a89f93",
+    "punctuation": "#7d746b",
+    "attribute": "#8a8178",
+    "escape": "cyan"
+  },
+  "groups": {
+    "@variable.builtin": { "fg": "pink", "italic": true },
+    "@lsp.type.selfKeyword": { "fg": "pink", "italic": true },
+    "@lsp.type.selfTypeKeyword": "yellow",
+    "@lsp.type.lifetime": { "fg": "purple", "italic": true },
+    "@lsp.typemod.variable.mutable": { "underline": true, "sp": "#5a524b" },
+    "@lsp.typemod.parameter.mutable": { "underline": true, "sp": "#5a524b" },
+    "@lsp.typemod.selfKeyword.mutable": { "fg": "pink", "italic": true, "underline": true, "sp": "#5a524b" },
+    "@lsp.typemod.operator.controlFlow": { "fg": "accent", "bold": true },
+    "@lsp.mod.unsafe": "red",
+    "@lsp.type.attribute": "#8a8178",
+    "@lsp.type.derive": "#a39887",
+    "@keyword.coroutine": { "fg": "cyan", "bold": true },
+    "@type.builtin": "#d8b27c",
+    "@constant.builtin": "purple",
+    "@character.printf": "cyan"
+  }
+}

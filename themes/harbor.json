@@ -1,0 +1,57 @@
+// Harbor — светлая для Go и Rust. Не белая: тёплая серая бумага, бирюза гофера акцентом. Те же правила, что у
+// тёмных: интерфейсы и трейты — курсивом, lifetime — лиловым курсивом, mut — тихим подчёркиванием, go и ? — акцентом.
+{
+  "name": "Harbor",
+  "type": "light",
+  "palette": {
+    "bg": "#eeece6",
+    "bg_alt": "#eeece6",
+    "bg_highlight": "#e5e2da",
+    "bg_visual": "#d2dae2",
+    "border": "#d8d4ca",
+    "fg": "#3b4048",
+    "fg_dim": "#5d636c",
+    "fg_muted": "#9a978f",
+    "accent": "#1a6b82",
+    "red": "#b0504b",
+    "orange": "#93582a",
+    "yellow": "#7a6219",
+    "green": "#42693a",
+    "cyan": "#1a6b82",
+    "blue": "#3a63a4",
+    "purple": "#7054a3",
+    "pink": "#9c4d76"
+  },
+  "syntax": {
+    "comment": { "fg": "#86827a", "italic": true },
+    "keyword": "purple",
+    "function": "blue",
+    "string": "green",
+    "type": "cyan",
+    "interface": { "fg": "cyan", "italic": true },
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "builtin": "pink",
+    "macro": "pink",
+    "variable": "fg",
+    "parameter": "#6b5536",
+    "property": "#4c5f70",
+    "namespace": "fg_dim",
+    "operator": "#6d6a64",
+    "punctuation": "#8a8780",
+    "attribute": "yellow",
+    "escape": "pink"
+  },
+  "groups": {
+    "@keyword.coroutine": { "fg": "accent", "bold": true },
+    "@character.printf": "pink",
+    "@variable.builtin": { "fg": "pink", "italic": true },
+    "@lsp.type.selfKeyword": { "fg": "pink", "italic": true },
+    "@lsp.type.lifetime": { "fg": "purple", "italic": true },
+    "@lsp.typemod.variable.mutable": { "underline": true, "sp": "#b5b0a4" },
+    "@lsp.typemod.parameter.mutable": { "underline": true, "sp": "#b5b0a4" },
+    "@lsp.typemod.operator.controlFlow": { "fg": "accent", "bold": true },
+    "@lsp.mod.unsafe": "red"
+  }
+}

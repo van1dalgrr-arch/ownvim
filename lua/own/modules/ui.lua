@@ -173,6 +173,15 @@ end
 -- стартовый экран из раздела "dashboard": header, buttons (do — действие из keys, :команда или клавиши), sections
 local function dashboard()
   local d = (settings.current or {}).dashboard or {}
+  -- "home" — новый экран: приветствие, проекты с git, недавние файлы, сегодня, совет (lua/own/dashboard.lua)
+  if (d.style or "home") == "home" then
+    local home = require("own.dashboard")
+    return {
+      width = 96,
+      preset = { keys = {} },
+      sections = { function(self) dash_colors(); return home.section(self) end, home.keys(d.buttons or {}) },
+    }
+  end
   local keys = {}
   for _, b in ipairs(d.buttons or {}) do
     local what = b["do"] or ""
@@ -217,7 +226,11 @@ local function messages()
   local want = ((settings.current or {}).appearance or {}).messages ~= "classic"
   local ok, ui2 = pcall(require, "vim._core.ui2")
   if not ok or M.ui2 == want then return end
-  if want or M.ui2 ~= nil then pcall(ui2.enable, { enable = want }) end
+  -- без строки команд ("cmdheight": 0) сообщения всплывают окошком в углу и гаснут — статус не перекрывают
+  local hidden = ((settings.current or {}).options or {}).cmdheight == 0
+  if want or M.ui2 ~= nil then
+    pcall(ui2.enable, { enable = want, msg = { target = hidden and "msg" or "cmd", msg = { timeout = 3500 } } })
+  end
   M.ui2 = want
 end
 
@@ -234,11 +247,22 @@ function M.plugins() return {
       quickfile = { enabled = true },
       notifier = { enabled = true },
       input = { enabled = true },
-      indent = { enabled = true, animate = { enabled = false } },
+      -- линии отступа: "all" — у всех блоков, "scope" — только у блока, где курсор (тише), "none" — без линий
+      indent = (function()
+        local g = ((settings.current or {}).appearance or {}).indent_guides or "all"
+        -- scope: линий отступа нет вовсе, светится одна — у блока под курсором
+        return { enabled = g ~= "none", animate = { enabled = false }, indent = { enabled = g ~= "scope" } }
+      end)(),
       scope = { enabled = true },
       words = { enabled = true },
       statuscolumn = { enabled = true },
       dim = { animate = { enabled = false } },
+      -- zen (пробел u z): колонка кода по центру, вокруг — пусто цветом фона; без затемнения кода вне блока
+      zen = {
+        toggles = { dim = false, git_signs = false },
+        -- фон вокруг колонки — 99% цвета кода: панелей не видно, но и тёмной вуали нет
+        win = { width = 110, backdrop = { transparent = false, blend = 99 } },
+      },
       dashboard = dashboard(),
     },
     config = function(_, opts)

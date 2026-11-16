@@ -1,45 +1,31 @@
-// Ink — тушь: почти чёрно-синий, сине-серый текст и один красный штрих
+// Ink — тёмная бумага и чернила. Под каллиграфический курсив (Victor Mono): комментарии и ключевые слова чуть ярче
+// обычного, чтобы завитки читались; остальное — приглушённые чернильные тона. Для Go и Rust — как у oxide.
 {
   "name": "Ink",
   "type": "dark",
   "palette": {
-    "bg": "#0b0d12",
-    "bg_alt": "#0f1218",
-    "bg_highlight": "#13171f",
-    "bg_visual": "#1f2a40",
-    "border": "#1f2430",
-    "fg": "#c8d0e0",
-    "fg_dim": "#939cb2",
-    "fg_muted": "#555d72",
-    "accent": "#e5484d",
-    "red": "#e5484d",
-    "orange": "#c98a5a",
-    "yellow": "#c9b27a",
-    "green": "#8fae96",
-    "cyan": "#7fb0c0",
-    "blue": "#7f9cd0",
-    "purple": "#9a94c8",
-    "pink": "#c088a8"
+    "bg": "#131519", "bg_alt": "#131519", "bg_highlight": "#191c21", "bg_visual": "#262c38", "border": "#21252c",
+    "fg": "#cdd0d6", "fg_dim": "#9a9fa9", "fg_muted": "#5b616c", "accent": "#8fa8d8",
+    "red": "#d99090", "orange": "#d6a681", "yellow": "#d4c08e", "green": "#9fbf9a", "cyan": "#8fbcc4",
+    "blue": "#8fa8d8", "purple": "#b0a0d8", "pink": "#d0a0c0"
   },
   "syntax": {
-    "comment": {
-      "fg": "fg_muted",
-      "italic": true
-    },
-    "variable": "fg",
-    "keyword": "accent",
-    "function": "fg",
-    "string": "green",
-    "type": "blue",
-    "number": "orange",
-    "constant": "orange",
-    "boolean": "orange",
-    "property": "#aab4cc",
-    "attribute": "#aab4cc",
-    "operator": "fg_dim",
-    "punctuation": "#646c82",
-    "builtin": "red",
-    "parameter": "#b8c0d2",
-    "namespace": "fg_dim"
+    "comment": { "fg": "#8c8478", "italic": true },
+    "keyword": { "fg": "#a9b5e0", "italic": true },
+    "function": "#d8cfb8", "string": "green", "type": "cyan", "interface": { "fg": "cyan", "italic": true },
+    "number": "orange", "constant": "orange", "boolean": "orange", "builtin": "purple", "macro": "pink",
+    "variable": "fg", "parameter": "#d4c9b4", "property": "#aebbc8", "namespace": "fg_dim",
+    "operator": "#808794", "punctuation": "#626a76", "attribute": "#727985", "escape": "pink"
+  },
+  "groups": {
+    "@keyword.coroutine": { "fg": "accent", "bold": true, "italic": true },
+    "@character.printf": "pink",
+    "@variable.builtin": { "fg": "purple", "italic": true },
+    "@lsp.type.selfKeyword": { "fg": "purple", "italic": true },
+    "@lsp.type.lifetime": { "fg": "purple", "italic": true },
+    "@lsp.typemod.variable.mutable": { "underline": true, "sp": "#3d434e" },
+    "@lsp.typemod.parameter.mutable": { "underline": true, "sp": "#3d434e" },
+    "@lsp.typemod.operator.controlFlow": { "fg": "accent", "bold": true },
+    "@lsp.mod.unsafe": "red"
   }
 }

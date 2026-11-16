@@ -108,7 +108,8 @@ M.list = {
   ["buffer.delete"] = { function() Snacks.bufdelete() end, "Закрыть буфер" },
   ["buffer.others"] = { function() Snacks.bufdelete.other() end, "Закрыть остальные буферы" },
   ["window.zoom"] = { toggle(function() return Snacks.toggle.zoom() end), "Окно на весь экран" },
-  zen = { toggle(function() return Snacks.toggle.zen() end), "Zen: только код" },
+  -- без уведомления «Enabled Zen Mode»: пустота и так видна
+  zen = { toggle(function() local t = Snacks.toggle.zen(); t.opts.notify = false; return t end), "Zen: только код" },
   quiet = { function() require("own.modules.quiet").toggle() end, "Тихий режим: убрать всё, что отвлекает" },
   terminal = { function() Snacks.terminal() end, "Терминал (папка запуска)" },
   ["terminal.root"] = { function() Snacks.terminal(nil, { cwd = root.get() }) end, "Терминал (проект)" },

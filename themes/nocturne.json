@@ -1,0 +1,58 @@
+// Nocturne — тишина. Почти монохром: знаки уходят в серый, ключевые слова — тихой сиренью, цветом остаются только функции,
+// типы, строки и числа. Тёмный уголок, где видно сам код, а не раскраску. Для Go и Rust: lifetime — лиловым
+// курсивом, mut — едва заметным подчёркиванием, go / defer и ? — чуть ярче остального.
+{
+  "name": "Nocturne",
+  "type": "dark",
+  "palette": {
+    "bg": "#131417",
+    "bg_alt": "#131417",
+    "bg_highlight": "#18191d",
+    "bg_visual": "#2a2d36",
+    "border": "#202227",
+    "fg": "#c3c5cc",
+    "fg_dim": "#9295a0",
+    "fg_muted": "#565963",
+    "accent": "#a9b8d9",
+    "red": "#d39a9a",
+    "orange": "#dbab86",
+    "yellow": "#cfc29a",
+    "green": "#a6c69c",
+    "cyan": "#92c3c4",
+    "blue": "#9fb6e0",
+    "purple": "#b7aed4",
+    "pink": "#cfaabf"
+  },
+  "syntax": {
+    "comment": { "fg": "#666a76", "italic": true },
+    "keyword": "#9a9cc4",
+    "function": "blue",
+    "string": "#aac89f",
+    "type": "cyan",
+    "interface": { "fg": "cyan", "italic": true },
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "builtin": "#b8a6cf",
+    "macro": "purple",
+    "variable": "fg",
+    "parameter": "#d6ccb8",
+    "property": "#a9bccb",
+    "namespace": "#8a93a6",
+    "operator": "#7c808c",
+    "punctuation": "#5f6370",
+    "attribute": "#6b6f7a",
+    "escape": "pink"
+  },
+  "groups": {
+    "@keyword.coroutine": "accent",
+    "@character.printf": "pink",
+    "@lsp.type.lifetime": { "fg": "purple", "italic": true },
+    "@lsp.typemod.variable.mutable": { "underline": true, "sp": "#3a3d47" },
+    "@lsp.typemod.parameter.mutable": { "underline": true, "sp": "#3a3d47" },
+    "@lsp.typemod.operator.controlFlow": { "fg": "fg", "bold": true },
+    "@lsp.mod.unsafe": "red",
+    "@lsp.type.attribute": "#6b6f7a",
+    "@lsp.type.derive": "#6b6f7a"
+  }
+}

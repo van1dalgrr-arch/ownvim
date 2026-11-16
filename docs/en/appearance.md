@@ -166,6 +166,19 @@ icons, so icon themes are ownvim's own, in JSON.
 "font": { "family": "Geist Mono", "size": 15, "ligatures": false, "line_height": "10%", "features": ["ss01", "zero"] },
 ```
 
+Italics can come from another font: comments and keywords (`"appearance": { "italic": [...] }`) are drawn in
+calligraphy while the code stays plain. The most luxurious pair is Monaspace Xenon with book serifs and Victor Mono
+italics with loops on r, s, k, f:
+
+```jsonc
+"font": {
+  "family": "Monaspace Xenon",
+  "italic": { "family": "Victor Mono", "style": "SemiBold Italic", "bold_style": "Bold Italic" },
+  "line_height": "24%",
+},
+"appearance": { "padding": { "x": 28, "y": 16 } },   // window padding: air around the code
+```
+
 In a terminal the font belongs to the terminal, so ownvim writes it to `~/.config/ghostty/ownvim.ghostty` and asks
 Ghostty to reload — it is the font of every Ghostty window. `:Font` — pick an installed font, `:FontInstall Geist Mono` —
 install one (brew: Google Fonts and Nerd Fonts) and activate it.
@@ -208,6 +221,17 @@ Tabs work like VS Code: icon, name, `●` when unsaved, a close button; click to
 `shift-h` / `shift-l` — the neighbor. Breadcrumbs: folder › file › type › function under the cursor, for any language.
 
 ## Start screen
+
+The default `"style": "home"` shows everything useful at once:
+
+- a gradient logo and a greeting for the time of day;
+- **Projects** from recent files: branch, changed files, unpushed commits and the time of the last commit.
+  Keys `1`…`5` switch to a project and restore its session (or pick a file);
+- **Recent files** with project, folder and edit time, keys `6`…`0`;
+- **Start** (your `"buttons"`) and **Today** (startup time, theme, evening mode, eye breaks);
+- a tip of the day.
+
+Two columns on a wide window, one on a narrow one. `"style": "classic"` brings back the previous screen:
 
 ```jsonc
 "dashboard": {
@@ -265,7 +289,22 @@ The `soft` module works on top of any theme, JSON or plugin:
 - **20-20-20 for eyes**: every 20 minutes a quiet hint to look into the distance for 20 seconds (`👁 0:20` in the status
   line). After 50 minutes it suggests a break.
 - Scrolling starts fast and stops softly (`"easing": "outQuad"`).
+- **Quieter screen**: `"appearance": { "indent_guides": "scope" }` draws a single line for the block under the cursor
+  instead of every indent guide; `"error_lens": { "only_cursor": true }` shows diagnostic text only on the cursor line.
+- **Even emptier**: `"options": { "cmdheight": 0 }` removes the command line; `:` opens in a centered frame and messages
+  pop up in a corner and fade without covering the status line. `"cursorlineopt": "number"` drops the cursor line
+  background, only the ❯ number glows. `"tabline": { "show": "auto" }` shows tabs only with two files or more.
+  `"appearance": { "padding": { "x": 28, "y": 16 } }` adds Ghostty window padding.
+- **Zen** (`space u z`): a 110-column code column in the center, empty background around it, no dimming.
 - **velvet** (dark) and **linen** (light) themes: pastel colors of equal brightness.
+- **Themes for Go and Rust** color what matters in these languages, using gopls and rust-analyzer semantics:
+  lifetimes `'a` in lilac italics, mutable variables (`mut`) with a quiet underline as in RustRover, `?` in the accent
+  color (where a function can return early), macros apart from functions, traits and interfaces in italics,
+  `go` / `defer` in the accent color, `%v` / `%d` inside `Printf` in their own color.
+  - **gopher**: dark, cool slate and gopher teal; keywords are calm steel, calls are warm;
+  - **oxide**: dark, warm charcoal and rust copper; `fn` / `let` / `impl` in copper, types in amber;
+  - **nocturne**: almost monochrome; keywords and punctuation fade to gray, only functions, types and strings have color;
+  - **harbor**: light, warm gray paper instead of white.
 
 ## Animations
 

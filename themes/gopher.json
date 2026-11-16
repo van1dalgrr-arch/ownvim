@@ -1,0 +1,57 @@
+// Gopher — для Go. Холодный сланец, бирюза гофера акцентом. Ключевых слов в Go много (func, if err != nil,
+// return) — они спокойного стального цвета и не шумят; вызовы функций тёплые и сразу видны. Интерфейсы — курсивом,
+// go и defer — акцентом: где начинается конкурентность, видно с первого взгляда. %v и %d в Printf подсвечены.
+{
+  "name": "Gopher",
+  "type": "dark",
+  "palette": {
+    "bg": "#14181d",
+    "bg_alt": "#14181d",
+    "bg_highlight": "#1a1f26",
+    "bg_visual": "#233140",
+    "border": "#232a33",
+    "fg": "#c5ccd3",
+    "fg_dim": "#9aa4ae",
+    "fg_muted": "#5d6773",
+    "accent": "#6cc3d5",
+    "red": "#e0918f",
+    "orange": "#e3a87e",
+    "yellow": "#d9c48e",
+    "green": "#9fc9a2",
+    "cyan": "#6cc3d5",
+    "blue": "#8fb4e6",
+    "purple": "#b3a6e3",
+    "pink": "#d9a3c4"
+  },
+  "syntax": {
+    "comment": { "fg": "#6a7480", "italic": true },
+    "keyword": "#88aed0",
+    "function": "#e2cfa0",
+    "string": "#a6c9a0",
+    "type": "cyan",
+    "interface": { "fg": "cyan", "italic": true },
+    "number": "orange",
+    "constant": "orange",
+    "boolean": "orange",
+    "builtin": "purple",
+    "variable": "fg",
+    "parameter": "#d4c9b4",
+    "property": "#a9c1cf",
+    "namespace": "fg_dim",
+    "operator": "#8d98a4",
+    "punctuation": "#6f7a86",
+    "attribute": "#7f8995",
+    "macro": "pink",
+    "escape": "pink"
+  },
+  "groups": {
+    "@keyword.coroutine": { "fg": "accent", "bold": true },
+    "@type.builtin": "#83bccb",
+    "@constant.builtin": "purple",
+    "@character.printf": "pink",
+    "@lsp.type.lifetime": { "fg": "purple", "italic": true },
+    "@lsp.typemod.variable.mutable": { "underline": true, "sp": "#3a4450" },
+    "@lsp.typemod.operator.controlFlow": { "fg": "accent", "bold": true },
+    "@lsp.mod.unsafe": "red"
+  }
+}

@@ -3,7 +3,9 @@
 -- Встроенный текст ошибок — выключается.
 -- Настройки модуля: { "preset": "frame" | "modern" | "classic" | "minimal" | "ghost" | "simple" | "nonerdfont" | "amongus",
 --   "frame" — рамкой, как всё в ownvim: ──[  undefined: foo ]  (значок — из diagnostics.signs, без плашки)
---                     "all_on_cursorline": true, "break_after": 60, "insert": true }
+--                     "all_on_cursorline": true, "break_after": 60, "insert": true,
+--                     "only_cursor": false — текст ошибки только на строке с курсором (в остальных — значок и подчёркивание),
+--                     "severity": ["error", "warn", "info", "hint"] — какие уровни показывать текстом }
 local M = {}
 
 -- пресет «frame» — поверх «minimal» плагина: свои края и значки уровня из diagnostics.signs
@@ -31,6 +33,8 @@ function M.plugins(opts)
           multilines = { enabled = true, always_show = false },
           enable_on_insert = opts.insert ~= false,
           show_all_diags_on_cursorline = opts.all_on_cursorline ~= false,
+          show_diags_only_under_cursor = opts.only_cursor == true,
+          severity = opts.severity and vim.tbl_map(function(s) return vim.diagnostic.severity[tostring(s):upper()] end, opts.severity) or nil,
           break_line = { enabled = true, after = opts.break_after or 60 },
         },
       },

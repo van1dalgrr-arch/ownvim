@@ -1,6 +1,8 @@
 -- Шрифт из settings.jsonc — в Ghostty (сам nvim в терминале шрифт не задаёт). Раздел "font":
 --   "family": "JetBrains Mono", "size": 14, "ligatures": true, "line_height": "10%", "thicken": false,
---   "features": ["ss01", "zero"] — свои OpenType-фичи
+--   "features": ["ss01", "zero"] — свои OpenType-фичи,
+--   "italic": "Victor Mono" | { "family", "style", "bold_style" } — курсив другим шрифтом
+--   (appearance.padding = { x, y } — поля окна Ghostty)
 -- ownvim пишет ~/.config/ghostty/ownvim.ghostty и просит Ghostty перечитать конфиг. В основном конфиге Ghostty
 -- должна быть строка config-file = ?ownvim.ghostty (dotfiles её содержат; иначе ownvim добавит её сам).
 -- Там же — поля окна (appearance.terminal_edges): window-padding-color = extend, фон редактора до самых краёв.
@@ -54,6 +56,17 @@ function M.apply()
     lines[#lines + 1] = 'font-family = ""' -- сбросить список из основного конфига
     lines[#lines + 1] = "font-family = " .. f.family
   end
+  -- курсив другим шрифтом (комментарии и ключевые слова — курсивом): "italic": "Victor Mono" или
+  -- { "family": "Victor Mono", "style": "SemiBold Italic", "bold_style": "Bold Italic" }
+  local it = type(f.italic) == "string" and { family = f.italic } or f.italic
+  if type(it) == "table" and it.family then
+    lines[#lines + 1] = 'font-family-italic = ""'
+    lines[#lines + 1] = "font-family-italic = " .. it.family
+    lines[#lines + 1] = 'font-family-bold-italic = ""'
+    lines[#lines + 1] = "font-family-bold-italic = " .. it.family
+    if it.style then lines[#lines + 1] = "font-style-italic = " .. it.style end
+    if it.bold_style then lines[#lines + 1] = "font-style-bold-italic = " .. it.bold_style end
+  end
   if f.size then lines[#lines + 1] = "font-size = " .. f.size end
   if f.ligatures == false then
     for _, feat in ipairs({ "-calt", "-liga", "-dlig" }) do lines[#lines + 1] = "font-feature = " .. feat end
@@ -64,6 +77,20 @@ function M.apply()
   -- поля окна — цветом ближайшей клетки: вокруг редактора нет рамки фона терминала, строка статуса — до низа окна
   local edges = ((settings.current or {}).appearance or {}).terminal_edges
   if edges ~= nil then lines[#lines + 1] = "window-padding-color = " .. (edges and "extend" or "background") end
+  -- воздух вокруг кода: "padding": { "x": 28, "y": 16 } — поля окна Ghostty, поровну со всех сторон
+  local pad = ((settings.current or {}).appearance or {}).padding
+  if type(pad) == "table" then
+    if pad.x then lines[#lines + 1] = "window-padding-x = " .. pad.x end
+    if pad.y then lines[#lines + 1] = "window-padding-y = " .. pad.y end
+    lines[#lines + 1] = "window-padding-balance = true"
+  end
+  -- любые строки конфига Ghostty: "ghostty": { "adjust-underline-position": 3 }
+  local raw = ((settings.current or {}).appearance or {}).ghostty
+  if type(raw) == "table" then
+    local keys = vim.tbl_keys(raw)
+    table.sort(keys)
+    for _, k in ipairs(keys) do lines[#lines + 1] = k .. " = " .. tostring(raw[k]) end
+  end
   local text = table.concat(lines, "\n") .. "\n"
   if text == last then return end
   last = text

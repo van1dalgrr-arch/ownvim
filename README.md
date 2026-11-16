@@ -43,9 +43,9 @@ one JSON file, no Lua. It's made so you can comfortably sit in front of it for f
   - Without code: a JSONC bundle (`:PluginNew`) with keys, tasks, and your own checks with errors on lines.
   - In Go: everything built-in features can do (`:GoExtensionNew`): commands, completion items, `K` docs, fixes,
     panels; save and it works.
-- **Good-looking.** 36 built-in themes plus popular VS Code themes; install any Marketplace theme with
-  `:ThemeInstall`. Folder icons by meaning, prompt-style frames, status line and tabs built from JSON, Error Lens and
-  Sticky Scroll.
+- **Good-looking.** 41 built-in themes (gopher, oxide, nocturne, ink and harbor are tuned for Go and Rust) plus popular
+  VS Code themes; install any Marketplace theme with `:ThemeInstall`. Folder icons by meaning, prompt-style frames,
+  status line and tabs built from JSON, Error Lens and Sticky Scroll.
 - **In VS Code too.** `vscode/` is a separate VS Code install with the same keys (`space r x`, `space r m`…) and its own
   extension: ▶, SQL from migrations, Docker, endpoints. It doesn't touch your main VS Code.
 

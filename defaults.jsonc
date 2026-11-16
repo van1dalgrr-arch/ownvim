@@ -113,7 +113,10 @@
       { "key": "l", "icon": "\uf487", "desc": "Плагины", "do": ":Lazy" },
       { "key": "q", "icon": "\uf426", "desc": "Выйти", "do": ":qa" },
     ],
-    "sections": ["header", "info", "buttons", "project"],
+    // "home" — приветствие, проекты (ветка, изменения, когда работал), недавние файлы, «сегодня», совет дня;
+    // кнопки — слева, проекты — клавиши 1…5, файлы — 6…0. "classic" — прежний экран из "header" и "sections"
+    "style": "home",
+    "sections": ["header", "info", "buttons", "project"], // для "classic"
     "recent": 5,
     "projects": 5,
     "intro": true, // при запуске без файла — дождь знаков цветами темы на миг (intro_ms, 400), потом экран
@@ -126,6 +129,8 @@
   // :Font — выбрать из установленных, :FontInstall Geist Mono — поставить (brew / Nerd Fonts) и включить.
   //   "family": "JetBrains Mono", "size": 14, "ligatures": true, "line_height": "10%", "thicken": false,
   //   "features": ["ss01", "zero"] — OpenType-фичи шрифта
+  //   "italic": "Victor Mono" | { "family": "Victor Mono", "style": "SemiBold Italic", "bold_style": "Bold Italic" } —
+  //   курсив (комментарии, ключевые слова) другим шрифтом: каллиграфия с завитками поверх строгого основного
   "font": {},
 
   // Плавность, как в VS Code — каждое отдельно, на лету
@@ -164,6 +169,8 @@
   // Вид
   "appearance": {
     "transparent": false, // фон из терминала (размытие Ghostty видно сквозь редактор)
+    // "padding": { "x": 28, "y": 16 } — поля окна Ghostty: воздух вокруг кода (без ключа — как в конфиге Ghostty)
+    // "ghostty": { "adjust-underline-position": 3 } — любые строки конфига Ghostty (пишутся в ownvim.ghostty)
     "terminal_edges": true, // Ghostty: поля окна — цветом редактора, без рамки фона терминала по краям (window-padding-color)
     "messages": "modern", // "modern" — длинные сообщения сворачиваются в [+3] без «Press ENTER» (g< — все); "classic" — как в старом vim
     // курсив поверх любой темы (буквы JetBrains Mono в курсиве — с хвостиками, как f в tokyonight):
@@ -181,6 +188,7 @@
     "project_toast": true, // открыл проект — на пару секунд: ветка, ↑ не запушено, сколько файлов изменено
     "cmdline": "center", // : и / — по центру в рамке ╭─[  команда ]─╮; "bottom" — внизу, как в vim
     "number_fade": true, // номера строк дальше от курсора — бледнее
+    "indent_guides": "all", // линии отступа: "all" — у всех блоков, "scope" — только у блока под курсором, "none" — без линий
     "jump_flash": true, // прыгнул (gd, поиск, ctrl-o, другой файл) — строка на миг подсвечена акцентом
   },
 
@@ -440,8 +448,9 @@
             "procMacro": { "enable": true },
             "imports": { "granularity": { "group": "module" }, "prefix": "crate" },
             "completion": { "fullFunctionSignatures": { "enable": true }, "postfix": { "enable": true } },
+            // над кодом — только «N implementations» у типов и трейтов; «N references» над каждой функцией — шум
             "lens": { "enable": true, "run": { "enable": false }, "debug": { "enable": false }, "implementations": { "enable": true },
-              "references": { "trait": { "enable": true } } },
+              "references": { "adt": { "enable": false }, "enumVariant": { "enable": false }, "method": { "enable": false }, "trait": { "enable": false } } },
             "inlayHints": {
               "parameterHints": { "enable": false },
               "closingBraceHints": { "minLines": 30 },

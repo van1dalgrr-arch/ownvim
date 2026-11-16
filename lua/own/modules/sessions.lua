@@ -41,6 +41,9 @@ function M.save()
   vim.o.sessionoptions = saved
 end
 
+--- Есть ли сохранённая сессия у папки
+function M.exists(dir) return vim.uv.fs_stat(file_for(dir)) ~= nil end
+
 function M.load(file)
   file = file or file_for()
   if not vim.uv.fs_stat(file) then return vim.notify("для этой папки сессии нет", vim.log.levels.WARN) end
