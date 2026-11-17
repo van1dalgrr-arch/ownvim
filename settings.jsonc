@@ -8,7 +8,7 @@
 {
   // Комфорт на долгие сессии (5+ часов): мягкие темы, тише цвета, тёплый вечер, больше воздуха между строками.
   // Вернуть как было — "theme": {"dark":"github_dark_default","light":"dev-day"} и удалить раздел "soft" ниже.
-  "theme": {"dark":"nocturne","light":"oxocarbon"},
+  "theme": {"dark":"sakura","light":"oxocarbon"},
   "soft": {
     // без фильтра: цвета ровно как в теме, без пастели и притемнения. Вернуть мягкость — "enabled": true
     "filter": { "enabled": false },
@@ -39,9 +39,11 @@
     // + буквы сглажены мягче (linear-corrected): тонкие штрихи курсива не рвутся, светлое на тёмном не «звенит»
     "ghostty": { "adjust-underline-position": 3, "alpha-blending": "linear-corrected" },
   },
-  "tabline": { "show": "auto" }, // вкладки — только когда открыто больше одного файла; запуск — пробел r r
+  // вкладки всегда: справа вверху «▶ api» — конфигурация запуска Go, как в GoLand ("auto" — только при 2+ файлах)
+  "tabline": { "show": "always" },
   "lsp": {
-    "inlay_hints": { "enabled": false }, // типы серым внутри кода — по пробел u h, когда нужны
+    // типы и имена параметров серым — только в Go (gopls), как в GoLand; в остальных языках тихо (пробел u h — вкл)
+    "inlay_hints": { "enabled": true, "exclude": ["rust", "lua", "python", "javascript", "typescript", "typescriptreact", "c", "cpp", "sql"] },
   },
   "statusline": {
     "left": ["panels", "problems", "branch"], // без diff и имени языкового сервера

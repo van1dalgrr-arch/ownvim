@@ -63,8 +63,23 @@ function M.plugins()
   }
 end
 
+-- форматтер не смог (в коде ошибка синтаксиса — gofmt и любой другой такой файл не трогают): одно короткое
+-- сообщение «где», без простыни лога; та же ошибка повторно не всплывает, после удачного формата — снова можно
+local function report(buf, err)
+  if not err then vim.b[buf].own_format_err = nil return end
+  local msg = tostring(err)
+  local line, text = msg:match("<standard input>:(%d+):%d+: ([^\n]+)")
+  local short = line and ("строка %s: %s"):format(line, text) or msg:match("[^\n]+")
+  if vim.b[buf].own_format_err == short then return end
+  vim.b[buf].own_format_err = short
+  vim.notify("не отформатировал — в коде ошибка, " .. short, vim.log.levels.WARN, { title = "Формат" })
+end
+
 function M.format(buf, quiet)
-  require("conform").format(vim.tbl_extend("force", format_opts(), { bufnr = buf or 0, quiet = quiet }))
+  buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
+  require("conform").format(vim.tbl_extend("force", format_opts(), { bufnr = buf, quiet = true }), function(err)
+    if vim.api.nvim_buf_is_valid(buf) then report(buf, err) end
+  end)
 end
 
 function M.setup()

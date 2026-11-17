@@ -1,0 +1,31 @@
+// Quill — тёмная бумага и чернила. Под каллиграфический курсив (Victor Mono): комментарии и ключевые слова чуть ярче
+// обычного, чтобы завитки читались; остальное — приглушённые чернильные тона. Для Go и Rust — как у oxide.
+{
+  "name": "Quill",
+  "type": "dark",
+  "palette": {
+    "bg": "#131519", "bg_alt": "#131519", "bg_highlight": "#191c21", "bg_visual": "#262c38", "border": "#21252c",
+    "fg": "#cdd0d6", "fg_dim": "#9a9fa9", "fg_muted": "#5b616c", "accent": "#8fa8d8",
+    "red": "#d99090", "orange": "#d6a681", "yellow": "#d4c08e", "green": "#9fbf9a", "cyan": "#8fbcc4",
+    "blue": "#8fa8d8", "purple": "#b0a0d8", "pink": "#d0a0c0"
+  },
+  "syntax": {
+    "comment": { "fg": "#8c8478", "italic": true },
+    "keyword": { "fg": "#a9b5e0", "italic": true },
+    "function": "#d8cfb8", "string": "green", "type": "cyan", "interface": { "fg": "cyan", "italic": true },
+    "number": "orange", "constant": "orange", "boolean": "orange", "builtin": "purple", "macro": "pink",
+    "variable": "fg", "parameter": "#d4c9b4", "property": "#aebbc8", "namespace": "fg_dim",
+    "operator": "#808794", "punctuation": "#626a76", "attribute": "#727985", "escape": "pink"
+  },
+  "groups": {
+    "@keyword.coroutine": { "fg": "accent", "bold": true, "italic": true },
+    "@character.printf": "pink",
+    "@variable.builtin": { "fg": "purple", "italic": true },
+    "@lsp.type.selfKeyword": { "fg": "purple", "italic": true },
+    "@lsp.type.lifetime": { "fg": "purple", "italic": true },
+    "@lsp.typemod.variable.mutable": { "underline": true, "sp": "#3d434e" },
+    "@lsp.typemod.parameter.mutable": { "underline": true, "sp": "#3d434e" },
+    "@lsp.typemod.operator.controlFlow": { "fg": "accent", "bold": true },
+    "@lsp.mod.unsafe": "red"
+  }
+}
